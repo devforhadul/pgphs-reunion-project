@@ -30,10 +30,10 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <PaymentDashboard />,
       },
-      {
-        path: "admin",
-        element: <AdminPanel />,
-      },
+      // {
+      //   path: "admin",
+      //   element: <AdminPanel />,
+      // },
     ],
   },
 ]);

@@ -1,53 +1,76 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect } from "react";
 // import { useApp } from '../context/AppContext';
-import {
-  formatCurrency,
-  formatDate,
-} from '../utils/helpers';
-import type { Payment } from '../types';
+import { formatCurrency, formatDate } from "../utils/helpers";
+// import type { Payment } from "../types";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase/firebase.init";
+import type { RegistrationData } from "@/types";
 
 export const PaymentDashboard = () => {
-  const location = useLocation();
-  const { payments } = useApp();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterMethod, setFilterMethod] = useState<string>('all');
+  // const location = useLocation();
+  const [payments, setPayments] = useState<RegistrationData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterMethod, setFilterMethod] = useState<string>("all");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Show success message if coming from payment
   useEffect(() => {
-    if (location.state?.paymentSuccess) {
-      setShowSuccessMessage(true);
-      setTimeout(() => setShowSuccessMessage(false), 5000);
-    }
-  }, [location.state]);
+    const getAllPayments = async () => {
+      const snapshot = await getDocs(
+        collection(db, "pgphs_ru_reqisterd_users")
+      );
 
-  
+      // const allData = snapshot.docs.map((doc) => ({
+      //   id: doc.id,
+      //   ...doc.data(),
+      // }));
 
-  const filteredPayments = useMemo(() => {
-    return payments.filter((payment) => {
-      const matchesSearch =
-        payment.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.id.toLowerCase().includes(searchTerm.toLowerCase());
+      const allData: RegistrationData[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as RegistrationData),
+      }));
+      setPayments(allData);
 
-      const matchesStatus = filterStatus === 'all' || payment.status === filterStatus;
-      const matchesMethod =
-        filterMethod === 'all' || payment.paymentMethod === filterMethod;
+      console.log("All Data:", allData);
+    };
 
-      return matchesSearch && matchesStatus && matchesMethod;
-    });
-  }, [payments, searchTerm, filterStatus, filterMethod]);
+    getAllPayments();
 
-  const totalAmount = useMemo(() => {
-    return filteredPayments.reduce((sum, payment) => sum + payment.amount, 0);
-  }, [filteredPayments]);
+    // if (location.state?.paymentSuccess) {
+    //   setShowSuccessMessage(true);
+    //   setTimeout(() => setShowSuccessMessage(false), 5000);
+    // }
+  });
 
-  const getStatusBadge = (status: Payment['status']) => {
+  // const filteredPayments = useMemo(() => {
+  //   return payments.filter((payment) => {
+  //     const matchesSearch =
+  //       payment.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       payment.id.toLowerCase().includes(searchTerm.toLowerCase());
+
+  //     const matchesStatus =
+  //       filterStatus === "all" || payment.status === filterStatus;
+  //     const matchesMethod =
+  //       filterMethod === "all" || payment.paymentMethod === filterMethod;
+
+  //     return matchesSearch && matchesStatus && matchesMethod;
+  //   });
+  // }, [payments, searchTerm, filterStatus, filterMethod]);
+
+  // const totalAmount = useMemo(() => {
+  //   return filteredPayments.reduce((sum, payment) => sum + payment.amount, 0);
+  // }, [filteredPayments]);
+
+  const getStatusBadge = (status: string) => {
     const styles = {
-      completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-      pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-      failed: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+      completed:
+        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      verifying:
+        "bg-green-100 text-blue-800 dark:bg-green-900/30 dark:text-green-400",
+      pending:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      failed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
     };
 
     return (
@@ -73,9 +96,11 @@ export const PaymentDashboard = () => {
           </div>
           <div className="mt-4 md:mt-0">
             <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Collected</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Total Collected
+              </p>
               <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                {formatCurrency(totalAmount)}
+                {100}
               </p>
             </div>
           </div>
@@ -90,7 +115,7 @@ export const PaymentDashboard = () => {
         )}
 
         {/* Search and Filters */}
-        <div className="mb-6 space-y-4">
+        {/* <div className="mb-6 space-y-4">
           <div>
             <input
               type="text"
@@ -132,11 +157,11 @@ export const PaymentDashboard = () => {
               </select>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Payments Table */}
         <div className="overflow-x-auto">
-          {filteredPayments.length === 0 ? (
+          {payments.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">
                 No payments found matching your criteria.
@@ -147,10 +172,10 @@ export const PaymentDashboard = () => {
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Payment ID
+                    Registration ID ®
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    User Name
+                    Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Amount
@@ -167,43 +192,44 @@ export const PaymentDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredPayments.map((payment) => (
+                {payments.map((payment, idx) => (
                   <tr
-                    key={payment.id}
+                    key={idx}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-mono text-gray-900 dark:text-white">
-                        {payment.id.slice(0, 8)}...
+                        {/* {payment.id.slice(0, 8)}... */}
+                        {payment.reg_id}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {payment.userName}
+                        {payment.fullName}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {formatCurrency(payment.amount)}
+                        {formatCurrency(payment.payment.amount)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-                        {payment.paymentMethod === 'bkash-manual'
-                          ? 'bKash (Manual)'
-                          : payment.paymentMethod === 'rocket-manual'
-                            ? 'Rocket (Manual)'
-                            : payment.paymentMethod === 'nagad-manual'
-                              ? 'Nagad (Manual)'
-                              : payment.paymentMethod.replace('-', ' ')}
+                        {payment.payment.paymentMethod === "bkash-manual"
+                          ? "bKash (Manual)"
+                          : payment.payment.paymentMethod === "rocket-manual"
+                          ? "Rocket (Manual)"
+                          : payment.payment.paymentMethod === "nagad-manual"
+                          ? "Nagad (Manual)"
+                          : payment.payment.paymentMethod.replace("-", " ")}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(payment.status)}
+                      {getStatusBadge(payment.payment.status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {formatDate(payment.paymentDate)}
+                        {/* formatDate */ payment.payment.paidAt}
                       </div>
                     </td>
                   </tr>
@@ -214,30 +240,35 @@ export const PaymentDashboard = () => {
         </div>
 
         {/* Summary Stats */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Payments</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Total Payments
+            </p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {filteredPayments.length}
             </p>
           </div>
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Completed Payments</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Completed Payments
+            </p>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {filteredPayments.filter((p) => p.status === 'completed').length}
+              {filteredPayments.filter((p) => p.status === "completed").length}
             </p>
           </div>
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Average Amount</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Average Amount
+            </p>
             <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
               {filteredPayments.length > 0
                 ? formatCurrency(totalAmount / filteredPayments.length)
                 : formatCurrency(0)}
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
 };
-

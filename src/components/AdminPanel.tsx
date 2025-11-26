@@ -7,7 +7,7 @@ import {
 } from "../utils/helpers";
 
 export const AdminPanel = () => {
-  const { users, payments, addPayment } = useApp();
+  // const { users, payments, addPayment } = useApp();
   const [activeTab, setActiveTab] = useState<
     "users" | "payments" | "add-payment"
   >("users");

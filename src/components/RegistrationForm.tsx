@@ -15,9 +15,8 @@ export const RegistrationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-
   const [formData, setFormData] = useState<RegistrationData>({
-    // reg_Id: "",
+    // reg_id: "",
     fullName: "",
     email: "",
     phone: "",
@@ -35,6 +34,8 @@ export const RegistrationForm = () => {
       paymentNumber: "",
     },
   });
+
+  
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof RegistrationData, string>> = {};

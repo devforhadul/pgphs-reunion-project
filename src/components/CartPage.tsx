@@ -100,7 +100,7 @@ export const CartPage = () => {
     let payNumber = "";
     let trxId = "";
 
-    // Payment method অনুযায়ী value set করি
+    
     if (paymentMethod === "bkash-manual") {
       payNumber = bkashNumber;
       trxId = bkashTrxId;
@@ -136,27 +136,15 @@ export const CartPage = () => {
         "payment.isManual": true,
         "payment.paymentNumber": payNumber,
       });
-      alert("Payment updated successfully!");
+      alert("Payment successfully! waiting for verification");
+      navigate("/dashboard");
     } catch (error) {
       console.log(error);
     }
 
-    // status: "completed" | "pending" | "failed" | "verifying";
-    // transactionId: null | string;
-    // amount: 1000;
-    // paidAt: null | string;
-    // paymentMethod: string;
-    // isManual?: boolean | null;
-    // paymentNumber: string;
 
-    // const snapshot = await getDocs(collection(db, "pgphs_ru_reqisterd_users"));
 
-    // const allData = snapshot.docs.map((doc) => ({
-    //   id: doc.id,
-    //   ...doc.data(),
-    // }));
-
-    // console.log("All Data:", allData);
+    
 
     // Simulate payment processing
     // setTimeout(() => {

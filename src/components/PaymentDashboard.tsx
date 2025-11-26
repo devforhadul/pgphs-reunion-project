@@ -75,7 +75,7 @@ export const PaymentDashboard = () => {
 
     return (
       <span
-        className={`px-2 py-1 text-xs font-semibold rounded-full ${styles[status]}`}
+        className={`px-2 py-1 text-xs font-semibold rounded-full ${styles["completed"]}`}
       >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>

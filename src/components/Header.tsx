@@ -48,6 +48,16 @@ export default function Header() {
                 Dashboard
               </Link>
               <Link
+                to="/check-status"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive("/dashboard")
+                    ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                Check Status
+              </Link>
+              <Link
                 to="/admin"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive("/admin")

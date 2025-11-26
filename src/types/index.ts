@@ -21,7 +21,7 @@ export interface Payment {
 }
 
 export interface RegistrationData {
-  // reg_id?: string;
+  reg_id?: string;
   fullName: string;
   email?: string;
   phone: string;

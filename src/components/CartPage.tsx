@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Payment, RegistrationData } from "../types";
-import { formatCurrency, generateId, getBDTime } from "../utils/helpers";
+import type {  RegistrationData } from "../types";
+import {getBDTime } from "../utils/helpers";
 import {
   collection,
-  doc,
-  getDoc,
   getDocs,
   query,
   updateDoc,
@@ -17,7 +15,6 @@ export const CartPage = () => {
   const navigate = useNavigate();
   // const { addPayment } = useApp();
   const [user, setUser] = useState<RegistrationData | null>();
-  const [amount] = useState<number>(500);
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-manual");
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");

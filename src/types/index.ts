@@ -21,13 +21,20 @@ export interface Payment {
 }
 
 export interface RegistrationData {
+  reg_Id: string,
   fullName: string;
   email?: string;
   phone: string;
   graduationYear: string;
   occupation: string;
   address: string;
-  photo: File | null
+  photo: string;
+  payment: {
+    status: "completed" | "pending" | "failed";
+    transactionId: null | string;
+    amount: number;
+    paidAt: null | string;
+  };
 }
 
 export interface PaymentData {

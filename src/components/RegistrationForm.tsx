@@ -1,28 +1,42 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useApp } from "../context/AppContext";
-import type { RegistrationData, User } from "../types";
-import { generateId } from "../utils/helpers";
+import {  useNavigate } from "react-router-dom";
+import type { RegistrationData } from "../types";
+import {  getBDTime } from "../utils/helpers";
+import {
+  collection,
+
+  doc,
+  runTransaction,
+} from "firebase/firestore";
+import { db } from "@/firebase/firebase.init";
+import toast, { Toaster } from "react-hot-toast";
 
 export const RegistrationForm = () => {
   const navigate = useNavigate();
-  const { addUser } = useApp();
+
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RegistrationData, string>>
+  >({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>("");
+
   const [formData, setFormData] = useState<RegistrationData>({
+    reg_Id: "",
     fullName: "",
     email: "",
     phone: "",
     graduationYear: "",
     occupation: "",
     address: "",
-    photo: null,
+    photo: "",
+    payment: {
+      status: "pending",
+      transactionId: null,
+      amount: 500,
+      paidAt: null,
+    },
   });
-  console.log(formData);
-  
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof RegistrationData, string>>
-  >({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof RegistrationData, string>> = {};
@@ -51,25 +65,58 @@ export const RegistrationForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
 
+    console.log("s", imageUrl);
+
+    if (!validate()) return;
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const newUser: User = {
-        id: generateId(),
-        ...formData,
-        registrationDate: new Date().toISOString(),
-      };
+    const counterRef = doc(db, "counters", "registrationCounter");
+    const registrationsRef = collection(db, "pgphs_reunion");
 
-      addUser(newUser);
-      localStorage.setItem("currentUser", JSON.stringify(newUser));
-      setIsSubmitting(false);
-      navigate("/cart");
-    }, 500);
+    // --- Wrap transaction inside toast.promise ---
+    toast
+      .promise(
+        runTransaction(db, async (transaction) => {
+          const counterDoc = await transaction.get(counterRef);
+
+          if (!counterDoc.exists()) {
+            throw new Error("Counter document does not exist!");
+          }
+
+          const current = counterDoc.data()?.current ?? 0;
+          const newCounter = current + 1;
+
+          const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
+
+          transaction.set(doc(registrationsRef), {
+            ...formData,
+            reg_id: serial,
+            createdAt: getBDTime(),
+          });
+
+          transaction.update(counterRef, { current: newCounter });
+
+          return serial; // IMPORTANT: return serial
+        }),
+        {
+          loading: "Registering...",
+          success: "Registration successful!",
+          error: "Failed to register!",
+        }
+      )
+      .then((serial) => {
+        navigate(`/cart/${serial}`);
+      });
+
+    setIsSubmitting(false);
+    console.log(formData?.reg_Id);
+
+    // setTimeout(() => {
+    //   navigate(`/cart/${formData?.reg_Id}`);
+    // }, 1000);
   };
 
   const handleChange = (
@@ -82,8 +129,36 @@ export const RegistrationForm = () => {
     }
   };
 
+  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPreview(URL.createObjectURL(file));
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
+
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data: {
+      data: { display_url: string };
+      success: boolean;
+    } = await res.json();
+
+    if (data.success) {
+      console.log(data.data.display_url);
+      setImageUrl(data.data.display_url);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto">
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           PGPHS 1st Reunion Registration
@@ -93,27 +168,27 @@ export const RegistrationForm = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="fullName"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Full Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className={`w-full px-4 py-2 border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                  errors.fullName ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter your full name"
-              />
-              {errors.fullName && (
-                <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
-              )}
-            </div>
+          <div>
+            <label
+              htmlFor="fullName"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Full Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                errors.fullName ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="Enter your full name"
+            />
+            {errors.fullName && (
+              <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
+            )}
+          </div>
 
           <div>
             <label
@@ -216,33 +291,39 @@ export const RegistrationForm = () => {
 
           {/* occpesion */}
           <div>
-  <label
-    htmlFor="occupation"
-    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-  >
-    Occupation <span className="text-red-500">*</span>
-  </label>
+            <label
+              htmlFor="occupation"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Occupation <span className="text-red-500">*</span>
+            </label>
 
-  <select
-    id="occupation"
-    name="occupation"
-    value={formData.occupation}
-    onChange={handleChange}
-    className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-      errors.occupation ? "border-red-500" : "border-gray-300"
-    }`}
-  >
-    <option value="">Select Occupation</option>
-    <option value="private job">Private Job</option>
-    <option value="gov job">Gov Job</option>
-    <option value="business">Business</option>
-    <option value="probashi">Probashi</option>
-  </select>
+            <select
+              id="occupation"
+              name="occupation"
+              value={formData.occupation}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                errors.occupation ? "border-red-500" : "border-gray-300"
+              }`}
+            >
+              <option value="">Select Occupation</option>
+              <option value="student">Student</option>
+              <option value="private job">Private Job</option>
+              <option value="govt job">Government Job</option>
+              <option value="business">Business / Entrepreneur</option>
+              <option value="freelancer">Freelancer</option>
+              <option value="homemaker">Homemaker</option>
+              <option value="retired">Retired</option>
+              <option value="unemployed">Unemployed</option>
+              <option value="probashi">Probashi / Abroad Worker</option>
+              <option value="other">Other</option>
+            </select>
 
-  {errors.occupation && (
-    <p className="mt-1 text-sm text-red-500">{errors.occupation}</p>
-  )}
-</div>
+            {errors.occupation && (
+              <p className="mt-1 text-sm text-red-500">{errors.occupation}</p>
+            )}
+          </div>
 
           {/* Address */}
           <div>
@@ -285,13 +366,7 @@ export const RegistrationForm = () => {
                 id="photo"
                 name="photo"
                 accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setFormData({ ...formData, photo: file });
-                    setPreview(URL.createObjectURL(file)); // preview image
-                  }
-                }}
+                onChange={uploadImage}
                 className="w-full px-4 py-2 border rounded-lg cursor-pointer bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent border-gray-300"
               />
 
@@ -314,12 +389,14 @@ export const RegistrationForm = () => {
             </div>
           </div>
 
+          
+
           <button
             type="submit"
             disabled={isSubmitting}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-green-500 cursor-pointer"
           >
-            {isSubmitting ? "Submitting..." : "Continue to Payment"}
+            {isSubmitting ? "Submitting..." : "Submit Registration"}
           </button>
         </form>
       </div>

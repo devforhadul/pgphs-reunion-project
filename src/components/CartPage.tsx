@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useApp } from "../context/AppContext";
+import { useNavigate, useParams } from "react-router-dom";
 import type { Payment, User } from "../types";
 import { formatCurrency, generateId } from "../utils/helpers";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/firebase/firebase.init";
 
 export const CartPage = () => {
   const navigate = useNavigate();
-  const { addPayment } = useApp();
+  // const { addPayment } = useApp();
   const [user, setUser] = useState<User | null>(null);
   const [amount] = useState<number>(500);
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-manual");
@@ -18,21 +19,33 @@ export const CartPage = () => {
   const [nagadTrxId, setNagadTrxId] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const { id: paramsID } = useParams();
+
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("currentUser");
-    if (!savedUser) {
-      navigate("/register");
-      return;
-    }
-    try {
-      const parsedUser = JSON.parse(savedUser) as User;
-      setUser(parsedUser);
-    } catch {
-      navigate("/register");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // if (!savedUser) {
+    //   navigate("/register");
+    //   return;
+    // }
+
+    const fetchData = async () => {
+      const q = query(
+        collection(db, "pgphs_reunion"),
+        where("reg_id", "==", paramsID) // যেই value দিয়ে search করতে চাও
+      );
+
+      const snapshot = await getDocs(q);
+
+      const matchedData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      console.log("Matched:", matchedData);
+      //setUser(matchedData)
+    };
+    fetchData();
+  }, [paramsID]);
 
   const validatePayment = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -104,6 +117,8 @@ export const CartPage = () => {
     return null;
   }
 
+  console.log("from cart", user);
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
@@ -128,15 +143,15 @@ export const CartPage = () => {
                     Name
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {user.firstName} {user.lastName}
+                    {user.fullName}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Email
+                    phone number
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {user.email}
+                    {user.phone}
                   </p>
                 </div>
                 <div>

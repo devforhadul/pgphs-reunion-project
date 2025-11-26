@@ -21,3 +21,13 @@ export const formatDate = (dateString: string): string => {
     minute: "2-digit",
   });
 };
+
+
+export const getBDTime = () => {
+  const now = new Date();
+
+  // UTC + 6 hours
+  const bdTime = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+
+  return bdTime.toISOString().replace("Z", "+06:00");
+};

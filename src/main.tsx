@@ -10,6 +10,7 @@ import { PaymentDashboard } from "./components/PaymentDashboard";
 import { CartPage } from "./components/CartPage";
 import StatusCheck from "./components/StatusCheck";
 import { Toaster } from "react-hot-toast";
+import  { HomePage2 } from "./components/HomePage2";
 
 const router = createBrowserRouter([
   {
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <HomePage2/>,
       },
       {
         path: "registration",

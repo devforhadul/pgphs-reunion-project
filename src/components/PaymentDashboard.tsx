@@ -13,6 +13,7 @@ export const PaymentDashboard = () => {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterMethod, setFilterMethod] = useState<string>("all");
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [totalAmount, setTotalAmount] = useState<number>();
 
   // Show success message if coming from payment
   useEffect(() => {
@@ -21,18 +22,18 @@ export const PaymentDashboard = () => {
         collection(db, "pgphs_ru_reqisterd_users")
       );
 
-      // const allData = snapshot.docs.map((doc) => ({
-      //   id: doc.id,
-      //   ...doc.data(),
-      // }));
-
       const allData: RegistrationData[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...(doc.data() as RegistrationData),
       }));
       setPayments(allData);
-
-      console.log("All Data:", allData);
+      const totalAmount = allData.reduce((sum, item) => {
+        if (item.payment?.status === "completed") {
+          return sum + (item.payment.amount || 0);
+        }
+        return sum;
+      }, 0);
+      setTotalAmount(totalAmount);
     };
 
     getAllPayments();
@@ -100,7 +101,7 @@ export const PaymentDashboard = () => {
                 Total Collected
               </p>
               <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                {100}
+                {totalAmount} Tk
               </p>
             </div>
           </div>

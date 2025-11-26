@@ -1,2 +1,6 @@
 @import "tailwindcss";
 
+body {
+  margin: 0; /* Should be handled by Tailwind's reset, but adding for safety */
+  padding: 0;
+}

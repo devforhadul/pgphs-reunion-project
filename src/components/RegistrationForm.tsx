@@ -35,8 +35,6 @@ export const RegistrationForm = () => {
     },
   });
 
-  
-
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof RegistrationData, string>> = {};
 
@@ -384,22 +382,24 @@ export const RegistrationForm = () => {
             </div>
 
             {/* Right: Preview */}
-            <div className="w-32 h-32 border rounded-lg overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800 border-gray-300">
-              {preview ? (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-gray-400 text-sm">No Image</span>
-              )}
-            </div>
+            {preview && (
+              <div className="w-32 h-32 border rounded-lg overflow-hidden flex items-center justify-center bg-gray-100 dark:bg-gray-800 border-gray-300">
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-sm">No Image</span>
+                )}
+              </div>
+            )}
           </div>
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={uploading}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-green-500 cursor-pointer"
           >
             {isSubmitting ? "Submitting..." : "Submit Registration"}

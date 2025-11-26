@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
-import { formatCurrency } from "../utils/helpers";
+import bkash_logo from "@/assets/bkash_logo.png";
+import nagad_logo from "@/assets/nagad_logo.png";
+import rocket_logo from "@/assets/rocket_logo.png";
 
 export const HomePage = () => {
   return (
@@ -179,7 +181,7 @@ export const HomePage = () => {
                 </div>
                 <h3 className="text-2xl font-bold mb-3">Date</h3>
                 <p className="text-xl text-white/90 font-semibold">
-                  December 25, 2024
+                  January 2, 2026
                 </p>
                 <p className="text-sm text-white/70 mt-2">Wednesday</p>
               </div>
@@ -241,11 +243,12 @@ export const HomePage = () => {
                 Registration Fee
               </p>
               <p className="text-7xl font-extrabold mb-6 bg-white/20 backdrop-blur-sm rounded-2xl py-4 px-6 inline-block">
-                {formatCurrency(500)}
+                1000 Tk
               </p>
               <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 mb-8 border border-white/30">
                 <p className="text-lg font-medium">
-                  ✨ Includes dinner, refreshments, and all event activities
+                  ✨ Includes dinner, t-shirt, refreshments, and all event
+                  activities
                 </p>
               </div>
               <Link
@@ -283,7 +286,7 @@ export const HomePage = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="text-6xl mb-4 transform group-hover:rotate-12 transition-transform duration-300">
-                  💙
+                  <img className="h-52 mx-auto" src={bkash_logo} alt="" />
                 </div>
                 <h3 className="text-2xl font-bold mb-3">bKash</h3>
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30">
@@ -296,9 +299,9 @@ export const HomePage = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="text-6xl mb-4 transform group-hover:rotate-12 transition-transform duration-300">
-                  🚀
+                  <img className="h-52 mx-auto" src={nagad_logo} alt="" />
                 </div>
-                <h3 className="text-2xl font-bold mb-3">Rocket</h3>
+                <h3 className="text-2xl font-bold mb-3">Nagad</h3>
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30">
                   <p className="text-sm mb-2 opacity-90">Merchant Number</p>
                   <p className="text-2xl font-bold">01984839526</p>
@@ -309,9 +312,9 @@ export const HomePage = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="text-6xl mb-4 transform group-hover:rotate-12 transition-transform duration-300">
-                  💚
+                   <img className="h-52 mx-auto" src={rocket_logo} alt="" />
                 </div>
-                <h3 className="text-2xl font-bold mb-3">Nagad</h3>
+                <h3 className="text-2xl font-bold mb-3">Rocket</h3>
                 <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30">
                   <p className="text-sm mb-2 opacity-90">Merchant Number</p>
                   <p className="text-2xl font-bold">01984839526</p>
@@ -329,9 +332,9 @@ export const HomePage = () => {
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
         </div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mb-6">
-            <span className="text-6xl">🎊</span>
-          </div>
+          {/* <div className="mb-6">
+            <span className="text-6xl">PGPHS Reunion</span>
+          </div> */}
           <h2 className="text-4xl md:text-6xl font-extrabold mb-6">
             Ready to Join Us?
           </h2>

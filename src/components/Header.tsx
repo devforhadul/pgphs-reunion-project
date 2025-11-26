@@ -1,95 +1,108 @@
-// import { useApp } from "@/context/AppContext";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
 
 export default function Header() {
-//   const { darkMode, toggleDarkMode } = useApp();
+  const location = useLocation();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Detect Scroll for styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Registration", path: "/registration" }, // Fixed path based on Footer/Home
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "Check Status", path: "/check-status" },
+    { name: "Admin", path: "/admin" },
+  ];
+
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+    <nav
+      className={` w-full z-50 transition-all duration-300 border-b ${
+        isScrolled
+          ? "bg-slate-900/95 backdrop-blur-md border-slate-800 py-2 shadow-lg"
+          : "bg-slate-900 border-white/5 py-4"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link
-              to="/"
-              className="text-2xl font-bold text-primary-600 dark:text-primary-400"
+          
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+             <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">P</div>
+             <span className="text-2xl font-bold text-white tracking-tight font-serif">
+               PGPHS <span className="text-amber-500">Reunion</span>
+             </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  isActive(link.path)
+                    ? "text-amber-400 bg-white/5 border border-white/10"
+                    : "text-slate-300 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+            
+            {/* CTA Button in Header */}
+            <Link 
+                to="/register" 
+                className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
             >
-              PGPHS Reunion
+                Join Now
             </Link>
-            <div className="hidden md:flex space-x-4">
-              <Link
-                to="/"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive("/")
-                    ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                Home
-              </Link>
-              <Link
-                to="/registration"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive("/register")
-                    ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                Registration
-              </Link>
-              <Link
-                to="/dashboard"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive("/dashboard")
-                    ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/check-status"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive("/dashboard")
-                    ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                Check Status
-              </Link>
-              <Link
-                to="/admin"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive("/admin")
-                    ? "bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                Admin
-              </Link>
-            </div>
           </div>
-          {/* <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            aria-label="Toggle dark mode"
-          >
-            {darkMode ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-              </svg>
-            )}
-          </button> */}
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-slate-300 hover:text-white p-2 transition-colors"
+            >
+              {mobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-slate-900 border-t border-slate-800 absolute w-full">
+          <div className="px-4 pt-2 pb-6 space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-3 rounded-md text-base font-medium ${
+                  isActive(link.path)
+                    ? "bg-amber-500/10 text-amber-500"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

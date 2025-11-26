@@ -78,7 +78,7 @@ export const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
-          <p>Made with ❤️ for PGPHS Alumni Community</p>
+          <p>Made with ❤️ <a href="https://www.facebook.com/forhadul75/" target="_blank">Forhadul Islam</a></p>
         </div>
       </div>
     </footer>

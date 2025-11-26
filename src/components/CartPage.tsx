@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { Payment, User } from "../types";
-import { formatCurrency, generateId } from "../utils/helpers";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import type { Payment, RegistrationData } from "../types";
+import { formatCurrency, generateId, getBDTime } from "../utils/helpers";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 
 export const CartPage = () => {
   const navigate = useNavigate();
   // const { addPayment } = useApp();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<RegistrationData | null>();
   const [amount] = useState<number>(500);
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-manual");
   const [bkashNumber, setBkashNumber] = useState<string>("");
@@ -21,28 +29,25 @@ export const CartPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { id: paramsID } = useParams();
 
-
+  // Get specific user
   useEffect(() => {
-    // if (!savedUser) {
-    //   navigate("/register");
-    //   return;
-    // }
-
     const fetchData = async () => {
       const q = query(
-        collection(db, "pgphs_reunion"),
+        collection(db, "pgphs_ru_reqisterd_users"),
         where("reg_id", "==", paramsID) // যেই value দিয়ে search করতে চাও
       );
 
       const snapshot = await getDocs(q);
 
-      const matchedData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      console.log("Matched:", matchedData);
-      //setUser(matchedData)
+      if (!snapshot.empty) {
+        const matchedUser = {
+          id: snapshot.docs[0].id,
+          ...(snapshot.docs[0].data() as RegistrationData),
+        };
+        setUser(matchedUser);
+      } else {
+        setUser(null);
+      }
     };
     fetchData();
   }, [paramsID]);
@@ -92,32 +97,91 @@ export const CartPage = () => {
 
     setIsProcessing(true);
 
-    // Simulate payment processing
-    setTimeout(() => {
-      if (user) {
-        const newPayment: Payment = {
-          id: generateId(),
-          userId: user.id,
-          userName: `${user.firstName} ${user.lastName}`,
-          amount,
-          paymentDate: new Date().toISOString(),
-          paymentMethod,
-          status: "completed",
-        };
+    let payNumber = "";
+    let trxId = "";
 
-        addPayment(newPayment);
-        localStorage.removeItem("currentUser");
-        setIsProcessing(false);
-        navigate("/dashboard", { state: { paymentSuccess: true } });
+    // Payment method অনুযায়ী value set করি
+    if (paymentMethod === "bkash-manual") {
+      payNumber = bkashNumber;
+      trxId = bkashTrxId;
+    } else if (paymentMethod === "nagad-manual") {
+      payNumber = nagadNumber;
+      trxId = nagadTrxId;
+    } else if (paymentMethod === "rocket-manual") {
+      payNumber = rocketNumber;
+      trxId = rocketTrxId;
+    } else {
+      console.log("Invalid payment method");
+      return;
+    }
+
+    try {
+      const q = query(
+        collection(db, "pgphs_ru_reqisterd_users"),
+        where("reg_id", "==", paramsID)
+      );
+
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        console.log("User not found");
+        return;
       }
-    }, 2000);
+      const docRef = snapshot.docs[0].ref;
+
+      await updateDoc(docRef, {
+        "payment.status": "verifying",
+        "payment.transactionId": trxId,
+        "payment.paidAt": getBDTime(),
+        "payment.paymentMethod": paymentMethod,
+        "payment.isManual": true,
+        "payment.paymentNumber": payNumber,
+      });
+      alert("Payment updated successfully!");
+    } catch (error) {
+      console.log(error);
+    }
+
+    // status: "completed" | "pending" | "failed" | "verifying";
+    // transactionId: null | string;
+    // amount: 1000;
+    // paidAt: null | string;
+    // paymentMethod: string;
+    // isManual?: boolean | null;
+    // paymentNumber: string;
+
+    // const snapshot = await getDocs(collection(db, "pgphs_ru_reqisterd_users"));
+
+    // const allData = snapshot.docs.map((doc) => ({
+    //   id: doc.id,
+    //   ...doc.data(),
+    // }));
+
+    // console.log("All Data:", allData);
+
+    // Simulate payment processing
+    // setTimeout(() => {
+    //   if (user) {
+    //     const newPayment: Payment = {
+    //       id: generateId(),
+    //       userId: user.id,
+    //       userName: `${user.firstName} ${user.lastName}`,
+    //       amount,
+    //       paymentDate: new Date().toISOString(),
+    //       paymentMethod,
+    //       status: "completed",
+    //     };
+
+    //     addPayment(newPayment);
+    //     localStorage.removeItem("currentUser");
+    //     setIsProcessing(false);
+    //     navigate("/dashboard", { state: { paymentSuccess: true } });
+    //   }
+    // }, 2000);
   };
 
   if (!user) {
     return null;
   }
-
-  console.log("from cart", user);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -137,13 +201,22 @@ export const CartPage = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Registration Summary
               </h2>
+
               <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Registration Number
+                  </p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {paramsID}
+                  </p>
+                </div>
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Name
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {user.fullName}
+                    {user?.fullName}
                   </p>
                 </div>
                 <div>
@@ -151,7 +224,7 @@ export const CartPage = () => {
                     phone number
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {user.phone}
+                    {user?.phone}
                   </p>
                 </div>
                 <div>
@@ -159,25 +232,27 @@ export const CartPage = () => {
                     Graduation Year
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {user.graduationYear}
+                    {user?.graduationYear}
                   </p>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600 dark:text-gray-400">
-                      Registration Fee
+                      Registration Fee:
                     </span>
                     <div className="text-right">
                       <span className="font-medium text-gray-900 dark:text-white block">
-                        {formatCurrency(amount)}
+                        {user?.payment?.amount} Tk
                       </span>
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-lg font-bold">
-                    <span className="text-gray-900 dark:text-white">Total</span>
+                    <span className="text-gray-900 dark:text-white">
+                      Total:
+                    </span>
                     <div className="text-right">
                       <span className="text-primary-600 dark:text-primary-400 block">
-                        {formatCurrency(amount)}
+                        {user?.payment?.amount} Tk
                       </span>
                     </div>
                   </div>
@@ -493,7 +568,7 @@ export const CartPage = () => {
                 >
                   {isProcessing
                     ? "Processing..."
-                    : `Pay ${formatCurrency(amount)}`}
+                    : `Pay ${user?.payment?.amount}`}
                 </button>
               </div>
             </form>

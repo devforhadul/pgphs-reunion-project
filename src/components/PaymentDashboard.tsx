@@ -23,6 +23,8 @@ export const PaymentDashboard = () => {
     }
   }, [location.state]);
 
+  
+
   const filteredPayments = useMemo(() => {
     return payments.filter((payment) => {
       const matchesSearch =

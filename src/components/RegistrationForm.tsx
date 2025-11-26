@@ -1,13 +1,8 @@
 import { useState } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { RegistrationData } from "../types";
-import {  getBDTime } from "../utils/helpers";
-import {
-  collection,
-
-  doc,
-  runTransaction,
-} from "firebase/firestore";
+import { getBDTime } from "../utils/helpers";
+import { collection, doc, runTransaction } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -19,10 +14,10 @@ export const RegistrationForm = () => {
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState<RegistrationData>({
-    reg_Id: "",
+    // reg_Id: "",
     fullName: "",
     email: "",
     phone: "",
@@ -33,8 +28,11 @@ export const RegistrationForm = () => {
     payment: {
       status: "pending",
       transactionId: null,
-      amount: 500,
+      amount: 1000,
       paidAt: null,
+      paymentMethod: "",
+      isManual: null,
+      paymentNumber: "",
     },
   });
 
@@ -68,13 +66,11 @@ export const RegistrationForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("s", imageUrl);
-
-    if (!validate()) return;
+    if (!validate() && !formData.phone) return;
     setIsSubmitting(true);
 
     const counterRef = doc(db, "counters", "registrationCounter");
-    const registrationsRef = collection(db, "pgphs_reunion");
+    const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
 
     // --- Wrap transaction inside toast.promise ---
     toast
@@ -108,15 +104,12 @@ export const RegistrationForm = () => {
         }
       )
       .then((serial) => {
-        navigate(`/cart/${serial}`);
+        setTimeout(() => {
+          navigate(`/cart/${serial}`);
+        }, 1000);
       });
 
     setIsSubmitting(false);
-    console.log(formData?.reg_Id);
-
-    // setTimeout(() => {
-    //   navigate(`/cart/${formData?.reg_Id}`);
-    // }, 1000);
   };
 
   const handleChange = (
@@ -133,26 +126,40 @@ export const RegistrationForm = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setUploading(true);
+
     setPreview(URL.createObjectURL(file));
 
-    const formData = new FormData();
-    formData.append("image", file);
+    const body = new FormData();
+    body.append("image", file);
 
     const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
 
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+        method: "POST",
+        body,
+      });
 
-    const data: {
-      data: { display_url: string };
-      success: boolean;
-    } = await res.json();
+      const data = await res.json();
 
-    if (data.success) {
-      console.log(data.data.display_url);
-      setImageUrl(data.data.display_url);
+      if (data.success) {
+        const photoUrl = data.data.url ?? data.data.display_url;
+
+        console.log("Uploaded Image URL => ", photoUrl);
+
+        setFormData((prev) => ({
+          ...prev,
+          photo: photoUrl,
+        }));
+        if (data.success) {
+          setUploading(false);
+        }
+      } else {
+        console.log("Image upload failed:", data);
+      }
+    } catch (error) {
+      console.error("Image upload error:", error);
     }
   };
 
@@ -388,8 +395,6 @@ export const RegistrationForm = () => {
               )}
             </div>
           </div>
-
-          
 
           <button
             type="submit"

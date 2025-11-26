@@ -21,7 +21,7 @@ export interface Payment {
 }
 
 export interface RegistrationData {
-  reg_Id: string,
+  // reg_Id: string;
   fullName: string;
   email?: string;
   phone: string;
@@ -30,10 +30,14 @@ export interface RegistrationData {
   address: string;
   photo: string;
   payment: {
-    status: "completed" | "pending" | "failed";
+    status: "completed" | "pending" | "failed" | "verifying";
     transactionId: null | string;
-    amount: number;
+    amount: 1000;
     paidAt: null | string;
+    paymentMethod: string;
+    isManual?: boolean | null;
+    paymentNumber: string;
+    
   };
 }
 

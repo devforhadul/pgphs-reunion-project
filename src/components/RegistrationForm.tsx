@@ -4,7 +4,6 @@ import type { RegistrationData } from "../types";
 import { getBDTime } from "../utils/helpers";
 import { collection, doc, runTransaction } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
-import toast, { Toaster } from "react-hot-toast";
 
 export const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -14,7 +13,7 @@ export const RegistrationForm = () => {
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
+  // const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<RegistrationData>({
     // reg_id: "",
     fullName: "",
@@ -48,6 +47,16 @@ export const RegistrationForm = () => {
       newErrors.phone = "Please enter a valid phone number";
     }
 
+    if (!formData.occupation.trim()) {
+      newErrors.occupation = "Occupation is required";
+    } else if (formData.occupation.trim().length < 3) {
+      newErrors.occupation = "Occupation must be at least 3 characters";
+    }
+
+    if (!formData.photo || formData.photo.trim() === "") {
+      newErrors.photo = "Photo is required";
+    }
+
     if (!formData.graduationYear.trim()) {
       newErrors.graduationYear = "Graduation year is required";
     } else if (!/^\d{4}$/.test(formData.graduationYear)) {
@@ -62,57 +71,104 @@ export const RegistrationForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   if (!validate() && !formData.phone) return;
+  //   setIsSubmitting(true);
+
+  //   const counterRef = doc(db, "counters", "registrationCounter");
+  //   const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
+
+  //   // --- Wrap transaction inside toast.promise ---
+  //   toast
+  //     .promise(
+  //       runTransaction(db, async (transaction) => {
+  //         const counterDoc = await transaction.get(counterRef);
+
+  //         if (!counterDoc.exists()) {
+  //           throw new Error("Counter document does not exist!");
+  //         }
+
+  //         const current = counterDoc.data()?.current ?? 0;
+  //         const newCounter = current + 1;
+
+  //         const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
+
+  //         transaction.set(doc(registrationsRef), {
+  //           ...formData,
+  //           reg_id: serial,
+  //           createdAt: getBDTime(),
+  //         });
+
+  //         transaction.update(counterRef, { current: newCounter });
+
+  //         return serial; // IMPORTANT: return serial
+  //       }),
+  //       {
+  //         loading: "Registering...",
+  //         success: "Registration successful!",
+  //         error: "Failed to register!",
+  //       }
+  //     )
+  //     .then((serial) => {
+  //       setTimeout(() => {
+  //         setIsSubmitting(false);
+  //         navigate(`/cart/${serial}`);
+  //       }, 1000);
+  //     });
+
+  //   setIsSubmitting(false);
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate() && !formData.phone) return;
-    setIsSubmitting(true);
+    if (!validate() || !formData.phone) return;
+
+    setIsSubmitting(true); // 👉 Click korar sathe sathe button disable
 
     const counterRef = doc(db, "counters", "registrationCounter");
     const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
 
-    // --- Wrap transaction inside toast.promise ---
-    toast
-      .promise(
-        runTransaction(db, async (transaction) => {
-          const counterDoc = await transaction.get(counterRef);
+    try {
+      const serial = await runTransaction(db, async (transaction) => {
+        const counterDoc = await transaction.get(counterRef);
 
-          if (!counterDoc.exists()) {
-            throw new Error("Counter document does not exist!");
-          }
-
-          const current = counterDoc.data()?.current ?? 0;
-          const newCounter = current + 1;
-
-          const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
-
-          transaction.set(doc(registrationsRef), {
-            ...formData,
-            reg_id: serial,
-            createdAt: getBDTime(),
-          });
-
-          transaction.update(counterRef, { current: newCounter });
-
-          return serial; // IMPORTANT: return serial
-        }),
-        {
-          loading: "Registering...",
-          success: "Registration successful!",
-          error: "Failed to register!",
+        if (!counterDoc.exists()) {
+          throw new Error("Counter document does not exist!");
         }
-      )
-      .then((serial) => {
-        setTimeout(() => {
-          navigate(`/cart/${serial}`);
-        }, 1000);
+
+        const current = counterDoc.data()?.current ?? 0;
+        const newCounter = current + 1;
+
+        const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
+
+        transaction.set(doc(registrationsRef), {
+          ...formData,
+          reg_id: serial,
+          createdAt: getBDTime(),
+        });
+
+        transaction.update(counterRef, { current: newCounter });
+
+        return serial; // return serial
       });
 
-    setIsSubmitting(false);
+      // ⭐ SUCCESS → Navigate
+      navigate(`/cart/${serial}`);
+    } catch (error) {
+      console.error("Registration failed:", error);
+
+      // ⭐ ERROR → Button enable again
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -124,8 +180,22 @@ export const RegistrationForm = () => {
   const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // setUploading(true);
 
-    setUploading(true);
+    // Validate file size max 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, photo: "Image must be less than 2MB" }));
+      return;
+    }
+
+    // Validate file type is image
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        photo: "Only image files are allowed",
+      }));
+      return;
+    }
 
     setPreview(URL.createObjectURL(file));
 
@@ -152,7 +222,7 @@ export const RegistrationForm = () => {
           photo: photoUrl,
         }));
         if (data.success) {
-          setUploading(false);
+          // setUploading(false);
         }
       } else {
         console.log("Image upload failed:", data);
@@ -163,8 +233,7 @@ export const RegistrationForm = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <Toaster position="top-center" reverseOrder={false} />
+    <div className="max-w-3xl mx-auto py-8">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           PGPHS 1st Reunion Registration
@@ -399,8 +468,8 @@ export const RegistrationForm = () => {
 
           <button
             type="submit"
-            disabled={uploading}
-            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-green-500 cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
           >
             {isSubmitting ? "Submitting..." : "Submit Registration"}
           </button>

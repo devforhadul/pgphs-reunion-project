@@ -3,14 +3,15 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import MainLayout from "./Layout/MainLayout";
-import { HomePage } from "./components/HomePage";
 import { RegistrationForm } from "./components/RegistrationForm";
 import { PaymentDashboard } from "./components/PaymentDashboard";
 // import { AdminPanel } from "./components/AdminPanel";
 import { CartPage } from "./components/CartPage";
 import StatusCheck from "./components/StatusCheck";
-import { Toaster } from "react-hot-toast";
-import  { HomePage2 } from "./components/HomePage2";
+// import { Toaster } from "react-hot-toast";
+import  { HomePage } from "./components/HomePage";
+import AdminPage from "./components/AdminPage";
+
 
 const router = createBrowserRouter([
   {
@@ -19,7 +20,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage2/>,
+        element: <HomePage/>,
       },
       {
         path: "registration",
@@ -33,10 +34,10 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <PaymentDashboard />,
       },
-      // {
-      //   path: "admin",
-      //   element: <AdminPanel />,
-      // },
+      {
+        path: "admin",
+        element: <AdminPage/>,
+      },
       {
         path: "check-status",
         element: <StatusCheck />,
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Toaster position="top-center" reverseOrder={false} />
+    {/* <Toaster position="top-center" reverseOrder={false} /> */}
     <RouterProvider router={router} />
   </StrictMode>
 );

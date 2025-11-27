@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type {  RegistrationData } from "../types";
-import {getBDTime } from "../utils/helpers";
+import type { RegistrationData } from "../types";
+import { getBDTime } from "../utils/helpers";
 import {
   collection,
   getDocs,
@@ -97,7 +97,6 @@ export const CartPage = () => {
     let payNumber = "";
     let trxId = "";
 
-    
     if (paymentMethod === "bkash-manual") {
       payNumber = bkashNumber;
       trxId = bkashTrxId;
@@ -139,10 +138,6 @@ export const CartPage = () => {
       console.log(error);
     }
 
-
-
-    
-
     // Simulate payment processing
     // setTimeout(() => {
     //   if (user) {
@@ -169,7 +164,7 @@ export const CartPage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen max-w-4xl mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Complete Your Payment
@@ -257,7 +252,7 @@ export const CartPage = () => {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("bkash-manual")}
-                    className={`p-4 border-2 rounded-lg transition-colors ${
+                    className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
                       paymentMethod === "bkash-manual"
                         ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                         : "border-gray-300 dark:border-gray-600 hover:border-primary-300"
@@ -273,7 +268,7 @@ export const CartPage = () => {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("rocket-manual")}
-                    className={`p-4 border-2 rounded-lg transition-colors ${
+                    className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
                       paymentMethod === "rocket-manual"
                         ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                         : "border-gray-300 dark:border-gray-600 hover:border-primary-300"
@@ -289,7 +284,7 @@ export const CartPage = () => {
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("nagad-manual")}
-                    className={`p-4 border-2 rounded-lg transition-colors ${
+                    className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
                       paymentMethod === "nagad-manual"
                         ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
                         : "border-gray-300 dark:border-gray-600 hover:border-primary-300"
@@ -541,15 +536,15 @@ export const CartPage = () => {
               <div className="flex space-x-4">
                 <button
                   type="button"
-                  onClick={() => navigate("/register")}
-                  className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-6 rounded-lg transition-colors"
+                  onClick={() => navigate("/registration")}
+                  className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-6 rounded-lg transition-colors cursor-pointer"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer bg-green-500"
+                  className="flex-1 group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isProcessing
                     ? "Processing..."

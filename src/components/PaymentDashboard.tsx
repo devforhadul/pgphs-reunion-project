@@ -1,7 +1,4 @@
 import { useState, useEffect } from "react";
-// import { useApp } from '../context/AppContext';
-import { formatCurrency, formatDate } from "../utils/helpers";
-// import type { Payment } from "../types";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import type { RegistrationData } from "@/types";
@@ -9,10 +6,10 @@ import type { RegistrationData } from "@/types";
 export const PaymentDashboard = () => {
   // const location = useLocation();
   const [payments, setPayments] = useState<RegistrationData[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterMethod, setFilterMethod] = useState<string>("all");
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  // const [searchTerm, setSearchTerm] = useState("");
+  // const [filterStatus, setFilterStatus] = useState<string>("all");
+  // const [filterMethod, setFilterMethod] = useState<string>("all");
+  // const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [totalAmount, setTotalAmount] = useState<number>();
 
   // Show success message if coming from payment
@@ -27,6 +24,7 @@ export const PaymentDashboard = () => {
         ...(doc.data() as RegistrationData),
       }));
       setPayments(allData);
+      // total amount
       const totalAmount = allData.reduce((sum, item) => {
         if (item.payment?.status === "completed") {
           return sum + (item.payment.amount || 0);
@@ -43,6 +41,8 @@ export const PaymentDashboard = () => {
     //   setTimeout(() => setShowSuccessMessage(false), 5000);
     // }
   });
+
+  
 
   // const filteredPayments = useMemo(() => {
   //   return payments.filter((payment) => {
@@ -63,8 +63,10 @@ export const PaymentDashboard = () => {
   //   return filteredPayments.reduce((sum, payment) => sum + payment.amount, 0);
   // }, [filteredPayments]);
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
+  type Status = "completed" | "verifying" | "pending" | "failed";
+
+  const getStatusBadge = (statuses: Status[] | Status) => {
+    const styles: Record<Status, string> = {
       completed:
         "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
       verifying:
@@ -74,17 +76,24 @@ export const PaymentDashboard = () => {
       failed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
     };
 
+    const statusArray = Array.isArray(statuses) ? statuses : [statuses];
+
     return (
-      <span
-        className={`px-2 py-1 text-xs font-semibold rounded-full ${styles["completed"]}`}
-      >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
+      <>
+        {statusArray.map((status) => (
+          <span
+            key={status}
+            className={`px-2 py-1 text-xs font-semibold rounded-full ${styles[status]}`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </span>
+        ))}
+      </>
     );
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto">
+    <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
@@ -107,13 +116,13 @@ export const PaymentDashboard = () => {
           </div>
         </div>
 
-        {showSuccessMessage && (
+        {/* {showSuccessMessage && (
           <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <p className="text-green-800 dark:text-green-200">
               ✓ Payment completed successfully! Your registration is confirmed.
             </p>
           </div>
-        )}
+        )} */}
 
         {/* Search and Filters */}
         {/* <div className="mb-6 space-y-4">
@@ -211,7 +220,7 @@ export const PaymentDashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {formatCurrency(payment.payment.amount)}
+                        {payment.payment.amount} Tk
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

@@ -23,12 +23,12 @@ export default function Header() {
     { name: "Registration", path: "/registration" }, // Fixed path based on Footer/Home
     { name: "Dashboard", path: "/dashboard" },
     { name: "Check Status", path: "/check-status" },
-    { name: "Admin", path: "/admin" },
+    // { name: "Admin", path: "/admin" },
   ];
 
   return (
     <nav
-      className={` w-full z-50 transition-all duration-300 border-b ${
+      className={`sticky w-full z-50 transition-all duration-300 border-b ${
         isScrolled
           ? "bg-slate-900/95 backdrop-blur-md border-slate-800 py-2 shadow-lg"
           : "bg-slate-900 border-white/5 py-4"
@@ -36,13 +36,14 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-             <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">P</div>
-             <span className="text-2xl font-bold text-white tracking-tight font-serif">
-               PGPHS <span className="text-amber-500">Reunion</span>
-             </span>
+            <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">
+              P
+            </div>
+            <span className="text-2xl font-bold text-white tracking-tight font-serif">
+              PGPHS <span className="text-amber-500">Reunion</span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -60,13 +61,13 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
-            
+
             {/* CTA Button in Header */}
-            <Link 
-                to="/register" 
-                className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+            <Link
+              to="/registration"
+              className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
             >
-                Join Now
+              Registration Now
             </Link>
           </div>
 

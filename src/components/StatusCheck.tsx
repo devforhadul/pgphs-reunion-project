@@ -34,7 +34,7 @@ export default function StatusCheck() {
         setUser(matchedUser);
       } else {
         setUser(null);
-        setError("User not found!!");
+        setError("You not yer registerd. go Register page");
       }
     } catch (err) {
       console.error(err);
@@ -45,7 +45,8 @@ export default function StatusCheck() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-5 bg-white rounded-lg shadow-md dark:bg-gray-800">
+    <div className="min-h-screen max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="p-8  bg-white rounded-lg shadow-md dark:bg-gray-800">
       <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
         Check Registration Status
       </h1>
@@ -56,7 +57,7 @@ export default function StatusCheck() {
           placeholder="Enter phone number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="flex-1 px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          className="flex-1  px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
         <button
           onClick={handleSearch}
@@ -82,9 +83,9 @@ export default function StatusCheck() {
                     <span className="px-3 py-1 bg-slate-900 text-white text-xs font-bold uppercase rounded">
                       General
                     </span>
-                    <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold uppercase rounded">
+                    {/* <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold uppercase rounded">
                       Limited Seats
-                    </span>
+                    </span> */}
                   </div>
                   <h3 className="text-4xl font-bold text-slate-900 mb-2">
                     Reunion Entry Pass
@@ -111,13 +112,9 @@ export default function StatusCheck() {
                       </li>
                     ))}
                   </ul>
-
-                  <Link
-                    to="/register"
-                    className="uppercase inline-block bg-slate-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition-colors w-full md:w-auto text-center"
-                  >
-                    Forhaudul islam
-                  </Link>
+                  <button className="uppercase inline-block bg-slate-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition-colors w-full md:w-auto text-center">
+                    {user.fullName}
+                  </button>
                 </div>
               </div>
 
@@ -153,7 +150,7 @@ export default function StatusCheck() {
           <div className="mt-5">
             {user.payment.status === "completed" ? (
               <h2 className="text-center text-green-700 font-bold text-2xl">
-                Congratulation you successfully Complete Registration
+                congratulations you successfully Complete Registration
               </h2>
             ) : user.payment.status === "pending" ? (
               <h2 className="text-center text-red-700 font-bold text-2xl">
@@ -165,7 +162,7 @@ export default function StatusCheck() {
               </h2>
             ) : user.payment.status === "failed" ? (
               <h2 className="text-center text-red-950n font-bold text-2xl">
-                We don't receive your payment! Please recheck now
+                We don't receive your payment! Please recheck now.
               </h2>
             ) : (
               ""
@@ -222,6 +219,7 @@ export default function StatusCheck() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

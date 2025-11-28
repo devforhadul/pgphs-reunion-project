@@ -2,13 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { RegistrationData } from "../types";
 import { getBDTime } from "../utils/helpers";
-import {
-  collection,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 
 export const CartPage = () => {
@@ -18,35 +12,51 @@ export const CartPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-manual");
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");
-  const [rocketNumber, setRocketNumber] = useState<string>("");
-  const [rocketTrxId, setRocketTrxId] = useState<string>("");
+  // const [rocketNumber, setRocketNumber] = useState<string>("");
+  // const [rocketTrxId, setRocketTrxId] = useState<string>("");
   const [nagadNumber, setNagadNumber] = useState<string>("");
   const [nagadTrxId, setNagadTrxId] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const { id: paramsID } = useParams();
+  // const [loading, setLoading] = useState<boolean>(true);
+  // const [error, setError] = useState<string | null>(null);
+  const COLLECTION_NAME = "pgphs_ru_reqisterd_users";
 
   // Get specific user
   useEffect(() => {
-    const fetchData = async () => {
-      const q = query(
-        collection(db, "pgphs_ru_reqisterd_users"),
-        where("reg_id", "==", paramsID) // যেই value দিয়ে search করতে চাও
-      );
+    if (!paramsID || typeof paramsID !== "string") {
+      return;
+    }
 
-      const snapshot = await getDocs(q);
+    const fetchReg = async () => {
+      // setIsProcessing(true);
+      // setError(null);
+      const collectionName = "pgphs_ru_reqisterd_users";
 
-      if (!snapshot.empty) {
-        const matchedUser = {
-          id: snapshot.docs[0].id,
-          ...(snapshot.docs[0].data() as RegistrationData),
-        };
-        setUser(matchedUser);
-      } else {
+      try {
+        // 1. ডকুমেন্ট রেফারেন্স তৈরি (এখানেই doc ব্যবহার হয়)
+        const docRef = doc(db, collectionName, paramsID);
+
+        // 2. getDoc() দিয়ে ডাটা ফেচ করা
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          // 3. ডাটা এক্সট্র্যাক্ট করা এবং State এ সেভ করা
+          const fetchedData = docSnap.data() as RegistrationData;
+          setUser(fetchedData); // ✅ State আপডেট
+        } else {
+          setUser(null);
+          // setErrors(`No document found with ID: ${paramsID}`);
+        }
+      } catch (e) {
         setUser(null);
+        console.log(e);
+        alert("Something wrong! Try again later or contact technical support.");
       }
     };
-    fetchData();
+
+    fetchReg();
   }, [paramsID]);
 
   const validatePayment = (): boolean => {
@@ -61,16 +71,6 @@ export const CartPage = () => {
       }
       if (!bkashTrxId.trim()) {
         newErrors.bkashTrxId = "Transaction ID is required";
-      }
-    } else if (paymentMethod === "rocket-manual") {
-      if (!rocketNumber.trim()) {
-        newErrors.rocketNumber = "Rocket number is required";
-      } else if (!/^01[3-9]\d{8}$/.test(rocketNumber.replace(/\s/g, ""))) {
-        newErrors.rocketNumber =
-          "Please enter a valid Rocket number (01XXXXXXXXX)";
-      }
-      if (!rocketTrxId.trim()) {
-        newErrors.rocketTrxId = "Transaction ID is required";
       }
     } else if (paymentMethod === "nagad-manual") {
       if (!nagadNumber.trim()) {
@@ -88,6 +88,102 @@ export const CartPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!validatePayment()) return;
+
+  //   setIsProcessing(true);
+
+  //   let payNumber = "";
+  //   let trxId = "";
+
+  //   if (paymentMethod === "bkash-manual") {
+  //     payNumber = bkashNumber;
+  //     trxId = bkashTrxId;
+  //   } else if (paymentMethod === "nagad-manual") {
+  //     payNumber = nagadNumber;
+  //     trxId = nagadTrxId;
+  //   } else if (paymentMethod === "rocket-manual") {
+  //     payNumber = rocketNumber;
+  //     trxId = rocketTrxId;
+  //   } else {
+  //     console.log("Invalid payment method");
+  //     return;
+  //   }
+
+  //   const docRef = doc(db, COLLECTION_NAME, paramsID);
+
+  //   try {
+  //     // প্রথমে ডকুমেন্টটি আছে কিনা, তা চেক করা ঐচ্ছিক।
+  //     // তবে updateDoc() সরাসরি ব্যবহার করলে যদি ডকুমেন্ট না থাকে, তবে এরর দেবে।
+
+  //     // 🚀 অপটিমাইজড ধাপ: সরাসরি আপডেটের চেষ্টা
+  //     await updateDoc(docRef, {
+  //       // nested field আপডেট করতে ডট নোটেশন ব্যবহার করুন
+  //       "payment.status": "verifying",
+  //       "payment.transactionId": trxId,
+  //       "payment.paidAt": getBDTime(), // ধরলাম getBDTime() একটি ভ্যালিড ভ্যালু রিটার্ন করে
+  //       "payment.paymentMethod": paymentMethod,
+  //       "payment.isManual": true,
+  //       "payment.paymentNumber": payNumber,
+  //     });
+
+  //     alert("Payment successfully! waiting for verification");
+  //     navigate("/dashboard");
+  //   } catch (error) {
+  //     // যদি ডকুমেন্টটি না পাওয়া যায়, তবে Firebase এখানে এরর দেবে।
+  //     console.error("Error during payment update:", error);
+  //     alert("Update failed. User ID might be incorrect.");
+  //   }
+
+  //   // try {
+  //   //   const q = query(
+  //   //     collection(db, "pgphs_ru_reqisterd_users"),
+  //   //     where("id", "==", paramsID)
+  //   //   );
+
+  //   //   const snapshot = await getDocs(q);
+  //   //   if (snapshot.empty) {
+  //   //     console.log("User not found");
+  //   //     return;
+  //   //   }
+  //   //   const docRef = snapshot.docs[0].ref;
+
+  //   //   await updateDoc(docRef, {
+  //   //     "payment.status": "verifying",
+  //   //     "payment.transactionId": trxId,
+  //   //     "payment.paidAt": getBDTime(),
+  //   //     "payment.paymentMethod": paymentMethod,
+  //   //     "payment.isManual": true,
+  //   //     "payment.paymentNumber": payNumber,
+  //   //   });
+  //   //   alert("Payment successfully! waiting for verification");
+  //   //   navigate("/dashboard");
+  //   // } catch (error) {
+  //   //   console.log(error);
+  //   // }
+
+  //   // Simulate payment processing
+  //   // setTimeout(() => {
+  //   //   if (user) {
+  //   //     const newPayment: Payment = {
+  //   //       id: generateId(),
+  //   //       userId: user.id,
+  //   //       userName: `${user.firstName} ${user.lastName}`,
+  //   //       amount,
+  //   //       paymentDate: new Date().toISOString(),
+  //   //       paymentMethod,
+  //   //       status: "completed",
+  //   //     };
+
+  //   //     addPayment(newPayment);
+  //   //     localStorage.removeItem("currentUser");
+  //   //     setIsProcessing(false);
+  //   //     navigate("/dashboard", { state: { paymentSuccess: true } });
+  //   //   }
+  //   // }, 2000);
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validatePayment()) return;
@@ -97,33 +193,27 @@ export const CartPage = () => {
     let payNumber = "";
     let trxId = "";
 
+    if (!paramsID) {
+      alert("Error: Registration ID is missing.");
+      setIsProcessing(false);
+      return;
+    }
+
     if (paymentMethod === "bkash-manual") {
       payNumber = bkashNumber;
       trxId = bkashTrxId;
     } else if (paymentMethod === "nagad-manual") {
       payNumber = nagadNumber;
       trxId = nagadTrxId;
-    } else if (paymentMethod === "rocket-manual") {
-      payNumber = rocketNumber;
-      trxId = rocketTrxId;
     } else {
-      console.log("Invalid payment method");
+      console.error("Invalid payment method selected.");
+      setIsProcessing(false);
       return;
     }
 
+    const docRef = doc(db, COLLECTION_NAME, paramsID);
+
     try {
-      const q = query(
-        collection(db, "pgphs_ru_reqisterd_users"),
-        where("reg_id", "==", paramsID)
-      );
-
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) {
-        console.log("User not found");
-        return;
-      }
-      const docRef = snapshot.docs[0].ref;
-
       await updateDoc(docRef, {
         "payment.status": "verifying",
         "payment.transactionId": trxId,
@@ -132,31 +222,15 @@ export const CartPage = () => {
         "payment.isManual": true,
         "payment.paymentNumber": payNumber,
       });
-      alert("Payment successfully! waiting for verification");
+
+      alert("Payment submitted successfully! Waiting for verification.");
       navigate("/dashboard");
     } catch (error) {
-      console.log(error);
+      console.error("Error during payment update:", error);
+      alert("Update failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
-
-    // Simulate payment processing
-    // setTimeout(() => {
-    //   if (user) {
-    //     const newPayment: Payment = {
-    //       id: generateId(),
-    //       userId: user.id,
-    //       userName: `${user.firstName} ${user.lastName}`,
-    //       amount,
-    //       paymentDate: new Date().toISOString(),
-    //       paymentMethod,
-    //       status: "completed",
-    //     };
-
-    //     addPayment(newPayment);
-    //     localStorage.removeItem("currentUser");
-    //     setIsProcessing(false);
-    //     navigate("/dashboard", { state: { paymentSuccess: true } });
-    //   }
-    // }, 2000);
   };
 
   if (!user) {
@@ -164,7 +238,7 @@ export const CartPage = () => {
   }
 
   return (
-    <div className="min-h-screen max-w-4xl mx-auto">
+    <div className="min-h-screen max-w-4xl mx-auto py-8">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Complete Your Payment
@@ -183,14 +257,6 @@ export const CartPage = () => {
               </h2>
 
               <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Registration Number
-                  </p>
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {paramsID}
-                  </p>
-                </div>
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Name
@@ -213,6 +279,14 @@ export const CartPage = () => {
                   </p>
                   <p className="font-medium text-gray-900 dark:text-white">
                     {user?.graduationYear}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Address
+                  </p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {user?.address}
                   </p>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
@@ -265,7 +339,9 @@ export const CartPage = () => {
                       Manual Payment
                     </p>
                   </button>
-                  <button
+
+                  {/* rocket */}
+                  {/* <button
                     type="button"
                     onClick={() => setPaymentMethod("rocket-manual")}
                     className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
@@ -280,7 +356,9 @@ export const CartPage = () => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Manual Payment
                     </p>
-                  </button>
+                  </button> */}
+
+                  {/* Nagad */}
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("nagad-manual")}
@@ -377,7 +455,7 @@ export const CartPage = () => {
                 </div>
               )}
 
-              {paymentMethod === "rocket-manual" && (
+              {/* {paymentMethod === "rocket-manual" && (
                 <div className="space-y-4">
                   <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
                     <p className="text-purple-800 dark:text-purple-200 text-sm mb-2">
@@ -454,7 +532,7 @@ export const CartPage = () => {
                     )}
                   </div>
                 </div>
-              )}
+              )} */}
 
               {paymentMethod === "nagad-manual" && (
                 <div className="space-y-4">

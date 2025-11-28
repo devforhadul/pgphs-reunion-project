@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { RegistrationData } from "../types";
 import { getBDTime } from "../utils/helpers";
-import { collection, doc, runTransaction } from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
+import toast from "react-hot-toast";
 
 export const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export const RegistrationForm = () => {
     occupation: "",
     address: "",
     photo: "",
+    tShirtSize: "",
     payment: {
       status: "pending",
       transactionId: null,
@@ -33,6 +35,8 @@ export const RegistrationForm = () => {
       paymentNumber: "",
     },
   });
+  const [isRegisterd, setIsRegisterd] = useState<boolean>(false);
+  const [isRegisterdMess, setIsRegisterdMess] = useState<string>("");
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof RegistrationData, string>> = {};
@@ -43,8 +47,8 @@ export const RegistrationForm = () => {
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (!/^[\d\s\-+()]+$/.test(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
+    } else if (!/^01[0-9]{9}$/.test(formData.phone)) {
+      newErrors.phone = "Please enter a valid Bangladeshi phone number";
     }
 
     if (!formData.occupation.trim()) {
@@ -67,102 +71,197 @@ export const RegistrationForm = () => {
       newErrors.address = "Address is required";
     }
 
+    if (!formData.tShirtSize.trim()) {
+      newErrors.tShirtSize = "T-shirt size is required";
+    } else if (formData.tShirtSize.trim().length < 3) {
+      newErrors.tShirtSize = "Occupation must be at least 3 characters";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   if (!validate() && !formData.phone) return;
-  //   setIsSubmitting(true);
-
-  //   const counterRef = doc(db, "counters", "registrationCounter");
-  //   const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
-
-  //   // --- Wrap transaction inside toast.promise ---
-  //   toast
-  //     .promise(
-  //       runTransaction(db, async (transaction) => {
-  //         const counterDoc = await transaction.get(counterRef);
-
-  //         if (!counterDoc.exists()) {
-  //           throw new Error("Counter document does not exist!");
-  //         }
-
-  //         const current = counterDoc.data()?.current ?? 0;
-  //         const newCounter = current + 1;
-
-  //         const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
-
-  //         transaction.set(doc(registrationsRef), {
-  //           ...formData,
-  //           reg_id: serial,
-  //           createdAt: getBDTime(),
-  //         });
-
-  //         transaction.update(counterRef, { current: newCounter });
-
-  //         return serial; // IMPORTANT: return serial
-  //       }),
-  //       {
-  //         loading: "Registering...",
-  //         success: "Registration successful!",
-  //         error: "Failed to register!",
-  //       }
-  //     )
-  //     .then((serial) => {
-  //       setTimeout(() => {
-  //         setIsSubmitting(false);
-  //         navigate(`/cart/${serial}`);
-  //       }, 1000);
-  //     });
-
-  //   setIsSubmitting(false);
-  // };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  /*   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate() || !formData.phone) return;
-
-    setIsSubmitting(true); // 👉 Click korar sathe sathe button disable
+    if (!validate() && !formData.phone) return;
+    setIsSubmitting(true);
 
     const counterRef = doc(db, "counters", "registrationCounter");
     const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
 
-    try {
-      const serial = await runTransaction(db, async (transaction) => {
-        const counterDoc = await transaction.get(counterRef);
+    // --- Wrap transaction inside toast.promise ---
+    toast
+      .promise(
+        runTransaction(db, async (transaction) => {
+          const counterDoc = await transaction.get(counterRef);
 
-        if (!counterDoc.exists()) {
-          throw new Error("Counter document does not exist!");
+          if (!counterDoc.exists()) {
+            throw new Error("Counter document does not exist!");
+          }
+
+          const current = counterDoc.data()?.current ?? 0;
+          const newCounter = current + 1;
+
+          const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
+
+          transaction.set(doc(registrationsRef), {
+            ...formData,
+            reg_id: serial,
+            createdAt: getBDTime(),
+          });
+
+          transaction.update(counterRef, { current: newCounter });
+
+          return serial; // IMPORTANT: return serial
+        }),
+        {
+          loading: "Registering...",
+          success: "Registration successful!",
+          error: "Failed to register!",
         }
-
-        const current = counterDoc.data()?.current ?? 0;
-        const newCounter = current + 1;
-
-        const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
-
-        transaction.set(doc(registrationsRef), {
-          ...formData,
-          reg_id: serial,
-          createdAt: getBDTime(),
-        });
-
-        transaction.update(counterRef, { current: newCounter });
-
-        return serial; // return serial
+      )
+      .then((serial) => {
+        setTimeout(() => {
+          setIsSubmitting(false);
+          navigate(`/cart/${serial}`);
+        }, 1000);
       });
 
-      // ⭐ SUCCESS → Navigate
-      navigate(`/cart/${serial}`);
-    } catch (error) {
-      console.error("Registration failed:", error);
+    setIsSubmitting(false);
+  }; */
 
-      // ⭐ ERROR → Button enable again
-      setIsSubmitting(false);
+  useEffect(() => {
+    const checkNumber = async () => {
+      try {
+        const q = query(
+          collection(db, "pgphs_ru_reqisterd_users"),
+          where("phone", "==", formData.phone)
+        );
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          const matchedUser = {
+            id: snapshot.docs[0].id,
+            ...(snapshot.docs[0].data() as RegistrationData),
+          };
+          if (matchedUser) {
+            setIsRegisterd(true);
+            setIsRegisterdMess("Registration has been done using this number.");
+          }
+        } else {
+          // setUser(null);
+          // setErrors("You not yer registerd. go Register page");
+        }
+      } catch (err) {
+        console.error(err);
+        // setError("Something went wrong while fetching data.");
+      }
+    };
+    checkNumber();
+  }, [formData?.phone]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isRegisterd) {
+      return alert(
+        "This number already Registrad. Check status using your number."
+      );
     }
+
+    if (!validate() || !formData.phone) return;
+
+    setIsSubmitting(true); 
+
+    // try {
+    //   const usersRef = collection(db, "pgphs_ru_reqisterd_users");
+    //   const q = query(usersRef, where("phone", "==", formData.phone));
+    //   const snapshot = await getDocs(q);
+
+    //   if (!snapshot.empty) {
+    //     alert("Registration has already been done using this number.");
+    //     return;
+    //   }
+
+    //   const docRef = await addDoc(usersRef, {
+    //     ...formData,
+    //     createdAt: getBDTime(),
+    //   });
+
+    //   console.log("Document written with ID: ", docRef.id);
+
+    //   setIsSubmitting(false);
+    //   navigate(`/cart/${docRef.id}`);
+    // } catch (err) {
+    //   console.error("Error adding document: ", err);
+    //   // setError("Something went wrong. Please try again.");
+    // }
+
+    const saveRegistration = async () => {
+      const usersRef = collection(db, "pgphs_ru_reqisterd_users");
+      const q = query(usersRef, where("phone", "==", formData.phone));
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        return setIsRegisterdMess(
+          "Registration has been done using this number."
+        );
+      }
+
+      const docRef = await addDoc(usersRef, {
+        ...formData,
+        createdAt: getBDTime(),
+      });
+
+      return docRef.id;
+    };
+
+    toast
+      .promise(saveRegistration(), {
+        loading: "Registration processing...",
+        success: "Registration successful! payment now.",
+        error: (err) => err.message,
+      })
+      .then((docId) => {
+        navigate(`/cart/${docId}`);
+      })
+      .finally(() => setIsSubmitting(false));
+
+    // const counterRef = doc(db, "counters", "registrationCounter");
+    // const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
+
+    // try {
+    //   const serial = await runTransaction(db, async (transaction) => {
+    //     const counterDoc = await transaction.get(counterRef);
+
+    //     if (!counterDoc.exists()) {
+    //       throw new Error("Counter document does not exist!");
+    //     }
+
+    //     const current = counterDoc.data()?.current ?? 0;
+    //     const newCounter = current + 1;
+
+    //     const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
+
+    //     transaction.set(doc(registrationsRef), {
+    //       ...formData,
+    //       reg_id: serial,
+    //       createdAt: getBDTime(),
+    //     });
+
+    //     transaction.update(counterRef, { current: newCounter });
+
+    //     return serial; // return serial
+    //   });
+
+    //   // ⭐ SUCCESS → Navigate
+    //   navigate(`/cart/${serial}`);
+    // } catch (error) {
+    //   console.error("Registration failed:", error);
+
+    //   // ⭐ ERROR → Button enable again
+    //   setIsSubmitting(false);
+    // }
   };
 
   const handleChange = (
@@ -204,32 +303,40 @@ export const RegistrationForm = () => {
 
     const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
 
-    try {
+    const saveImage = async () => {
       const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
         method: "POST",
         body,
       });
-
       const data = await res.json();
+      const photoUrl = data.data.url ?? data.data.display_url;
 
-      if (data.success) {
-        const photoUrl = data.data.url ?? data.data.display_url;
+      setFormData((prev) => ({
+        ...prev,
+        photo: photoUrl,
+      }));
+      return photoUrl;
+    };
 
-        console.log("Uploaded Image URL => ", photoUrl);
+    toast.promise(saveImage(), {
+      loading: "Photo Saving...",
+      success: <b>Photo saved!</b>,
+      error: <b>Could not save.</b>,
+    });
 
-        setFormData((prev) => ({
-          ...prev,
-          photo: photoUrl,
-        }));
-        if (data.success) {
-          // setUploading(false);
-        }
-      } else {
-        console.log("Image upload failed:", data);
-      }
-    } catch (error) {
-      console.error("Image upload error:", error);
-    }
+    // try {
+    //   if (data.success) {
+    //     if (data) {
+    //       console.log(data.success);
+
+    //       // setUploading(false);
+    //     }
+    //   } else {
+    //     console.log("Image upload failed:", data);
+    //   }
+    // } catch (error) {
+    //   console.error("Image upload error:", error);
+    // }
   };
 
   return (
@@ -308,6 +415,9 @@ export const RegistrationForm = () => {
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+            )}
+            {isRegisterdMess && (
+              <p className="mt-1 text-sm text-red-500">{isRegisterdMess}</p>
             )}
           </div>
 
@@ -424,8 +534,50 @@ export const RegistrationForm = () => {
             )}
           </div>
 
-          {/* image */}
+          {/* T-shirt */}
 
+          <div>
+            <label
+              htmlFor="tShirtSize"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              T-Shirt Size <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="tShirtSize"
+              name="tShirtSize"
+              value={formData.tShirtSize}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                errors.tShirtSize ? "border-red-500" : "border-gray-300"
+              }`}
+            >
+              <option value="">-- Select --</option>
+              <option value="S">
+                S - Length: 27.5”, Chest: 38”, Sleeve Length: 8”
+              </option>
+              <option value="M">
+                M - Length: 28”, Chest: 41”, Sleeve Length: 8.5”
+              </option>
+              <option value="L">
+                L - Length: 29.5”, Chest: 42”, Sleeve Length: 9”
+              </option>
+              <option value="XL">
+                XL - Length: 30”, Chest: 44”, Sleeve Length: 9.5”
+              </option>
+              <option value="XXL">
+                2XL - Length: 31”, Chest: 46”, Sleeve Length: 10”
+              </option>
+              <option value="3XL">
+                3XL - Length: 32”, Chest: 48”, Sleeve Length: 11”
+              </option>
+            </select>
+            {errors.tShirtSize && (
+              <p className="mt-1 text-sm text-red-500">{errors.tShirtSize}</p>
+            )}
+          </div>
+
+          {/* image */}
           <div className="w-full flex items-start gap-4">
             {/* Left: File Input */}
             <div className="flex-1">
@@ -471,7 +623,7 @@ export const RegistrationForm = () => {
             disabled={isSubmitting}
             className="w-full group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
           >
-            {isSubmitting ? "Submitting..." : "Submit Registration"}
+            Submit Registration
           </button>
         </form>
       </div>

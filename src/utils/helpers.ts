@@ -2,26 +2,6 @@ export const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// Format currency in BDT
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat("en-BD", {
-    style: "currency",
-    currency: "BDT",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
-export const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 
 export const getBDTime = () => {
   const now = new Date();
@@ -31,3 +11,15 @@ export const getBDTime = () => {
 
   return bdTime.toISOString().replace("Z", "+06:00");
 };
+
+export function maskPhoneNumber(phone: string) {
+  if (phone.length !== 11) {
+    return "Invalid phone number";
+  }
+
+  const first3 = phone.slice(0, 3); // প্রথম ৩ সংখ্যা
+  const last3 = phone.slice(-3); // শেষ ৩ সংখ্যা
+  const masked = "x".repeat(5); // মাঝের ৫টি x
+
+  return first3 + masked + last3;
+}

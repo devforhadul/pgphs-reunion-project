@@ -29,6 +29,7 @@ export interface RegistrationData {
   graduationYear: string;
   occupation: string;
   address: string;
+  tShirtSize: string;
   photo: string;
   payment: {
     status: "completed" | "pending" | "failed" | "verifying";
@@ -38,7 +39,6 @@ export interface RegistrationData {
     paymentMethod: string;
     isManual?: boolean | null;
     paymentNumber: string;
-    
   };
 }
 

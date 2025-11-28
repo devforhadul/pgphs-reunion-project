@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import type { RegistrationData } from "@/types";
+import { maskPhoneNumber } from "@/utils/helpers";
 
 export const PaymentDashboard = () => {
   // const location = useLocation();
@@ -41,8 +42,6 @@ export const PaymentDashboard = () => {
     //   setTimeout(() => setShowSuccessMessage(false), 5000);
     // }
   });
-
-  
 
   // const filteredPayments = useMemo(() => {
   //   return payments.filter((payment) => {
@@ -191,7 +190,7 @@ export const PaymentDashboard = () => {
                     Amount
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Payment Method
+                    Mobile Number
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Status
@@ -225,13 +224,7 @@ export const PaymentDashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-                        {payment.payment.paymentMethod === "bkash-manual"
-                          ? "bKash (Manual)"
-                          : payment.payment.paymentMethod === "rocket-manual"
-                          ? "Rocket (Manual)"
-                          : payment.payment.paymentMethod === "nagad-manual"
-                          ? "Nagad (Manual)"
-                          : payment.payment.paymentMethod.replace("-", " ")}
+                        {maskPhoneNumber(payment?.phone)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

@@ -1,7 +1,5 @@
 {
   "projects": {
-    "default": "pgphs-reunion"
-  },
-  "targets": {},
-  "etags": {}
+    "default": "pgphs-alumni-association"
+  }
 }

@@ -221,7 +221,7 @@ export const CartPage = () => {
       });
 
       alert("Payment submitted successfully! Waiting for verification.");
-      navigate("/dashboard");
+      navigate("/confirmation");
     } catch (error) {
       console.error("Error during payment update:", error);
       alert("Update failed. Please try again.");

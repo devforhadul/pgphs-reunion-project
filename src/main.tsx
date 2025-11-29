@@ -12,6 +12,7 @@ import { Toaster } from "react-hot-toast";
 import { HomePage } from "./components/HomePage";
 import QrVerify from "./components/QrVerify";
 import  AdminPage from "./components/AdminPage";
+import { ConfirmationPage } from "./components/ConfirmationPage";
 // import AdminPage from "./components/AdminPage";
 
 const router = createBrowserRouter([
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
         path: "verify/:id",
         element: <QrVerify />,
       },
+      {
+        path: 'confirmation',
+        element: <ConfirmationPage/>
+      }
     ],
   },
 ]);

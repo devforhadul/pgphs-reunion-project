@@ -92,7 +92,7 @@ export const HomePage = () => {
                     </div>
                     <div>
                       <p className="text-xs text-slate-400 uppercase">Date</p>
-                      <p className="font-semibold">January 2, 2026</p>
+                      <p className="font-semibold">March 22, 2026</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-slate-300">

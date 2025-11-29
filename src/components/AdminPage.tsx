@@ -160,117 +160,117 @@ const AdminTable: React.FC<{
 };
 
 // --- Sub-Component 2: Manual Registration Form ---
-const ManualRegistrationForm: React.FC<{ fetchUsers: () => void }> = ({
-  fetchUsers,
-}) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    batch: "",
-    email: "",
-    paymentTxnId: "",
-    paymentStatus: "Paid" as "Paid" | "Pending",
-  });
-  const [loading, setLoading] = useState(false);
+// const ManualRegistrationForm: React.FC<{ fetchUsers: () => void }> = ({
+//   fetchUsers,
+// }) => {
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     batch: "",
+//     email: "",
+//     paymentTxnId: "",
+//     paymentStatus: "Paid" as "Paid" | "Pending",
+//   });
+//   const [loading, setLoading] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+//   const handleChange = (
+//     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+//   ) => {
+//     setFormData({ ...formData, [e.target.name]: e.target.value });
+//   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await addDoc(collection(db, COLLECTION_NAME), {
-        ...formData,
-        createdAt: new Date(),
-      });
-      alert("নতুন পেমেন্ট তথ্য সফলভাবে যোগ করা হয়েছে।");
-      setFormData({
-        name: "",
-        batch: "",
-        email: "",
-        paymentTxnId: "",
-        paymentStatus: "Paid",
-      });
-      fetchUsers(); // Refresh data
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      alert("ডাটা যোগ করতে ব্যর্থ। কনসোল দেখুন।");
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     try {
+//       await addDoc(collection(db, COLLECTION_NAME), {
+//         ...formData,
+//         createdAt: new Date(),
+//       });
+//       alert("নতুন পেমেন্ট তথ্য সফলভাবে যোগ করা হয়েছে।");
+//       setFormData({
+//         name: "",
+//         batch: "",
+//         email: "",
+//         paymentTxnId: "",
+//         paymentStatus: "Paid",
+//       });
+//       fetchUsers(); // Refresh data
+//     } catch (error) {
+//       console.error("Error adding document: ", error);
+//       alert("ডাটা যোগ করতে ব্যর্থ। কনসোল দেখুন।");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-2xl border border-slate-100">
-      <h3 className="text-2xl font-serif font-bold text-slate-800 mb-6 flex items-center gap-2">
-        <FaPlusCircle className="text-amber-500" /> Manually Add Payment/User
-      </h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Full Name"
-          required
-          className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="batch"
-            value={formData.batch}
-            onChange={handleChange}
-            placeholder="Batch (e.g., 2005)"
-            required
-            className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-          />
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            required
-            className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-          />
-        </div>
+//   return (
+//     <div className="bg-white p-6 rounded-xl shadow-2xl border border-slate-100">
+//       <h3 className="text-2xl font-serif font-bold text-slate-800 mb-6 flex items-center gap-2">
+//         <FaPlusCircle className="text-amber-500" /> Manually Add Payment/User
+//       </h3>
+//       <form onSubmit={handleSubmit} className="space-y-4">
+//         <input
+//           type="text"
+//           name="name"
+//           value={formData.name}
+//           onChange={handleChange}
+//           placeholder="Full Name"
+//           required
+//           className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
+//         />
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//           <input
+//             type="text"
+//             name="batch"
+//             value={formData.batch}
+//             onChange={handleChange}
+//             placeholder="Batch (e.g., 2005)"
+//             required
+//             className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
+//           />
+//           <input
+//             type="email"
+//             name="email"
+//             value={formData.email}
+//             onChange={handleChange}
+//             placeholder="Email"
+//             required
+//             className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
+//           />
+//         </div>
 
-        <input
-          type="text"
-          name="paymentTxnId"
-          value={formData.paymentTxnId}
-          onChange={handleChange}
-          placeholder="Payment Txn ID (Optional)"
-          className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-        />
+//         <input
+//           type="text"
+//           name="paymentTxnId"
+//           value={formData.paymentTxnId}
+//           onChange={handleChange}
+//           placeholder="Payment Txn ID (Optional)"
+//           className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
+//         />
 
-        <select
-          name="paymentStatus"
-          value={formData.paymentStatus}
-          onChange={handleChange}
-          required
-          className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors bg-white"
-        >
-          <option value="Paid">Status: Paid</option>
-          <option value="Pending">Status: Pending</option>
-        </select>
+//         <select
+//           name="paymentStatus"
+//           value={formData.paymentStatus}
+//           onChange={handleChange}
+//           required
+//           className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors bg-white"
+//         >
+//           <option value="Paid">Status: Paid</option>
+//           <option value="Pending">Status: Pending</option>
+//         </select>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
-        >
-          {loading ? <FaSpinner className="animate-spin" /> : <FaEdit />}
-          {loading ? "Adding Data..." : "Add Data to Firestore"}
-        </button>
-      </form>
-    </div>
-  );
-};
+//         <button
+//           type="submit"
+//           disabled={loading}
+//           className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+//         >
+//           {loading ? <FaSpinner className="animate-spin" /> : <FaEdit />}
+//           {loading ? "Adding Data..." : "Add Data to Firestore"}
+//         </button>
+//       </form>
+//     </div>
+//   );
+// };
 
 // --- Main Component: AdminPage ---
 export default function AdminPage() {
@@ -321,9 +321,9 @@ export default function AdminPage() {
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  space-y-8">
         {/* Manual Registration Form */}
-        <ManualRegistrationForm fetchUsers={fetchUsers} />
+        {/* <ManualRegistrationForm fetchUsers={fetchUsers} /> */}
 
         <div className="border-t border-slate-200 pt-8">
           <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6">

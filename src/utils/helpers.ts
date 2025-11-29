@@ -1,15 +1,7 @@
+import type { RegistrationData } from "@/types";
+
 export const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
-
-
-export const getBDTime = () => {
-  const now = new Date();
-
-  // UTC + 6 hours
-  const bdTime = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-
-  return bdTime.toISOString().replace("Z", "+06:00");
 };
 
 export function maskPhoneNumber(phone: string) {
@@ -23,3 +15,44 @@ export function maskPhoneNumber(phone: string) {
 
   return first3 + masked + last3;
 }
+
+export const formatISOToDateTime = (iso: string): string => {
+  const date = new Date(iso);
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // month 0-indexed
+  const year = date.getFullYear();
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+
+  const strHours = String(hours).padStart(2, "0");
+
+  return `${day}-${month}-${year} ${strHours}:${minutes} ${ampm}`;
+};
+
+export const sortRegistrationsByLatest = (
+  data: RegistrationData[]
+): RegistrationData[] => {
+  return [...data].sort((a, b) => {
+    const dateA =
+      a.payment.status === "completed" && a.payment.paidAt
+        ? new Date(a.payment.paidAt)
+        : a.regAt
+        ? new Date(a.regAt)
+        : new Date(0); // fallback, very old date
+
+    const dateB =
+      b.payment.status === "completed" && b.payment.paidAt
+        ? new Date(b.payment.paidAt)
+        : b.regAt
+        ? new Date(b.regAt)
+        : new Date(0);
+
+    return dateB.getTime() - dateA.getTime(); // latest first
+  });
+};

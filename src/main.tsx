@@ -11,6 +11,7 @@ import StatusCheck from "./components/StatusCheck";
 import { Toaster } from "react-hot-toast";
 import { HomePage } from "./components/HomePage";
 import QrVerify from "./components/QrVerify";
+import  AdminPage from "./components/AdminPage";
 // import AdminPage from "./components/AdminPage";
 
 const router = createBrowserRouter([
@@ -34,10 +35,10 @@ const router = createBrowserRouter([
         path: "dashboard",
         element: <PaymentDashboard />,
       },
-      // {
-      //   path: "a",
-      //   element: <AdminPage/>,
-      // },
+      {
+        path: "admin/9599",
+        element: <AdminPage/>,
+      },
       {
         path: "check-status",
         element: <StatusCheck />,

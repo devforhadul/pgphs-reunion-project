@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { RegistrationData } from "../types";
-import { getBDTime } from "../utils/helpers";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import toast from "react-hot-toast";
@@ -51,10 +50,9 @@ export const RegistrationForm = () => {
       newErrors.phone = "Please enter a valid Bangladeshi phone number";
     }
 
+
     if (!formData.occupation.trim()) {
       newErrors.occupation = "Occupation is required";
-    } else if (formData.occupation.trim().length < 3) {
-      newErrors.occupation = "Occupation must be at least 3 characters";
     }
 
     if (!formData.photo || formData.photo.trim() === "") {
@@ -63,8 +61,6 @@ export const RegistrationForm = () => {
 
     if (!formData.graduationYear.trim()) {
       newErrors.graduationYear = "Graduation year is required";
-    } else if (!/^\d{4}$/.test(formData.graduationYear)) {
-      newErrors.graduationYear = "Please enter a valid year (YYYY)";
     }
 
     if (!formData.address.trim()) {
@@ -73,8 +69,6 @@ export const RegistrationForm = () => {
 
     if (!formData.tShirtSize.trim()) {
       newErrors.tShirtSize = "T-shirt size is required";
-    } else if (formData.tShirtSize.trim().length < 3) {
-      newErrors.tShirtSize = "Occupation must be at least 3 characters";
     }
 
     setErrors(newErrors);
@@ -161,6 +155,7 @@ export const RegistrationForm = () => {
     checkNumber();
   }, [formData?.phone]);
 
+  // Submit Form function
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isRegisterd) {
@@ -173,29 +168,6 @@ export const RegistrationForm = () => {
 
     setIsSubmitting(true); 
 
-    // try {
-    //   const usersRef = collection(db, "pgphs_ru_reqisterd_users");
-    //   const q = query(usersRef, where("phone", "==", formData.phone));
-    //   const snapshot = await getDocs(q);
-
-    //   if (!snapshot.empty) {
-    //     alert("Registration has already been done using this number.");
-    //     return;
-    //   }
-
-    //   const docRef = await addDoc(usersRef, {
-    //     ...formData,
-    //     createdAt: getBDTime(),
-    //   });
-
-    //   console.log("Document written with ID: ", docRef.id);
-
-    //   setIsSubmitting(false);
-    //   navigate(`/cart/${docRef.id}`);
-    // } catch (err) {
-    //   console.error("Error adding document: ", err);
-    //   // setError("Something went wrong. Please try again.");
-    // }
 
     const saveRegistration = async () => {
       const usersRef = collection(db, "pgphs_ru_reqisterd_users");
@@ -210,7 +182,7 @@ export const RegistrationForm = () => {
 
       const docRef = await addDoc(usersRef, {
         ...formData,
-        createdAt: getBDTime(),
+        regAt: new Date().toISOString(),
       });
 
       return docRef.id;
@@ -301,6 +273,8 @@ export const RegistrationForm = () => {
     const body = new FormData();
     body.append("image", file);
 
+    setIsSubmitting(true)
+
     const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
 
     const saveImage = async () => {
@@ -315,6 +289,7 @@ export const RegistrationForm = () => {
         ...prev,
         photo: photoUrl,
       }));
+      setIsSubmitting(false)
       return photoUrl;
     };
 
@@ -377,7 +352,7 @@ export const RegistrationForm = () => {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Email Address
+              Email Address <span> (Optional)</span>
             </label>
             <input
               type="email"
@@ -408,6 +383,7 @@ export const RegistrationForm = () => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
+              maxLength={11}
               className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.phone ? "border-red-500" : "border-gray-300"
               }`}
@@ -492,7 +468,7 @@ export const RegistrationForm = () => {
                 errors.occupation ? "border-red-500" : "border-gray-300"
               }`}
             >
-              <option value="">Select Occupation</option>
+              <option value="">-- Select Occupation -- </option>
               <option value="student">Student</option>
               <option value="private job">Private Job</option>
               <option value="govt job">Government Job</option>

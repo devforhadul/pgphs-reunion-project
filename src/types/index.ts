@@ -31,6 +31,7 @@ export interface RegistrationData {
   address: string;
   tShirtSize: string;
   photo: string;
+  regAt?: string;
   payment: {
     status: "completed" | "pending" | "failed" | "verifying";
     transactionId: null | string;

@@ -40,8 +40,9 @@ export const Footer = () => {
             <ul className="space-y-3">
               {[
                   { name: "Home", path: "/" },
-                  { name: "Register Now", path: "/register" },
+                  { name: "Register Now", path: "/registration" },
                   { name: "Alumni Dashboard", path: "/dashboard" },
+                  { name: "Check Status", path: "/check-status" },
                   { name: "Admin Panel", path: "/admin" }
               ].map((link) => (
                 <li key={link.name}>
@@ -70,7 +71,7 @@ export const Footer = () => {
                 </div>
                 <div>
                     <p className="text-xs text-slate-500 uppercase font-semibold">Email</p>
-                    <span className="text-white hover:text-amber-400 transition-colors">info@pgphsreunion.com</span>
+                    <span className="text-white hover:text-amber-400 transition-colors">pgphsalumniassociation@gmail.com</span>
                 </div>
               </li>
               <li className="flex items-start gap-4">
@@ -79,7 +80,7 @@ export const Footer = () => {
                 </div>
                 <div>
                     <p className="text-xs text-slate-500 uppercase font-semibold">Phone</p>
-                    <span className="text-white">01984839526</span>
+                    <span className="text-white">01976213292</span>
                 </div>
               </li>
               <li className="flex items-start gap-4">
@@ -88,7 +89,7 @@ export const Footer = () => {
                 </div>
                 <div>
                     <p className="text-xs text-slate-500 uppercase font-semibold">Location</p>
-                    <span className="text-white">PGPHS Campus, School Auditorium</span>
+                    <span className="text-white">PGPHS Campus</span>
                 </div>
               </li>
             </ul>

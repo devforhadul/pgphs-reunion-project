@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs,  } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import type { RegistrationData } from "@/types";
-import { maskPhoneNumber } from "@/utils/helpers";
+import {
+  formatISOToDateTime,
+  maskPhoneNumber,
+  sortRegistrationsByLatest,
+} from "@/utils/helpers";
 
 export const PaymentDashboard = () => {
   // const location = useLocation();
@@ -11,7 +15,6 @@ export const PaymentDashboard = () => {
   // const [filterStatus, setFilterStatus] = useState<string>("all");
   // const [filterMethod, setFilterMethod] = useState<string>("all");
   // const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [totalAmount, setTotalAmount] = useState<number>();
 
   // Show success message if coming from payment
   useEffect(() => {
@@ -24,15 +27,7 @@ export const PaymentDashboard = () => {
         id: doc.id,
         ...(doc.data() as RegistrationData),
       }));
-      setPayments(allData);
-      // total amount
-      const totalAmount = allData.reduce((sum, item) => {
-        if (item.payment?.status === "completed") {
-          return sum + (item.payment.amount || 0);
-        }
-        return sum;
-      }, 0);
-      setTotalAmount(totalAmount);
+      setPayments(sortRegistrationsByLatest(allData));
     };
 
     getAllPayments();
@@ -41,7 +36,7 @@ export const PaymentDashboard = () => {
     //   setShowSuccessMessage(true);
     //   setTimeout(() => setShowSuccessMessage(false), 5000);
     // }
-  });
+  }, []);
 
   // const filteredPayments = useMemo(() => {
   //   return payments.filter((payment) => {
@@ -97,20 +92,48 @@ export const PaymentDashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Payment Dashboard
+              Dashboard
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               View all payment transactions and statistics
             </p>
           </div>
+
           <div className="mt-4 md:mt-0">
-            <div className="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Total Collected
-              </p>
-              <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                {totalAmount} Tk
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Total Registration
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {payments.length}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Completed Payments
+                </p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  {
+                    payments.filter((p) => p.payment.status === "completed")
+                      .length
+                  }
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Total Collected
+                </p>
+                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                  {payments.reduce((sum, item) => {
+                    if (item.payment?.status === "completed") {
+                      return sum + (item.payment.amount || 0);
+                    }
+                    return sum;
+                  }, 0)}{" "}
+                  Tk
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -209,7 +232,7 @@ export const PaymentDashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-mono text-gray-900 dark:text-white">
                         {/* {payment.id.slice(0, 8)}... */}
-                        {payment.reg_id}
+                        {payment.reg_id ? payment.reg_id : "Unpaid"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -223,7 +246,7 @@ export const PaymentDashboard = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500 dark:text-gray-400 capitalize">
+                      <div className="text-lg text-gray-500 dark:text-gray-400 capitalize">
                         {maskPhoneNumber(payment?.phone)}
                       </div>
                     </td>
@@ -232,7 +255,14 @@ export const PaymentDashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {/* formatDate */ payment.payment.paidAt}
+                        {/* {payment.payment.paidAt
+                          ? formatISOToDateTime(payment.payment.paidAt)
+                          : formatISOToDateTime(payment.regAt)} */}
+                        {formatISOToDateTime(
+                          payment.payment.paidAt ??
+                            payment.regAt ??
+                            new Date().toISOString()
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -241,36 +271,6 @@ export const PaymentDashboard = () => {
             </table>
           )}
         </div>
-
-        {/* Summary Stats */}
-        {/* <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Total Payments
-            </p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {filteredPayments.length}
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Completed Payments
-            </p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {filteredPayments.filter((p) => p.status === "completed").length}
-            </p>
-          </div>
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Average Amount
-            </p>
-            <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-              {filteredPayments.length > 0
-                ? formatCurrency(totalAmount / filteredPayments.length)
-                : formatCurrency(0)}
-            </p>
-          </div>
-        </div> */}
       </div>
     </div>
   );

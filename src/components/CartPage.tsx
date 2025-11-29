@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {  useNavigate, useParams } from "react-router-dom";
 import type { RegistrationData } from "../types";
-import { getBDTime } from "../utils/helpers";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 
@@ -12,8 +11,6 @@ export const CartPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-manual");
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");
-  // const [rocketNumber, setRocketNumber] = useState<string>("");
-  // const [rocketTrxId, setRocketTrxId] = useState<string>("");
   const [nagadNumber, setNagadNumber] = useState<string>("");
   const [nagadTrxId, setNagadTrxId] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -217,7 +214,7 @@ export const CartPage = () => {
       await updateDoc(docRef, {
         "payment.status": "verifying",
         "payment.transactionId": trxId,
-        "payment.paidAt": getBDTime(),
+        "payment.paidAt": new Date().toISOString(),
         "payment.paymentMethod": paymentMethod,
         "payment.isManual": true,
         "payment.paymentNumber": payNumber,
@@ -340,23 +337,7 @@ export const CartPage = () => {
                     </p>
                   </button>
 
-                  {/* rocket */}
-                  {/* <button
-                    type="button"
-                    onClick={() => setPaymentMethod("rocket-manual")}
-                    className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
-                      paymentMethod === "rocket-manual"
-                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                        : "border-gray-300 dark:border-gray-600 hover:border-primary-300"
-                    }`}
-                  >
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      Rocket
-                    </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Manual Payment
-                    </p>
-                  </button> */}
+                  
 
                   {/* Nagad */}
                   <button

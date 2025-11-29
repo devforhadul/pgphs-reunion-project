@@ -72,7 +72,7 @@ export const HomePage = () => {
             <div className="relative hidden lg:block">
               <div className="relative z-10 bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500 group">
                 <div className="absolute -top-10 -right-10 text-9xl text-white/5 font-serif font-black select-none">
-                  2025
+                  2026
                 </div>
                 <div className="flex justify-between items-start mb-8">
                   <div>
@@ -103,7 +103,7 @@ export const HomePage = () => {
                       <p className="text-xs text-slate-400 uppercase">
                         Location
                       </p>
-                      <p className="font-semibold">PGPHS School Auditorium</p>
+                      <p className="font-semibold">PGPHS School Field</p>
                     </div>
                   </div>
                 </div>
@@ -257,8 +257,8 @@ export const HomePage = () => {
             {/* Venue Card */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-colors">
               <FaMapMarkerAlt className="text-5xl text-pink-400 mb-6 opacity-80" />
-              <h3 className="text-2xl font-bold mb-2">School Auditorium</h3>
-              <p className="text-slate-400">PGPHS Main Campus</p>
+              <h3 className="text-2xl font-bold mb-2">School Field</h3>
+              <p className="text-slate-400">PGPHS School Field</p>
               <div className="mt-6 inline-block px-3 py-1 bg-pink-500/20 text-pink-300 rounded text-xs font-bold uppercase tracking-wider">
                 Map View
               </div>
@@ -355,36 +355,36 @@ export const HomePage = () => {
           <p className="text-slate-500 font-medium mb-8 uppercase tracking-widest text-sm">
             Secure Payment Partners
           </p>
-          <div className="flex flex-wrap justify-center gap-8 items-center grayscale hover:grayscale-0 transition-all duration-500">
-            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64">
+          <div className="flex flex-wrap justify-center gap-8 items-center  transition-all duration-500">
+            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
               <img
                 src={bkash_logo}
                 alt="bKash"
                 className="h-16 mx-auto object-contain mb-3"
               />
-              <p className="text-slate-400 text-xs font-mono group-hover:text-pink-600">
+              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-pink-600">
                 01984839526 (Merchant)
-              </p>
+              </p> */}
             </div>
-            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64">
+            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
               <img
                 src={nagad_logo}
                 alt="Nagad"
                 className="h-16 mx-auto object-contain mb-3"
               />
-              <p className="text-slate-400 text-xs font-mono group-hover:text-orange-600">
+              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-orange-600">
                 01984839526 (Merchant)
-              </p>
+              </p> */}
             </div>
-            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64">
+            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
               <img
                 src={rocket_logo}
                 alt="Rocket"
                 className="h-16 mx-auto object-contain mb-3"
               />
-              <p className="text-slate-400 text-xs font-mono group-hover:text-purple-600">
+              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-purple-600">
                 01984839526 (Merchant)
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

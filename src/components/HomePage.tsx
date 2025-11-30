@@ -34,7 +34,7 @@ export const HomePage = () => {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-full backdrop-blur-md">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 <span className="text-amber-100 text-sm font-medium tracking-wide uppercase">
-                  PGPHS Alumni Association
+                  PGMPHS Alumni Association
                 </span>
               </div>
 

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { collection, getDocs,  } from "firebase/firestore";
+import { useState, useEffect, useMemo } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import type { RegistrationData } from "@/types";
 import {
@@ -10,64 +10,52 @@ import {
 
 export const PaymentDashboard = () => {
   // const location = useLocation();
-  const [payments, setPayments] = useState<RegistrationData[]>([]);
-  // const [searchTerm, setSearchTerm] = useState("");
-  // const [filterStatus, setFilterStatus] = useState<string>("all");
-  // const [filterMethod, setFilterMethod] = useState<string>("all");
+  const [users, setUsers] = useState<RegistrationData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   // const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Show success message if coming from payment
   useEffect(() => {
-    const getAllPayments = async () => {
-      const snapshot = await getDocs(
-        collection(db, "pgphs_ru_reqisterd_users")
-      );
+    // Firestore collection ref
+    const ref = collection(db, "pgphs_ru_reqisterd_users");
 
+    // 🔥 Realtime listener
+    const unsubscribe = onSnapshot(ref, (snapshot) => {
       const allData: RegistrationData[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...(doc.data() as RegistrationData),
       }));
-      setPayments(sortRegistrationsByLatest(allData));
-    };
 
-    getAllPayments();
+      // তোমার sorting function 그대로 রাখলাম
+      setUsers(sortRegistrationsByLatest(allData));
+    });
 
-    // if (location.state?.paymentSuccess) {
-    //   setShowSuccessMessage(true);
-    //   setTimeout(() => setShowSuccessMessage(false), 5000);
-    // }
+    // Cleanup listener
+    return () => unsubscribe();
   }, []);
 
-  // const filteredPayments = useMemo(() => {
-  //   return payments.filter((payment) => {
-  //     const matchesSearch =
-  //       payment.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       payment.id.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredPayments = useMemo(() => {
+    return users.filter((payment) => {
+      const matchesSearch =
+        payment.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.phone.toLowerCase().includes(searchTerm.toLowerCase());
 
-  //     const matchesStatus =
-  //       filterStatus === "all" || payment.status === filterStatus;
-  //     const matchesMethod =
-  //       filterMethod === "all" || payment.paymentMethod === filterMethod;
-
-  //     return matchesSearch && matchesStatus && matchesMethod;
-  //   });
-  // }, [payments, searchTerm, filterStatus, filterMethod]);
+      return matchesSearch;
+    });
+  }, [users, searchTerm]);
 
   // const totalAmount = useMemo(() => {
   //   return filteredPayments.reduce((sum, payment) => sum + payment.amount, 0);
   // }, [filteredPayments]);
 
-  type Status = "completed" | "verifying" | "pending" | "failed";
+  type Status = "paid" | "verifying" | "unPaid";
 
   const getStatusBadge = (statuses: Status[] | Status) => {
     const styles: Record<Status, string> = {
-      completed:
-        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      paid: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
       verifying:
-        "bg-green-100 text-blue-800 dark:bg-green-900/30 dark:text-green-400",
-      pending:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      failed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+        "bg-green-100 text-blue-800 dark:bg-blue-900/30 dark:text-green-400",
+      unPaid: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
     };
 
     const statusArray = Array.isArray(statuses) ? statuses : [statuses];
@@ -77,7 +65,7 @@ export const PaymentDashboard = () => {
         {statusArray.map((status) => (
           <span
             key={status}
-            className={`px-2 py-1 text-xs font-semibold rounded-full ${styles[status]}`}
+            className={`px-4 py-2 text-xs font-semibold rounded-full ${styles[status]}`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
@@ -99,6 +87,7 @@ export const PaymentDashboard = () => {
             </p>
           </div>
 
+          {/* Summary states */}
           <div className="mt-4 md:mt-0">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -106,7 +95,7 @@ export const PaymentDashboard = () => {
                   Total Registration
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {payments.length}
+                  {users.length}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -114,10 +103,7 @@ export const PaymentDashboard = () => {
                   Completed Payments
                 </p>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {
-                    payments.filter((p) => p.payment.status === "completed")
-                      .length
-                  }
+                  {users.filter((p) => p.payment.status === "paid").length}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -125,8 +111,8 @@ export const PaymentDashboard = () => {
                   Total Collected
                 </p>
                 <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                  {payments.reduce((sum, item) => {
-                    if (item.payment?.status === "completed") {
+                  {users.reduce((sum, item) => {
+                    if (item.payment?.status === "paid") {
                       return sum + (item.payment.amount || 0);
                     }
                     return sum;
@@ -138,16 +124,8 @@ export const PaymentDashboard = () => {
           </div>
         </div>
 
-        {/* {showSuccessMessage && (
-          <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-            <p className="text-green-800 dark:text-green-200">
-              ✓ Payment completed successfully! Your registration is confirmed.
-            </p>
-          </div>
-        )} */}
-
         {/* Search and Filters */}
-        {/* <div className="mb-6 space-y-4">
+        <div className="mb-6 space-y-4">
           <div>
             <input
               type="text"
@@ -157,43 +135,11 @@ export const PaymentDashboard = () => {
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Filter by Status
-              </label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-                <option value="all">All Statuses</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="failed">Failed</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Filter by Payment Method
-              </label>
-              <select
-                value={filterMethod}
-                onChange={(e) => setFilterMethod(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              >
-                <option value="all">All Methods</option>
-                <option value="bkash-manual">bKash</option>
-                <option value="rocket-manual">Rocket</option>
-                <option value="nagad-manual">Nagad</option>
-              </select>
-            </div>
-          </div>
-        </div> */}
+        </div>
 
         {/* Payments Table */}
         <div className="overflow-x-auto">
-          {payments.length === 0 ? (
+          {filteredPayments.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">
                 No payments found matching your criteria.
@@ -209,9 +155,9 @@ export const PaymentDashboard = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Amount
-                  </th>
+                  </th> */}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Mobile Number
                   </th>
@@ -224,7 +170,7 @@ export const PaymentDashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {payments.map((payment, idx) => (
+                {filteredPayments.map((payment, idx) => (
                   <tr
                     key={idx}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -240,11 +186,11 @@ export const PaymentDashboard = () => {
                         {payment.fullName}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    {/* <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-gray-900 dark:text-white">
                         {payment.payment.amount} Tk
                       </div>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-lg text-gray-500 dark:text-gray-400 capitalize">
                         {maskPhoneNumber(payment?.phone)}

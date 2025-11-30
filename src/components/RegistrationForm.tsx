@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { RegistrationData } from "../types";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
@@ -25,13 +25,14 @@ export const RegistrationForm = () => {
     photo: "",
     tShirtSize: "",
     payment: {
-      status: "pending",
+      status: "unPaid",
       transactionId: null,
       amount: 1000,
       paidAt: null,
       paymentMethod: "",
       isManual: null,
       paymentNumber: "",
+      isCancelled: false
     },
   });
   const [isRegisterd, setIsRegisterd] = useState<boolean>(false);
@@ -49,7 +50,6 @@ export const RegistrationForm = () => {
     } else if (!/^01[0-9]{9}$/.test(formData.phone)) {
       newErrors.phone = "Please enter a valid Bangladeshi phone number";
     }
-
 
     if (!formData.occupation.trim()) {
       newErrors.occupation = "Occupation is required";
@@ -166,8 +166,7 @@ export const RegistrationForm = () => {
 
     if (!validate() || !formData.phone) return;
 
-    setIsSubmitting(true); 
-
+    setIsSubmitting(true);
 
     const saveRegistration = async () => {
       const usersRef = collection(db, "pgphs_ru_reqisterd_users");
@@ -273,7 +272,7 @@ export const RegistrationForm = () => {
     const body = new FormData();
     body.append("image", file);
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
 
@@ -289,7 +288,7 @@ export const RegistrationForm = () => {
         ...prev,
         photo: photoUrl,
       }));
-      setIsSubmitting(false)
+      setIsSubmitting(false);
       return photoUrl;
     };
 
@@ -602,6 +601,18 @@ export const RegistrationForm = () => {
             Submit Registration
           </button>
         </form>
+
+        <div className="mt-6 p-4 bg-indigo-50 dark:bg-gray-700/50 rounded-lg shadow-inner flex justify-center">
+          <p className="text-sm text-gray-700 dark:text-gray-300">
+            Already Registered?
+            <Link
+              to={"/check-status"}
+              className="ml-2 font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200 underline underline-offset-4"
+            >
+              Pay now
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

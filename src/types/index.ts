@@ -33,13 +33,14 @@ export interface RegistrationData {
   photo: string;
   regAt?: string;
   payment: {
-    status: "completed" | "pending" | "failed" | "verifying";
+    status: "paid" | "unPaid" | "verifying";
     transactionId: null | string;
     amount: 1000;
     paidAt: null | string;
     paymentMethod: string;
     isManual?: boolean | null;
     paymentNumber: string;
+    isCancelled: boolean;
   };
 }
 

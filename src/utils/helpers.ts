@@ -40,14 +40,14 @@ export const sortRegistrationsByLatest = (
 ): RegistrationData[] => {
   return [...data].sort((a, b) => {
     const dateA =
-      a.payment.status === "completed" && a.payment.paidAt
+      a.payment.status === "paid" && a.payment.paidAt
         ? new Date(a.payment.paidAt)
         : a.regAt
         ? new Date(a.regAt)
         : new Date(0); // fallback, very old date
 
     const dateB =
-      b.payment.status === "completed" && b.payment.paidAt
+      b.payment.status === "paid" && b.payment.paidAt
         ? new Date(b.payment.paidAt)
         : b.regAt
         ? new Date(b.regAt)

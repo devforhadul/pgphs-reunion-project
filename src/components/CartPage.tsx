@@ -85,102 +85,6 @@ export const CartPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (!validatePayment()) return;
-
-  //   setIsProcessing(true);
-
-  //   let payNumber = "";
-  //   let trxId = "";
-
-  //   if (paymentMethod === "bkash-manual") {
-  //     payNumber = bkashNumber;
-  //     trxId = bkashTrxId;
-  //   } else if (paymentMethod === "nagad-manual") {
-  //     payNumber = nagadNumber;
-  //     trxId = nagadTrxId;
-  //   } else if (paymentMethod === "rocket-manual") {
-  //     payNumber = rocketNumber;
-  //     trxId = rocketTrxId;
-  //   } else {
-  //     console.log("Invalid payment method");
-  //     return;
-  //   }
-
-  //   const docRef = doc(db, COLLECTION_NAME, paramsID);
-
-  //   try {
-  //     // প্রথমে ডকুমেন্টটি আছে কিনা, তা চেক করা ঐচ্ছিক।
-  //     // তবে updateDoc() সরাসরি ব্যবহার করলে যদি ডকুমেন্ট না থাকে, তবে এরর দেবে।
-
-  //     // 🚀 অপটিমাইজড ধাপ: সরাসরি আপডেটের চেষ্টা
-  //     await updateDoc(docRef, {
-  //       // nested field আপডেট করতে ডট নোটেশন ব্যবহার করুন
-  //       "payment.status": "verifying",
-  //       "payment.transactionId": trxId,
-  //       "payment.paidAt": getBDTime(), // ধরলাম getBDTime() একটি ভ্যালিড ভ্যালু রিটার্ন করে
-  //       "payment.paymentMethod": paymentMethod,
-  //       "payment.isManual": true,
-  //       "payment.paymentNumber": payNumber,
-  //     });
-
-  //     alert("Payment successfully! waiting for verification");
-  //     navigate("/dashboard");
-  //   } catch (error) {
-  //     // যদি ডকুমেন্টটি না পাওয়া যায়, তবে Firebase এখানে এরর দেবে।
-  //     console.error("Error during payment update:", error);
-  //     alert("Update failed. User ID might be incorrect.");
-  //   }
-
-  //   // try {
-  //   //   const q = query(
-  //   //     collection(db, "pgphs_ru_reqisterd_users"),
-  //   //     where("id", "==", paramsID)
-  //   //   );
-
-  //   //   const snapshot = await getDocs(q);
-  //   //   if (snapshot.empty) {
-  //   //     console.log("User not found");
-  //   //     return;
-  //   //   }
-  //   //   const docRef = snapshot.docs[0].ref;
-
-  //   //   await updateDoc(docRef, {
-  //   //     "payment.status": "verifying",
-  //   //     "payment.transactionId": trxId,
-  //   //     "payment.paidAt": getBDTime(),
-  //   //     "payment.paymentMethod": paymentMethod,
-  //   //     "payment.isManual": true,
-  //   //     "payment.paymentNumber": payNumber,
-  //   //   });
-  //   //   alert("Payment successfully! waiting for verification");
-  //   //   navigate("/dashboard");
-  //   // } catch (error) {
-  //   //   console.log(error);
-  //   // }
-
-  //   // Simulate payment processing
-  //   // setTimeout(() => {
-  //   //   if (user) {
-  //   //     const newPayment: Payment = {
-  //   //       id: generateId(),
-  //   //       userId: user.id,
-  //   //       userName: `${user.firstName} ${user.lastName}`,
-  //   //       amount,
-  //   //       paymentDate: new Date().toISOString(),
-  //   //       paymentMethod,
-  //   //       status: "completed",
-  //   //     };
-
-  //   //     addPayment(newPayment);
-  //   //     localStorage.removeItem("currentUser");
-  //   //     setIsProcessing(false);
-  //   //     navigate("/dashboard", { state: { paymentSuccess: true } });
-  //   //   }
-  //   // }, 2000);
-  // };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validatePayment()) return;
@@ -220,7 +124,6 @@ export const CartPage = () => {
         "payment.paymentNumber": payNumber,
       });
 
-      alert("Payment submitted successfully! Waiting for verification.");
       navigate("/confirmation");
     } catch (error) {
       console.error("Error during payment update:", error);

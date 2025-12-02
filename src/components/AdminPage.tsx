@@ -1,10 +1,10 @@
-import  { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   collection,
   getDocs,
-  updateDoc,
   doc,
   onSnapshot,
+  runTransaction,
 } from "firebase/firestore";
 import {
   FaCheckCircle,
@@ -17,160 +17,8 @@ import type { RegistrationData } from "@/types";
 import { sortRegistrationsByLatest } from "@/utils/helpers";
 
 const COLLECTION_NAME = "pgphs_ru_reqisterd_users";
-
-// --- Sub-Component 1: Admin Table for Display and Status Update ---
-// const AdminTable: React.FC<{
-//   users: RegistrationData[];
-// }> = ({ users }) => {
-//
-
-//   /* Update status */
-//   // const handleUpdateStatus = async (
-//   //   user: RegistrationData,
-//   //   newStatus: "paid" | "unPaid"
-//   // ) => {
-//   //   if (loadingId) return;
-
-//   //   // useEffect(() => {
-
-//   //   // setLoadingId(user.reg_id);
-//   //   // try {
-//   //   //   if (!user?.id) {
-//   //   //     console.error("User ID is missing");
-//   //   //     return;
-//   //   //   }
-
-//   //   //   const docRef = doc(db, "pgphs_ru_reqisterd_users", user?.id);
-
-//   //   //   await updateDoc(docRef, {
-//   //   //     "payment.status": newStatus,
-//   //   //   });
-
-//   //   //   alert(`Pyment status successfully update to ${newStatus}`);
-//   //   // } catch (error) {
-//   //   //   console.error("Error updating document: ", error);
-//   //   // } finally {
-//   //   //   setLoadingId(null);
-//   //   // }
-//   // };
-
-//   return (
-
-//   );
-// };
-
-// --- Sub-Component 2: Manual Registration Form ---
-/* const ManualRegistrationForm: React.FC<{ fetchUsers: () => void }> = ({
-  fetchUsers,
-}) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    batch: "",
-    email: "",
-    paymentTxnId: "",
-    paymentStatus: "Paid" as "Paid" | "Pending",
-  });
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await addDoc(collection(db, COLLECTION_NAME), {
-        ...formData,
-        createdAt: new Date(),
-      });
-      alert("নতুন পেমেন্ট তথ্য সফলভাবে যোগ করা হয়েছে।");
-      setFormData({
-        name: "",
-        batch: "",
-        email: "",
-        paymentTxnId: "",
-        paymentStatus: "Paid",
-      });
-      fetchUsers(); // Refresh data
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      alert("ডাটা যোগ করতে ব্যর্থ। কনসোল দেখুন।");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-2xl border border-slate-100">
-      <h3 className="text-2xl font-serif font-bold text-slate-800 mb-6 flex items-center gap-2">
-        <FaPlusCircle className="text-amber-500" /> Manually Add Payment/User
-      </h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="Full Name"
-          required
-          className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="batch"
-            value={formData.batch}
-            onChange={handleChange}
-            placeholder="Batch (e.g., 2005)"
-            required
-            className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-          />
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            required
-            className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-          />
-        </div>
-
-        <input
-          type="text"
-          name="paymentTxnId"
-          value={formData.paymentTxnId}
-          onChange={handleChange}
-          placeholder="Payment Txn ID (Optional)"
-          className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
-        />
-
-        <select
-          name="paymentStatus"
-          value={formData.paymentStatus}
-          onChange={handleChange}
-          required
-          className="w-full p-3 border border-slate-300 rounded-lg focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors bg-white"
-        >
-          <option value="Paid">Status: Paid</option>
-          <option value="Pending">Status: Pending</option>
-        </select>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
-        >
-          {loading ? <FaSpinner className="animate-spin" /> : <FaEdit />}
-          {loading ? "Adding Data..." : "Add Data to Firestore"}
-        </button>
-      </form>
-    </div>
-  );
-}; */
+import { Confirm } from "notiflix/build/notiflix-confirm-aio";
+import toast from "react-hot-toast";
 
 // --- Main Component: AdminPage ---
 export default function AdminPage() {
@@ -237,6 +85,7 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
+  // Update Staus
   const handleUpdateStatus = async (
     user: RegistrationData,
     newStatus: string
@@ -245,22 +94,158 @@ export default function AdminPage() {
 
     // setLoadingId(user.id);
 
-    try {
-      if (!user.id) {
-        return "User not found!!";
-      }
-      const docRef = doc(db, "pgphs_ru_reqisterd_users", user.id);
+    Confirm.show(
+      "Status Update Confirmation",
+      `Are you sure update to ${newStatus}?`,
+      "Yes",
+      "No",
+      async () => {
+        // setLoadingId(user.id);
+        try {
+          if (!user.id) return toast.error("User not found!");
+          const userRef = doc(db, "pgphs_ru_reqisterd_users", user?.id);
+          const counterRef = doc(db, "counters", "registrationCounter");
 
-      await updateDoc(docRef, {
-        "payment.status": newStatus,
-      });
+          await runTransaction(db, async (transaction) => {
+            // 1️⃣ Read counter
+            const counterDoc = await transaction.get(counterRef);
+            const current = counterDoc.data()?.current ?? 0;
+            const newCounter = current + 1;
 
-      alert(`Payment status successfully updated to ${newStatus}`);
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoadingId(null);
-    }
+            // 2️⃣ Generate serial
+            const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
+
+            // 3️⃣ Update user document: status + serial
+            transaction.update(userRef, {
+              "payment.status": newStatus,
+              reg_id: serial, // merge serial
+            });
+
+            // 4️⃣ Update counter
+            transaction.update(counterRef, { current: newCounter });
+          });
+
+          toast.success(
+            `Payment status updated to ${newStatus} with Serial generated!`
+          );
+
+          // 5️⃣ Send SMS if paid
+          if (newStatus === "paid") {
+            const sendSmsData = {
+              phone: user?.phone || "",
+              message: `Congratulations ${
+                user?.fullName || "Guest"
+              }\nYour registration for the PGPHS Reunion 2026 has been successfully completed. Keep your virtual registration card to collect your entry pass.`,
+            };
+
+            try {
+              const res = await fetch(
+                "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(sendSmsData),
+                }
+              );
+
+              const data = await res.json();
+              console.log("SMS response:", data);
+
+              if (data.status === "success") {
+                toast.success(`Confirmation SMS sent to ${user.fullName}`);
+              } else {
+                toast.error(data?.data?.error_message || "SMS failed");
+              }
+            } catch (err) {
+              console.error(err);
+              toast.error("SMS sending failed");
+            }
+          }
+        } catch (err) {
+          console.error("Transaction failed:", err);
+          toast.error("Status update failed");
+        } finally {
+          setLoadingId(null);
+        }
+      },
+      () => {
+        // Clicked No
+        console.log("Update cancelled");
+      },
+      {}
+    );
+
+    // Confirm.show(
+    //   "Status Update Confirmation",
+    //   `Are you sure update to ${newStatus}`,
+    //   "Yes",
+    //   "No",
+    //   async () => {
+    //     try {
+    //       if (!user.id) {
+    //         return "User not found!!";
+    //       }
+    //       const docRef = doc(db, "pgphs_ru_reqisterd_users", user.id);
+
+    //       await updateDoc(docRef, {
+    //         "payment.status": newStatus,
+    //       });
+    //       toast.success(`Payment status successfully updated to ${newStatus}`);
+
+    //       //const counterRef = doc(db, "counters", "registrationCounter");
+    //       // const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
+
+    //       // For gat counter number
+
+    //       const sendSmsData = {
+    //         phone: user?.phone || "",
+    //         message: `Congratulations ${
+    //           user?.fullName || "Guest"
+    //         }\nYour registration for the PGPHS Reunion 2026 has been successfully completed. Keep your virtual registration card to collect your entry pass.`,
+    //       };
+
+    //       if (newStatus === "paid") {
+    //         try {
+    //           const res = await fetch(
+    //             "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
+    //             {
+    //               method: "POST",
+    //               headers: { "Content-Type": "application/json" },
+    //               body: JSON.stringify(sendSmsData),
+    //             }
+    //           );
+
+    //           const data = await res.json();
+
+    //           if (data.status === "success") {
+    //             toast.success(`Confirmation sms sent to ${user.fullName}`);
+    //           }
+
+    //           //               {
+    //           //     "status": "success",
+    //           //     "data": {
+    //           //         "response_code": 1032,
+    //           //         "success_message": "",
+    //           //         "error_message": "Your ip 100.27.223.141 not Whitelisted. Please whitelist ip from Phonebook"
+    //           //     }
+    //           // }
+    //           console.log("SMS response:", data);
+    //         } catch (err) {
+    //           console.error(err);
+    //           alert("SMS sending failed");
+    //         }
+    //       }
+    //     } catch (error) {
+    //       console.error("Error:", error);
+    //     } finally {
+    //       setLoadingId(null);
+    //     }
+    //   },
+    //   () => {
+    //     // if click no
+    //   },
+    //   {}
+    // );
   };
 
   return (
@@ -360,9 +345,9 @@ export default function AdminPage() {
                     "Txn ID",
                     "Status",
                     "Actions",
-                  ].map((header) => (
+                  ].map((header, idx) => (
                     <th
-                      key={header}
+                      key={idx}
                       className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
                     >
                       {header}
@@ -373,7 +358,7 @@ export default function AdminPage() {
               <tbody className="bg-white divide-y divide-slate-200">
                 {filteredPayments.map((user) => (
                   <tr
-                    key={user.reg_id}
+                    key={user.id}
                     className="hover:bg-amber-50/50 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">

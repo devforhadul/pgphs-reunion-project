@@ -10,6 +10,14 @@ const FaCheckCircle = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+// import { usePDF } from "react-to-pdf";
+
+// import ReunionTicket from "./ReunionTicket";
+// import { useEffect, useState } from "react";
+// import type { RegistrationData } from "@/types";
+// import { doc, getDoc } from "firebase/firestore";
+// import { db } from "@/firebase/firebase.init";
+
 // const FaArrowRight = (props: React.SVGProps<SVGSVGElement>) => (
 //   <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
 //     <path fill="currentColor" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L370.7 224H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h338.7L233.3 393.3c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/>
@@ -30,12 +38,47 @@ const FaCheckCircle = (props: React.SVGProps<SVGSVGElement>) => (
 
 export const ConfirmationPage = () => {
   // const [showConfetti, setShowConfetti] = useState(true);
+  // const [donwloadTicket, setDownloadTicket] = useState<boolean>(false);
+  // const { id } = useParams();
+  // const [user, setUser] = useState<RegistrationData | null>();
 
-  // // Simple visual effect timer
   // useEffect(() => {
-  //   const timer = setTimeout(() => setShowConfetti(false), 5000);
-  //   return () => clearTimeout(timer);
-  // }, []);
+  //   if (!id || typeof id !== "string") {
+  //     return;
+  //   }
+
+  //   const fetchReg = async () => {
+  //     // setIsProcessing(true);
+  //     // setError(null);
+  //     const collectionName = "pgphs_ru_reqisterd_users";
+
+  //     try {
+  //       // 1. ডকুমেন্ট রেফারেন্স তৈরি (এখানেই doc ব্যবহার হয়)
+  //       const docRef = doc(db, collectionName, id);
+
+  //       // 2. getDoc() দিয়ে ডাটা ফেচ করা
+  //       const docSnap = await getDoc(docRef);
+
+  //       if (docSnap.exists()) {
+  //         // 3. ডাটা এক্সট্র্যাক্ট করা এবং State এ সেভ করা
+  //         const fetchedData = docSnap.data() as RegistrationData;
+  //         setUser(fetchedData); // ✅ State আপডেট
+  //       } else {
+  //         setUser(null);
+  //         // setErrors(`No document found with ID: ${paramsID}`);
+  //       }
+  //     } catch (e) {
+  //       setUser(null);
+  //       console.log(e);
+  //       alert("Something wrong! Try again later or contact technical support.");
+  //     }
+  //   };
+
+  //   fetchReg();
+  // }, [id]);
+
+
+
 
   return (
     <div className="min-h-screen py-8 bg-slate-900 text-white font-sans overflow-hidden flex items-center justify-center relative">
@@ -83,19 +126,23 @@ export const ConfirmationPage = () => {
             Registration Submitted Successfully
           </p>
           {/* {showSuccessMessage && ( */}
-          <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          {/* <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <p className="text-green-800 dark:text-green-200">
               ✓ Payment completed successfully! Your registration is confirmed.
+              Registration Submitted Successfully
             </p>
-          </div>
-        {/* )} */}
-          <p className="text-xl text-amber-400 font-medium mb-6">
+          </div> */}
+          {/* )} */}
+          {/* <p className="text-xl text-amber-400 font-medium mb-6">
             Your number Registration is {}
-          </p>
+          </p> */}
+
+          {/* Download Reg card */}
+         
 
           <p className="text-slate-300 leading-relaxed mb-10 max-w-lg mx-auto">
             আপনার রেজিস্ট্রেশন তথ্য আমাদের কাছে জমা হয়েছে। আপনার পেমেন্ট ভেরিফাই
-            করার পর আপনার ড্যাশবোর্ডে স্ট্যাটাস আপডেট হয়ে যাবে।
+            করার পর আপনাকে এসএমএস এর মাধ্যমে জানিয়ে দেওয়া হবে এবং ড্যাশবোর্ডে স্ট্যাটাস আপডেট হয়ে যাবে ।
           </p>
 
           {/* Summary / Next Steps Box */}

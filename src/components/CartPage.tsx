@@ -1,18 +1,19 @@
+
 import { useEffect, useState } from "react";
-import {  useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { RegistrationData } from "../types";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
+import  bkash_qr_9607 from "../assets/qr_code/bkash_qr_9607.jpg";
 
 export const CartPage = () => {
   const navigate = useNavigate();
-  // const { addPayment } = useApp();
   const [user, setUser] = useState<RegistrationData | null>();
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-manual");
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");
-  const [nagadNumber, setNagadNumber] = useState<string>("");
-  const [nagadTrxId, setNagadTrxId] = useState<string>("");
+  // const [nagadNumber, setNagadNumber] = useState<string>("");
+  // const [nagadTrxId, setNagadTrxId] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const { id: paramsID } = useParams();
@@ -69,17 +70,18 @@ export const CartPage = () => {
       if (!bkashTrxId.trim()) {
         newErrors.bkashTrxId = "Transaction ID is required";
       }
-    } else if (paymentMethod === "nagad-manual") {
-      if (!nagadNumber.trim()) {
-        newErrors.nagadNumber = "Nagad number is required";
-      } else if (!/^01[3-9]\d{8}$/.test(nagadNumber.replace(/\s/g, ""))) {
-        newErrors.nagadNumber =
-          "Please enter a valid Nagad number (01XXXXXXXXX)";
-      }
-      if (!nagadTrxId.trim()) {
-        newErrors.nagadTrxId = "Transaction ID is required";
-      }
     }
+    // else if (paymentMethod === "nagad-manual") {
+    //   if (!nagadNumber.trim()) {
+    //     newErrors.nagadNumber = "Nagad number is required";
+    //   } else if (!/^01[3-9]\d{8}$/.test(nagadNumber.replace(/\s/g, ""))) {
+    //     newErrors.nagadNumber =
+    //       "Please enter a valid Nagad number (01XXXXXXXXX)";
+    //   }
+    //   if (!nagadTrxId.trim()) {
+    //     newErrors.nagadTrxId = "Transaction ID is required";
+    //   }
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -103,10 +105,12 @@ export const CartPage = () => {
     if (paymentMethod === "bkash-manual") {
       payNumber = bkashNumber;
       trxId = bkashTrxId;
-    } else if (paymentMethod === "nagad-manual") {
-      payNumber = nagadNumber;
-      trxId = nagadTrxId;
-    } else {
+    }
+    //  else if (paymentMethod === "nagad-manual") {
+    //   payNumber = nagadNumber;
+    //   trxId = nagadTrxId;
+    // } 
+    else {
       console.error("Invalid payment method selected.");
       setIsProcessing(false);
       return;
@@ -124,13 +128,22 @@ export const CartPage = () => {
         "payment.paymentNumber": payNumber,
       });
 
-      navigate("/confirmation");
+      navigate(`/confirmation/${paramsID}`);
     } catch (error) {
       console.error("Error during payment update:", error);
       alert("Update failed. Please try again.");
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const [copied, setCopied] = useState(false);
+  const number = "01910179607";
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(number);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (!user) {
@@ -228,8 +241,8 @@ export const CartPage = () => {
                     onClick={() => setPaymentMethod("bkash-manual")}
                     className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
                       paymentMethod === "bkash-manual"
-                        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-                        : "border-gray-300 dark:border-gray-600 hover:border-primary-300"
+                        ? "border-green-800 bg-primary-50 dark:bg-primary-900/20"
+                        : "border-g-300 dark:border-gray-600 hover:border-primary-300"
                     }`}
                   >
                     <span className="font-medium text-gray-900 dark:text-white">
@@ -240,10 +253,8 @@ export const CartPage = () => {
                     </p>
                   </button>
 
-                  
-
                   {/* Nagad */}
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => setPaymentMethod("nagad-manual")}
                     className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
@@ -258,13 +269,13 @@ export const CartPage = () => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Manual Payment
                     </p>
-                  </button>
+                  </button> */}
                 </div>
               </div>
 
               {paymentMethod === "bkash-manual" && (
                 <div className="space-y-4">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  {/* <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">
                       <strong>Instructions:</strong> Send money to our bKash
                       merchant number and enter your bKash number and
@@ -273,7 +284,97 @@ export const CartPage = () => {
                     <p className="text-blue-700  dark:text-blue-300 text-sm font-bold">
                       Merchant Number: 01984839526
                     </p>
+                  </div> */}
+
+                  <div className="max-w-md bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    {/* Header Section */}
+                    <div className="bg-[#e2136e] p-4 text-white flex justify-between items-center">
+                      <h3 className="font-bold text-lg">Send Money</h3>
+                      <span className="text-xs bg-white/20 px-2 py-1 rounded">
+                        Personal
+                      </span>
+                    </div>
+
+                    <div className="p-5">
+                      <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                        আপনার bKash অ্যাপ থেকে নিচের নাম্বারে{" "}
+                        <strong>Send Money</strong> করুন। এরপর ট্রানজ্যাকশন আইডি
+                        (TxnID) ফর্মটিতে দিন।
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row gap-5 items-center">
+                        {/* QR Code Block */}
+                        <div className="shrink-0 p-2 border border-dashed border-pink-300 rounded-lg bg-pink-50">
+                          <img
+                            src={bkash_qr_9607}
+                            alt="bKash QR"
+                            className="w-24 h-24 object-contain"
+                          />
+                        </div>
+
+                        {/* Number & Copy Section */}
+                        <div className="flex-1 w-full">
+                          <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">
+                            bKash Personal Number
+                          </p>
+
+                          <div className="relative group">
+                            <div className="flex items-center justify-between bg-gray-50 border border-gray-300 rounded-lg p-1 px-2  transition-colors">
+                              <span className="font-mono text-lg font-bold text-gray-800 tracking-wider">
+                                {number}
+                              </span>
+
+                              <button
+                                onClick={handleCopy}
+                                className="ml-3 p-2 rounded-md bg-white border border-gray-200 hover:bg-[#e2136e] hover:text-white hover:border-[#e2136e] transition-all group-hover:shadow-sm cursor-pointer"
+                                title="Copy Number"
+                              >
+                                {copied ? (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                    />
+                                  </svg>
+                                )}
+                              </button>
+                            </div>
+
+                            {/* Copied Tooltip */}
+                            {copied && (
+                              <span className="absolute -top-8 right-0 bg-gray-800 text-white text-xs py-1 px-2 rounded shadow transition-opacity">
+                                Copied!
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+
                   <div>
                     <label
                       htmlFor="bkashNumber"
@@ -418,7 +519,7 @@ export const CartPage = () => {
                 </div>
               )} */}
 
-              {paymentMethod === "nagad-manual" && (
+              {/* {paymentMethod === "nagad-manual" && (
                 <div className="space-y-4">
                   <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                     <p className="text-green-800 dark:text-green-200 text-sm mb-2">
@@ -493,16 +594,16 @@ export const CartPage = () => {
                     )}
                   </div>
                 </div>
-              )}
+              )} */}
 
               <div className="flex space-x-4">
-                <button
+                {/* <button
                   type="button"
                   onClick={() => navigate("/registration")}
                   className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-6 rounded-lg transition-colors cursor-pointer"
                 >
                   Back
-                </button>
+                </button> */}
                 <button
                   type="submit"
                   disabled={isProcessing}
@@ -510,7 +611,7 @@ export const CartPage = () => {
                 >
                   {isProcessing
                     ? "Processing..."
-                    : `Pay ${user?.payment?.amount}`}
+                    : `Pay ${user?.payment?.amount} Tk`}
                 </button>
               </div>
             </form>

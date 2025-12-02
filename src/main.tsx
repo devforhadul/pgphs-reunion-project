@@ -49,7 +49,7 @@ const router = createBrowserRouter([
         element: <QrVerify />,
       },
       {
-        path: 'confirmation',
+        path: 'confirmation/:id',
         element: <ConfirmationPage/>
       }
     ],

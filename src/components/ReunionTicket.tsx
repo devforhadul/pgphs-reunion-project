@@ -1,171 +1,90 @@
 import type { RegistrationData } from "@/types";
-import type { CSSProperties } from "react";
 
-interface ReunionTicketProps {
+interface ReunionUSer {
   user: RegistrationData;
 }
 
-const ReunionTicket = ({ user }: ReunionTicketProps) => {
-  // তথ্যের অবজেক্ট
-  const data = {
-    id: "2025145",
-    polytechnic: "Compact Polytechnic Institute, Feni",
-    studentName: "Forhadul Islam",
-    parentName: "Md. Mostafa Mansur",
-    course: "MERN Stack (Batch: EITMS250701)",
-    grade: "A+",
-    duration: "18 Aug, 2025 to 20 Nov, 2025",
-    institution: "European IT Solutions Institute, Dhaka, Bangladesh",
-    website: "www.europeanit-inst.com",
-  };
-
-  // CSS স্টাইল অবজেক্ট
-  const styles: { [key: string]: CSSProperties } = {
-    container: {
-      minHeight: "100vh",
-      backgroundColor: "#f3f4f6",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "20px",
-      fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-    },
-    card: {
-      backgroundColor: "#ffffff",
-      width: "100%",
-      maxWidth: "850px",
-      borderRadius: "4px",
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-      overflow: "hidden",
-      border: "1px solid #e5e7eb",
-    },
-    header: {
-      backgroundColor: "#00adef",
-      color: "#ffffff",
-      padding: "20px",
-      textAlign: "center" as const,
-    },
-    headerTitle: {
-      fontSize: "22px",
-      fontWeight: "bold",
-      textTransform: "uppercase",
-      margin: "0",
-    },
-    headerSubtitle: {
-      fontSize: "14px",
-      marginTop: "5px",
-      opacity: 0.9,
-      margin: "5px 0 0 0",
-    },
-    body: {
-      padding: "40px 50px",
-    },
-    topSection: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "flex-start",
-      marginBottom: "40px",
-    },
-    mainTitle: {
-      fontSize: "24px",
-      fontWeight: 600,
-      color: "#333",
-      textTransform: "uppercase",
-      margin: "0",
-    },
-    qrCode: {
-      width: "90px",
-      height: "90px",
-      border: "1px solid #ddd",
-      padding: "2px",
-    },
-    infoGrid: {
-      display: "grid",
-      gridTemplateColumns: "200px 1fr",
-      rowGap: "12px",
-      fontSize: "15px",
-    },
-    label: {
-      fontWeight: "bold",
-      color: "#2d3748",
-    },
-    value: {
-      color: "#4a5568",
-      fontWeight: 500,
-    },
-    footer: {
-      backgroundColor: "#f9fafb",
-      borderTop: "1px solid #e5e7eb",
-      padding: "15px",
-      textAlign: "center" as const,
-      fontSize: "14px",
-      color: "#718096",
-    },
-    link: {
-      color: "#00adef",
-      textDecoration: "none",
-      fontWeight: "bold",
-    },
-  };
-
+const AlumniIDCard = ({ user }: ReunionUSer) => {
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={styles.header}>
-          <h1 style={styles.headerTitle}>
-            Certificate Verification Successful
+    // Outer Container (স্ক্রিনকে মাঝখানে আনতে)
+    <div className="flex justify-center items-center   p-4">
+      {/* Main Card Container */}
+      {/* Styling: max-w-xs (কমপ্যাক্ট), bg-white, rounded-xl, shadow-2xl */}
+      <div className="w-full max-w-xs bg-white rounded-xl shadow-2xl overflow-hidden">
+        {/* Header Section: Feni Polytechnic Alumni */}
+        {/* Styling: Dark Blue Header (bg-blue-800), text-white, flex for logo/text alignment */}
+        <div className="bg-blue-800 text-white flex items-center p-3">
+          {/* Logo Placeholder (চিত্রের লোগোর জন্য) */}
+          <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 border-2 border-blue-900">
+            {/* এখানে আপনি লোগো img ট্যাগ ব্যবহার করতে পারেন */}
+            <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">
+              P
+            </div>
+          </div>
+
+          <h1 className="text-lg font-semibold tracking-wide">
+            PGMPHS Reunion 2026
           </h1>
-          <p style={styles.headerSubtitle}>
-            This certificate has been verified as authentic and valid.
-          </p>
         </div>
 
-        <div style={styles.body}>
-          <div style={styles.topSection}>
-            <h2 style={styles.mainTitle}>Certificate of Completion</h2>
+        {/* Card Body: Photo and Name */}
+        <div className="py-6 px-4">
+          {/* Photo Container */}
+          {/* Styling: w-32/h-40 (লম্বা ছবি), mx-auto, border/shadow */}
+          <div className="w-32 h-40 mx-auto my-4 border border-gray-300 shadow-md rounded-md overflow-hidden">
             <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=Verified"
-              alt="QR Code"
-              style={styles.qrCode}
+              src={user?.photo}
+              alt={user?.fullName}
+              className="w-full h-full object-cover"
+              crossOrigin="anonymous"
             />
           </div>
 
-          <div style={styles.infoGrid}>
-            <div style={styles.label}>Registration ID:</div>
-            <div style={styles.value}>{user.reg_id}</div>
+          {/* Name */}
+          <p className="text-xl font-bold uppercase text-center text-blue-800 mb-5 tracking-wider">
+            {user?.fullName}
+          </p>
+        </div>
 
-            <div style={styles.label}>Polytechnic Name:</div>
-            <div style={styles.value}>{data.polytechnic}</div>
+        {/* Details Grid: REG NO, DEPT, SESSION */}
+        {/* Styling: bg-blue-50, Grid layout for Label/Value alignment */}
+        <div className="bg-blue-50 p-4 space-y-3">
+          {/* Registration Number */}
+          <div className="grid grid-cols-2">
+            <span className="font-bold text-gray-700">REG NO</span>
+            <span className="text-right text-gray-900 font-medium tracking-wider">
+              {user?.reg_id}
+            </span>
+          </div>
 
-            <div style={styles.label}>Student Name:</div>
-            <div style={styles.value}>{data.studentName}</div>
+          {/* Department */}
+          <div className="grid grid-cols-2">
+            <span className="font-bold text-gray-700">SSC Batch</span>
+            <span className="text-right text-gray-900 font-medium">
+              {user?.graduationYear}
+            </span>
+          </div>
 
-            <div style={styles.label}>Parent's Name:</div>
-            <div style={styles.value}>{data.parentName}</div>
-
-            <div style={styles.label}>Course:</div>
-            <div style={styles.value}>{data.course}</div>
-
-            <div style={styles.label}>Grade:</div>
-            <div style={styles.value}>{data.grade}</div>
-
-            <div style={styles.label}>Duration:</div>
-            <div style={styles.value}>{data.duration}</div>
-
-            <div style={styles.label}>Institution:</div>
-            <div style={styles.value}>{data.institution}</div>
+          {/* Session */}
+          <div className="grid grid-cols-2">
+            <span className="font-bold text-gray-700">Address</span>
+            <span className="text-right text-gray-900 font-medium">
+              {user?.address}
+            </span>
           </div>
         </div>
 
-        <div style={styles.footer}>
-          This certificate can be verified at{" "}
-          <a href={`https://${data.website}`} style={styles.link}>
-            {data.website}
-          </a>
+        {/* Footer/Status Bar: Valid for Reunion */}
+        {/* Styling: Green Status (bg-green-100), text-green-700, rounded-b-xl */}
+        <div className="bg-green-100 text-green-700 font-semibold text-center py-3 rounded-b-xl">
+          <span className="flex items-center justify-center">
+            {/* Checkmark Icon (Tailwind Heroicons) */}
+            <span className="text-sm">এন্ট্রি টিকিট সংগ্রহের জন্য এই কার্ডটি আবশ্যক</span>
+          </span>
         </div>
       </div>
     </div>
   );
 };
 
-export default ReunionTicket;
+export default AlumniIDCard;

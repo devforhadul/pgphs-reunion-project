@@ -3,20 +3,18 @@ import {
   CheckCircle,
   Clock,
   CreditCard,
-  Download,
   Search,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 // Assuming these are defined in your project structure
 import { db } from "@/firebase/firebase.init";
 import type { RegistrationData } from "@/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { usePDF } from "react-to-pdf";
-import ReunionTicket from "./ReunionTicket";
+import AlumniIDCard from "./ReunionTicket";
 
 export default function StatusCheck() {
   const [phone, setPhone] = useState<string>(""); // Initialize with empty string for better control
@@ -24,84 +22,19 @@ export default function StatusCheck() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [getTicket, setGetTicket] = useState<boolean>(true);
+  const location = useLocation();
+  // const [number, setNumber] = useState("");
+  // const [result, setResult] = useState(null);
 
-  // const [isDownloading, setIsDownloading] = useState<boolean>(false);
-
-  // Helper function to load external script (html2canvas)
-  // const loadScript = (src: string): Promise<void> => {
-  //   return new Promise((resolve, reject) => {
-  //     const script = document.createElement("script");
-  //     script.src = src;
-  //     script.onload = () => resolve();
-  //     script.onerror = (error) => reject(error);
-  //     document.head.appendChild(script);
-  //   });
-  // };
-
-  // const downloadTicket = async () => {
-  //   setIsDownloading(true);
-
-  //   const ticketElement = document.getElementById("ticket-card");
-
-  //   if (!ticketElement) {
-  //     alert("Ticket card not found for download.");
-  //     setIsDownloading(false);
-  //     return;
-  //   }
-
-  //   // 1. Ensure html2canvas is loaded
-  //   if (typeof window.html2canvas === "undefined") {
-  //     try {
-  //       // Load html2canvas from CDN
-  //       await loadScript(
-  //         "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
-  //       );
-  //     } catch (e) {
-  //       alert(
-  //         "Failed to load necessary download components. Please check your network."
-  //       );
-  //       setIsDownloading(false);
-  //       return;
-  //     }
-  //   }
-
-  //   // Temporarily hide the download button container while capturing to prevent it appearing on the image
-  //   const actionContainer = document.getElementById("ticket-action-container");
-  //   if (actionContainer) actionContainer.style.display = "none";
-
-  //   try {
-  //     // 2. Capture the element using html2canvas
-  //     // We set background color to white/transparent for the canvas output
-  //     const canvas = await window.html2canvas(ticketElement, {
-  //       scale: 2, // Use higher scale for better quality image
-  //       useCORS: true,
-  //       backgroundColor: null,
-  //     });
-
-  //     // 3. Convert canvas to image and trigger download
-  //     const image = canvas.toDataURL("image/png");
-  //     const link = document.createElement("a");
-  //     link.href = image;
-  //     link.download = `PGPHS_Entry_Pass_${user?.reg_id || "Ticket"}.png`;
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  //   } catch (error) {
-  //     console.error("Error generating ticket image:", error);
-  //     alert(
-  //       "Failed to generate ticket image. Ensure the entire card is visible and try again."
-  //     );
-  //   } finally {
-  //     // 4. Restore the action container
-  //     if (actionContainer) actionContainer.style.display = "flex";
-  //     setIsDownloading(false);
-  //   }
-  // };
-
-  // Function to determine the appropriate status display components
-
-  console.log(user);
-  
+  // URL থেকে number বের করা
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const num = params.get("n"); // URL থেকে number
+    if (num) {
+      setPhone(num); // phone state-এ রাখুন
+      handleSearch(num); // page load হতেই search
+    }
+  }, [location.search]);
 
   const getStatusDisplay = (status: "paid" | "unPaid" | "verifying") => {
     switch (status) {
@@ -139,8 +72,10 @@ export default function StatusCheck() {
     }
   };
 
-  const handleSearch = async () => {
-    if (!phone || phone.trim() === "") {
+  const handleSearch = async (num?: string) => {
+    const phoneNumber = num || phone; // URL number priority, তারপর input
+
+    if (!phoneNumber || phoneNumber.trim() === "") {
       setError("Please enter a valid phone number.");
       return;
     }
@@ -148,14 +83,13 @@ export default function StatusCheck() {
     setLoading(true);
     setError("");
     setUser(null);
-    setGetTicket(false); // Hide ticket on new search
+    setGetTicket(false);
 
     try {
       const collectionPath = `pgphs_ru_reqisterd_users`;
-
       const q = query(
         collection(db, collectionPath),
-        where("phone", "==", phone)
+        where("phone", "==", phoneNumber)
       );
       const snapshot = await getDocs(q);
 
@@ -181,9 +115,6 @@ export default function StatusCheck() {
     }
   };
 
- 
-
-
   const statusInfo = user?.payment?.status
     ? getStatusDisplay(user.payment.status)
     : null;
@@ -192,11 +123,6 @@ export default function StatusCheck() {
     : "Error";
   const isPaid = user?.payment?.status === "paid";
   const isUnpaid = user?.payment?.status === "unPaid";
-
-  const { toPDF, targetRef } = usePDF({
-    filename: "ticket.pdf",
-    method: "save",
-  });
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-200 font-sans relative overflow-x-hidden pt-28 pb-20">
@@ -227,7 +153,7 @@ export default function StatusCheck() {
               />
             </div>
             <button
-              onClick={handleSearch}
+              onClick={() => handleSearch()}
               disabled={loading}
               className="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-xl transition-all shadow-lg hover:shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
@@ -247,6 +173,12 @@ export default function StatusCheck() {
             </div>
           )}
         </div>
+
+        {user?.payment.status === "paid" && (
+          <div>
+            <AlumniIDCard user={user} />
+          </div>
+        )}
 
         {/* --- Result Section --- */}
         {user && statusInfo && (
@@ -319,33 +251,6 @@ export default function StatusCheck() {
                           bgColor="#FFFFFF"
                         />
                       </div> */}
-
-                      <div className="text-center">
-                        <button
-                          onClick={() => {
-                            toPDF();
-                          }}
-                          id="download-button-container"
-                          className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-                        >
-                          <Download className="w-5 h-5" />{" "}
-                          
-                          Download Ticket
-                        </button>
-
-                        {/* this wrapper MUST be separate and visible */}
-
-                        <div
-                          ref={targetRef}
-                          style={{
-                            position: "absolute",
-                            top: "-9999px",
-                            left: "-9999px",
-                          }}
-                        >
-                          <ReunionTicket user={user} />
-                        </div>
-                      </div>
                     </>
                   )}
 

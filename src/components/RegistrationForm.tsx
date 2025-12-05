@@ -4,6 +4,8 @@ import type { RegistrationData } from "../types";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import toast from "react-hot-toast";
+import imageCompression from "browser-image-compression";
+import { FaCheckCircle } from "react-icons/fa";
 
 export const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ export const RegistrationForm = () => {
       paymentMethod: "",
       isManual: null,
       paymentNumber: "",
-      isCancelled: false
+      isCancelled: false,
     },
   });
   const [isRegisterd, setIsRegisterd] = useState<boolean>(false);
@@ -250,15 +252,8 @@ export const RegistrationForm = () => {
   const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // setUploading(true);
 
-    // Validate file size max 2MB
-    if (file.size > 2 * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, photo: "Image must be less than 2MB" }));
-      return;
-    }
-
-    // Validate file type is image
+    // Validate file type
     if (!file.type.startsWith("image/")) {
       setErrors((prev) => ({
         ...prev,
@@ -267,51 +262,108 @@ export const RegistrationForm = () => {
       return;
     }
 
-    setPreview(URL.createObjectURL(file));
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > 2) {
+      alert("Maximum 2MB image allowed!");
+      return;
+    }
 
-    const body = new FormData();
-    body.append("image", file);
+    // Check image dimensions and aspect ratio (to restrict full-body uploads)
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
 
-    setIsSubmitting(true);
+    img.onload = async () => {
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
 
-    const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
+      if (!width || !height) {
+        alert("Invalid image file!");
+        return;
+      }
 
-    const saveImage = async () => {
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
-        method: "POST",
-        body,
-      });
-      const data = await res.json();
-      const photoUrl = data.data.url ?? data.data.display_url;
+      const ratio = width / height;
 
-      setFormData((prev) => ({
-        ...prev,
-        photo: photoUrl,
-      }));
-      setIsSubmitting(false);
-      return photoUrl;
+      // Only allow roughly square images (face photos)
+      if (ratio < 0.8 || ratio > 1.2) {
+        alert("Please upload a face photo only (not full body).");
+        return;
+      }
+
+      // Optionally restrict very large images (full-body photos might be tall)
+      if (width > 1000 || height > 1000) {
+        alert("Please upload a smaller face photo.");
+        return;
+      }
+
+      // ✅ Compress and upload
+      try {
+        const options = {
+          maxSizeMB: 0.2, // max 200KB
+          maxWidthOrHeight: 300, // resize max
+          useWebWorker: true,
+        };
+
+        const compressedFile = await imageCompression(file, options);
+
+        console.log("Original size:", file.size / 1024, "KB");
+        console.log("Compressed size:", compressedFile.size / 1024, "KB");
+
+        setPreview(URL.createObjectURL(compressedFile));
+
+        const body = new FormData();
+        body.append("image", compressedFile);
+
+        setIsSubmitting(true);
+
+        const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
+
+        const saveImage = async () => {
+          const res = await fetch(
+            `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+            { method: "POST", body }
+          );
+          const data = await res.json();
+          const photoUrl = data.data.url ?? data.data.display_url;
+
+          setFormData((prev) => ({
+            ...prev,
+            photo: photoUrl,
+          }));
+
+          console.log("Uploaded image:", photoUrl);
+
+          setIsSubmitting(false);
+          return photoUrl;
+        };
+
+        toast.promise(saveImage(), {
+          loading: "Photo Saving...",
+          success: <b>Photo saved!</b>,
+          error: <b>Could not save.</b>,
+        });
+      } catch (error) {
+        console.error("Compression error:", error);
+        setErrors((prev) => ({
+          ...prev,
+          photo: "Image compression failed",
+        }));
+      }
     };
 
-    toast.promise(saveImage(), {
-      loading: "Photo Saving...",
-      success: <b>Photo saved!</b>,
-      error: <b>Could not save.</b>,
-    });
-
-    // try {
-    //   if (data.success) {
-    //     if (data) {
-    //       console.log(data.success);
-
-    //       // setUploading(false);
-    //     }
-    //   } else {
-    //     console.log("Image upload failed:", data);
-    //   }
-    // } catch (error) {
-    //   console.error("Image upload error:", error);
-    // }
+    img.onerror = () => {
+      alert("Image cannot be loaded. Please upload a valid image.");
+    };
   };
+
+
+  const instructions = [
+    "শুধুমাত্র মুখের ছবি আপলোড করুন।",
+    "পূর্ণদেহ বা বড় ছবি আপলোড করবেন না।",
+    "ছবির আকার 2MB এর বেশি হতে পারবে না।",
+    "ছবিটি ঝাপসা বা অস্পষ্ট হলে গ্রহণযোগ্য হবে না।",
+    "পরবর্তী পেজে ১,০০০ টাকা পেমেন্ট করে রেজিস্ট্রেশন সম্পন্ন করুন।"
+    // "আপলোডের পর ছবিটি ক্রপ করে ঠিক আকারে সংরক্ষণ করুন।",
+  ];
 
   return (
     <div className="max-w-3xl mx-auto py-8">
@@ -401,7 +453,7 @@ export const RegistrationForm = () => {
               htmlFor="graduationYear"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Graduation Year <span className="text-red-500">*</span>
+              SSC Batch <span className="text-red-500">*</span>
             </label>
 
             <select
@@ -510,7 +562,6 @@ export const RegistrationForm = () => {
           </div>
 
           {/* T-shirt */}
-
           <div>
             <label
               htmlFor="tShirtSize"
@@ -560,7 +611,8 @@ export const RegistrationForm = () => {
                 htmlFor="photo"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                Upload Photo <span className="text-red-500">*</span>
+                Upload Photo <span className="text-red-500">*</span> ( (Max:
+                1MB, 400x400))
               </label>
 
               <input
@@ -591,6 +643,18 @@ export const RegistrationForm = () => {
                 )}
               </div>
             )}
+          </div>
+          {/* Instruction for image */}
+          <div className="w-full  my-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-700">
+            <h2 className="text-lg font-semibold mb-3">নির্দেশনা</h2>
+            <div className="flex flex-col space-y-2">
+              {instructions.map((text, idx) => (
+                <div key={idx} className="flex items-start space-x-2">
+                  <FaCheckCircle className="text-green-500 mt-1" />
+                  <p className="text-sm">{text}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <button

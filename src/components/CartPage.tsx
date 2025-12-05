@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {  useNavigate, useParams } from "react-router-dom";
 import type { RegistrationData } from "../types";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
-import  bkash_qr_9607 from "../assets/qr_code/bkash_qr_9607.jpg";
+import bkash_qr_9607 from "../assets/qr_code/bkash_qr_9607.jpg";
 
 export const CartPage = () => {
   const navigate = useNavigate();
@@ -20,6 +19,8 @@ export const CartPage = () => {
   // const [loading, setLoading] = useState<boolean>(true);
   // const [error, setError] = useState<string | null>(null);
   const COLLECTION_NAME = "pgphs_ru_reqisterd_users";
+
+
 
   // Get specific user
   useEffect(() => {
@@ -56,6 +57,8 @@ export const CartPage = () => {
 
     fetchReg();
   }, [paramsID]);
+
+
 
   const validatePayment = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -109,7 +112,7 @@ export const CartPage = () => {
     //  else if (paymentMethod === "nagad-manual") {
     //   payNumber = nagadNumber;
     //   trxId = nagadTrxId;
-    // } 
+    // }
     else {
       console.error("Invalid payment method selected.");
       setIsProcessing(false);
@@ -128,7 +131,7 @@ export const CartPage = () => {
         "payment.paymentNumber": payNumber,
       });
 
-      navigate(`/confirmation/${paramsID}`);
+      navigate(`/confirmation/`);
     } catch (error) {
       console.error("Error during payment update:", error);
       alert("Update failed. Please try again.");

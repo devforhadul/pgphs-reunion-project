@@ -122,6 +122,7 @@ export const HomePage = () => {
           autoPlay
           loop
           muted
+          preload="auto"
           playsInline // For mobile compatibility
           className="absolute inset-0 w-full h-full object-cover opacity-50" // opacity for dark overlay
         >
@@ -158,7 +159,7 @@ export const HomePage = () => {
                 </span>
               </h1>
 
-              <p className="text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light ">
+              <p className="text-lg lg:text-xl text-back max-w-2xl mx-auto lg:mx-0 leading-relaxed  font-medium ">
                 Join us for the historic 1st Alumni Reunion of PGPHS. A night of
                 nostalgia, networking, and celebrating the journey that started
                 in our classrooms.
@@ -172,12 +173,12 @@ export const HomePage = () => {
                   Confirm Registration
                   <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <Link
+                {/* <Link
                   to="/dashboard"
                   className="px-8 py-4 bg-transparent border border-white/20 text-white font-medium rounded-lg hover:bg-white/5 transition-all duration-300 flex items-center justify-center"
                 >
                   Alumni Dashboard
-                </Link>
+                </Link> */}
               </div>
             </div>
 

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import {  useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { RegistrationData } from "../types";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import bkash_qr_9607 from "../assets/qr_code/bkash_qr_9607.jpg";
+import bkash_logo from "../assets/bkash_logo.png";
 
 export const CartPage = () => {
   const navigate = useNavigate();
@@ -19,8 +20,6 @@ export const CartPage = () => {
   // const [loading, setLoading] = useState<boolean>(true);
   // const [error, setError] = useState<string | null>(null);
   const COLLECTION_NAME = "pgphs_ru_reqisterd_users";
-
-
 
   // Get specific user
   useEffect(() => {
@@ -57,8 +56,6 @@ export const CartPage = () => {
 
     fetchReg();
   }, [paramsID]);
-
-
 
   const validatePayment = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -147,6 +144,42 @@ export const CartPage = () => {
     await navigator.clipboard.writeText(number);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleBkashAuto = async () => {
+    if (!paramsID) {
+      return alert("User not found. Please login again.");
+    }
+    const userPayInfo = {
+      payerReference: user?.fullName,
+      callbackURL: `http://localhost:5173/confirmation?user=${paramsID}`,
+      amount: "1",
+      merchantInvoiceNumber: `PGMPHS-Reunion2026`,
+    };
+
+    try {
+      const initBkash = await fetch(
+        "https://bkash-pgw-pgmphs-reunion.vercel.app/initiate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userPayInfo),
+        }
+      );
+
+      const data = await initBkash.json();
+      if (data.bkashURL) {
+        window.location.href = data.bkashURL;
+      } else {
+        alert("Payment URL not found");
+      }
+
+      // https://pgmphs-reunion.com/confirmation?paymentID=TR0011tJ2GZeX1765040512279&status=success&signature=QaGAXOTchK&apiVersion=1.2.0-beta/
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (!user) {
@@ -239,6 +272,25 @@ export const CartPage = () => {
                   Payment Method <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Bkash onine payment */}
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("bkash-auto")}
+                    className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
+                      paymentMethod === "bkash-auto"
+                        ? "border-green-800 bg-primary-50 dark:bg-primary-900/20"
+                        : "border-g-300 dark:border-gray-600 hover:border-primary-300"
+                    }`}
+                  >
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      bKash Gateway
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Auto Payment
+                    </p>
+                  </button>
+
+                  {/* Bkash manual payment */}
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("bkash-manual")}
@@ -278,17 +330,6 @@ export const CartPage = () => {
 
               {paymentMethod === "bkash-manual" && (
                 <div className="space-y-4">
-                  {/* <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    <p className="text-blue-800 dark:text-blue-200 text-sm mb-2">
-                      <strong>Instructions:</strong> Send money to our bKash
-                      merchant number and enter your bKash number and
-                      transaction ID below.
-                    </p>
-                    <p className="text-blue-700  dark:text-blue-300 text-sm font-bold">
-                      Merchant Number: 01984839526
-                    </p>
-                  </div> */}
-
                   <div className="max-w-md bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                     {/* Header Section */}
                     <div className="bg-[#e2136e] p-4 text-white flex justify-between items-center">
@@ -443,180 +484,101 @@ export const CartPage = () => {
                 </div>
               )}
 
-              {/* {paymentMethod === "rocket-manual" && (
-                <div className="space-y-4">
-                  <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-                    <p className="text-purple-800 dark:text-purple-200 text-sm mb-2">
-                      <strong>Instructions:</strong> Send money to our Rocket
-                      merchant number and enter your Rocket number and
-                      transaction ID below.
-                    </p>
-                    <p className="text-purple-700 dark:text-purple-300 text-sm font-bold">
-                      Merchant Number: 01984839526
-                    </p>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="rocketNumber"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                      Your Rocket Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      id="rocketNumber"
-                      value={rocketNumber}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-                        if (value.length > 11) value = value.slice(0, 11);
-                        setRocketNumber(value);
-                        if (errors.rocketNumber) {
-                          setErrors((prev) => ({ ...prev, rocketNumber: "" }));
-                        }
-                      }}
-                      placeholder="01XXXXXXXXX"
-                      maxLength={11}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                        errors.rocketNumber
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                    />
-                    {errors.rocketNumber && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.rocketNumber}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="rocketTrxId"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                      Transaction ID (TrxID){" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="rocketTrxId"
-                      value={rocketTrxId}
-                      onChange={(e) => {
-                        setRocketTrxId(e.target.value.toUpperCase());
-                        if (errors.rocketTrxId) {
-                          setErrors((prev) => ({ ...prev, rocketTrxId: "" }));
-                        }
-                      }}
-                      placeholder="Enter Transaction ID"
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                        errors.rocketTrxId
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                    />
-                    {errors.rocketTrxId && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.rocketTrxId}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )} */}
+              {paymentMethod === "bkash-auto" && (
+                <div className="space-y-4 mt-4">
+                  {/* Main Card */}
+                  <div className="border border-[#E2136E]/30 bg-pink-50/50 rounded-xl p-6 flex flex-col items-center text-center shadow-sm">
+                    {/* bKash Logo */}
+                    <div className="w-24 h-auto mb-3">
+                      {/* bKash logo image - Replace with your actual asset */}
+                      <img
+                        src={bkash_logo}
+                        alt="bKash Logo"
+                        className="w-full object-contain"
+                      />
+                    </div>
 
-              {/* {paymentMethod === "nagad-manual" && (
-                <div className="space-y-4">
-                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                    <p className="text-green-800 dark:text-green-200 text-sm mb-2">
-                      <strong>Instructions:</strong> Send money to our Nagad
-                      merchant number and enter your Nagad number and
-                      transaction ID below.
-                    </p>
-                    <p className="text-green-700 dark:text-green-300 text-sm font-bold">
-                      Merchant Number: 01984839526
-                    </p>
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="nagadNumber"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                      Your Nagad Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      id="nagadNumber"
-                      value={nagadNumber}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, "");
-                        if (value.length > 11) value = value.slice(0, 11);
-                        setNagadNumber(value);
-                        if (errors.nagadNumber) {
-                          setErrors((prev) => ({ ...prev, nagadNumber: "" }));
-                        }
-                      }}
-                      placeholder="01XXXXXXXXX"
-                      maxLength={11}
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                        errors.nagadNumber
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
-                    />
-                    {errors.nagadNumber && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.nagadNumber}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="nagadTrxId"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                    >
-                      Transaction ID (TrxID){" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="nagadTrxId"
-                      value={nagadTrxId}
-                      onChange={(e) => {
-                        setNagadTrxId(e.target.value.toUpperCase());
-                        if (errors.nagadTrxId) {
-                          setErrors((prev) => ({ ...prev, nagadTrxId: "" }));
-                        }
-                      }}
-                      placeholder="Enter Transaction ID"
-                      className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                        errors.nagadTrxId ? "border-red-500" : "border-gray-300"
-                      }`}
-                    />
-                    {errors.nagadTrxId && (
-                      <p className="mt-1 text-sm text-red-500">
-                        {errors.nagadTrxId}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )} */}
+                    <h3 className="text-gray-800 font-semibold text-lg">
+                      Pay with bKash
+                    </h3>
 
-              <div className="flex space-x-4">
-                {/* <button
+                    <p className="text-sm text-gray-500 mt-1 mb-6 max-w-xs">
+                      You will be redirected to the secure bKash gateway.
+                    </p>
+
+                    {/* Payment Button */}
+                    <button
+                      disabled={true}
+                      className="w-full max-w-sm bg-[#E2136E] hover:bg-[#c40f5f] text-white font-bold py-3 px-4 rounded shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                      onClick={() => handleBkashAuto()}
+                    >
+                      {/* <span>Proceed to bKash</span> */}
+                      <span>Coming soon bKash pgw...</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="w-4 h-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                        />
+                      </svg>
+                    </button>
+
+                    {/* Security Footer */}
+                    <div className="flex items-center gap-1 mt-4 text-xs text-gray-400">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-3 h-3 text-green-600"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 12c0 5.285 3.04 9.883 7.42 12.015a.75.75 0 00.66 0C14.71 21.883 17.75 17.285 17.75 12c0-2.34-.67-4.52-1.845-6.38a12.74 12.74 0 00-3.389-3.45zM10.25 16.25l-3-3a.75.75 0 011.06-1.06l1.94 1.94 4.19-4.19a.75.75 0 111.06 1.06l-4.72 4.72a.75.75 0 01-1.06 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <span>100% Secure Payment</span>
+                    </div>
+                  </div>
+
+                  {/* Disclaimer Text */}
+                  <p className="text-xs text-gray-400 text-center">
+                    By clicking above, you agree to the{" "}
+                    <span className="underline cursor-pointer hover:text-[#E2136E]">
+                      Terms & Conditions
+                    </span>
+                    .
+                  </p>
+                </div>
+              )}
+
+              {paymentMethod === "bkash-auto" || (
+                <div className="flex space-x-4">
+                  {/* <button
                   type="button"
                   onClick={() => navigate("/registration")}
                   className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-3 px-6 rounded-lg transition-colors cursor-pointer"
                 >
                   Back
                 </button> */}
-                <button
-                  type="submit"
-                  disabled={isProcessing}
-                  className="flex-1 group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  {isProcessing
-                    ? "Processing..."
-                    : `Pay ${user?.payment?.amount} Tk`}
-                </button>
-              </div>
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className="flex-1 group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {isProcessing
+                      ? "Processing..."
+                      : `Pay ${user?.payment?.amount} Tk`}
+                  </button>
+                </div>
+              )}
             </form>
           </div>
         </div>

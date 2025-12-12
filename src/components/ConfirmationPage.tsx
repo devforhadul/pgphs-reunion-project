@@ -1,4 +1,9 @@
-import { Link } from "react-router-dom";
+import { db } from "@/firebase/firebase.init";
+import type { RegistrationData } from "@/types";
+import { doc, getDoc, runTransaction } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Link, useSearchParams } from "react-router-dom";
 
 // --- Custom SVG Icons ---
 const FaCheckCircle = (props: React.SVGProps<SVGSVGElement>) => (
@@ -9,100 +14,237 @@ const FaCheckCircle = (props: React.SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-
-// import { usePDF } from "react-to-pdf";
-
-// import ReunionTicket from "./ReunionTicket";
-// import { useEffect, useState } from "react";
-// import type { RegistrationData } from "@/types";
-// import { doc, getDoc } from "firebase/firestore";
-// import { db } from "@/firebase/firebase.init";
-
-// const FaArrowRight = (props: React.SVGProps<SVGSVGElement>) => (
-//   <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-//     <path fill="currentColor" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L370.7 224H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h338.7L233.3 393.3c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/>
-//   </svg>
-// );
-
-// const FaDownload = (props: React.SVGProps<SVGSVGElement>) => (
-//   <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-//     <path fill="currentColor" d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V274.7l-73.4-73.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l128-128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L288 274.7V32zM64 352c-35.3 0-64 28.7-64 64v32c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V416c0-35.3-28.7-64-64-64H346.5l-45.3 45.3c-25 25-65.5 25-90.5 0L165.5 352H64zM432 456c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/>
-//   </svg>
-// );
-
-// const FaHome = (props: React.SVGProps<SVGSVGElement>) => (
-//   <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-//     <path fill="currentColor" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/>
-//   </svg>
-// );
-
 export const ConfirmationPage = () => {
-  // const [showConfetti, setShowConfetti] = useState(true);
-  // const [donwloadTicket, setDownloadTicket] = useState<boolean>(false);
-  // const { id } = useParams();
-  // const [user, setUser] = useState<RegistrationData | null>();
+  const [searchParams] = useSearchParams();
+  const paymentID = searchParams.get("paymentID");
+  // const status = searchParams.get("status");
+  // const signature = searchParams.get("signature");
+  const userId = searchParams.get("user");
+  // const [isPaid, setIsPaid] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   if (!id || typeof id !== "string") {
-  //     return;
-  //   }
+  // const [isProcessing, setIsProcessing] = useState(true);
+  const [updatedUser, setUpdatedUser] = useState<RegistrationData | null>(null);
+  // setIsPaid(false);
+  console.log(updatedUser);
 
-  //   const fetchReg = async () => {
-  //     // setIsProcessing(true);
-  //     // setError(null);
-  //     const collectionName = "pgphs_ru_reqisterd_users";
+  useEffect(() => {
+    const executePayment = async () => {
+      if (!userId || !paymentID) {
+        console.log("Missing userId or paymentID");
+        return;
+      }
 
-  //     try {
-  //       // 1. ডকুমেন্ট রেফারেন্স তৈরি (এখানেই doc ব্যবহার হয়)
-  //       const docRef = doc(db, collectionName, id);
+      try {
+        // 1️⃣ Execute bKash payment via your backend
+        const res = await fetch(
+          "https://bkash-pgw-pgmphs-reunion.vercel.app/execute",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentID }),
+          }
+        );
+        const data = await res.json();
 
-  //       // 2. getDoc() দিয়ে ডাটা ফেচ করা
-  //       const docSnap = await getDoc(docRef);
+        if (data.status !== "success") {
+          alert(data.statusMessage || "Payment failed");
+          // setIsProcessing(false);
+          return;
+        }
 
-  //       if (docSnap.exists()) {
-  //         // 3. ডাটা এক্সট্র্যাক্ট করা এবং State এ সেভ করা
-  //         const fetchedData = docSnap.data() as RegistrationData;
-  //         setUser(fetchedData); // ✅ State আপডেট
-  //       } else {
-  //         setUser(null);
-  //         // setErrors(`No document found with ID: ${paramsID}`);
-  //       }
-  //     } catch (e) {
-  //       setUser(null);
-  //       console.log(e);
-  //       alert("Something wrong! Try again later or contact technical support.");
-  //     }
-  //   };
+        console.log("Payment executed successfully:", data);
 
-  //   fetchReg();
-  // }, [id]);
+        // 2️⃣ Firestore transaction → update payment status + serial
+        const userRef = doc(db, "pgphs_ru_reqisterd_users", userId);
+        const counterRef = doc(db, "counters", "registrationCounter");
 
+        await runTransaction(db, async (transaction) => {
+          const counterDoc = await transaction.get(counterRef);
+          const current = counterDoc.data()?.current ?? 0;
+          const newCounter = current + 1;
 
+          const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
 
+          transaction.update(userRef, {
+            "payment.status": "paid",
+            "payment.transactionId": data.trxID,
+            "payment.paidAt": data.paymentExecuteTime,
+            "payment.paymentMethod": "bkash-auto",
+            "payment.isManual": false,
+            "payment.paymentNumber": data.payerAccount,
+            reg_id: serial,
+          });
+
+          transaction.update(counterRef, { current: newCounter });
+        });
+
+        // 3️⃣ Get updated user document
+        const updatedSnap = await getDoc(userRef);
+        if (!updatedSnap.exists())
+          throw new Error("User not found after transaction");
+        const userData = updatedSnap.data() as RegistrationData;
+        setUpdatedUser(userData);
+
+        // 4️⃣ Send confirmation SMS
+        const smsBody = `Congrats! Your PGPHS Reunion 2026 registration is confirmed.
+                         Keep your virtual card for entry.
+                         Check status: https://pgmphs-reunion.com/check-status?n=${userData.phone}`;
+
+        const smsRes = await fetch(
+          "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: userData.phone, message: smsBody }),
+          }
+        );
+
+        const smsData = await smsRes.json();
+        if (smsData.status === "success") {
+          console.log(`Confirmation SMS sent to ${userData.fullName}`);
+        } else {
+          toast.error(smsData?.data?.error_message || "SMS failed");
+        }
+
+        // setIsProcessing(false);
+      } catch (err) {
+        console.error("Payment processing error:", err);
+        toast.error("Payment execution failed. Please contact support.");
+        // setIsProcessing(false);
+      }
+    };
+
+    executePayment();
+  }, [userId, paymentID]);
+
+  /* useEffect(() => {
+    const paymentExecute = async () => {
+      if (!user) {
+        console.log("user not fount");
+        return;
+      }
+
+      const executeBkash = await fetch(
+        "https://bkash-pgw-pgmphs-reunion.vercel.app/execute",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ paymentID: paymentID }),
+        }
+      );
+
+      const data = await executeBkash.json();
+      if (data.status == "success") {
+        // const docRef = doc(db, "pgphs_ru_reqisterd_users", user);
+
+        // Update all payment status
+        // try {
+        //   await updateDoc(docRef, {
+        //     "payment.status": "paid",
+        //     "payment.transactionId": data.trxID,
+        //     "payment.paidAt": data.paymentExecuteTime,
+        //     "payment.paymentMethod": "bkash-auto",
+        //     "payment.isManual": false,
+        //     "payment.paymentNumber": data.payerAccount,
+        //   });
+        //   setIsPaid(true);
+        // } catch (error) {
+        //   console.error("Error during payment update:", error);
+        //   alert("Payment failed. Please try again.");
+        // }
+
+        // user get reg id and send sms
+        console.log("Payment success");
+
+        try {
+          if (!user) return toast.error("User not found!");
+          const userRef = doc(db, "pgphs_ru_reqisterd_users", user);
+          const counterRef = doc(db, "counters", "registrationCounter");
+
+          await runTransaction(db, async (transaction) => {
+            // 1️⃣ Read counter
+            const counterDoc = await transaction.get(counterRef);
+            const current = counterDoc.data()?.current ?? 0;
+            const newCounter = current + 1;
+
+            // 2️⃣ Generate serial
+            const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
+
+            // 3️⃣ Update user document: status + serial
+            transaction.update(userRef, {
+              "payment.status": "paid",
+              "payment.transactionId": data.trxID,
+              "payment.paidAt": data.paymentExecuteTime,
+              "payment.paymentMethod": "bkash-auto",
+              "payment.isManual": false,
+              "payment.paymentNumber": data.payerAccount,
+              reg_id: serial, // merge serial
+            });
+
+            // 4️⃣ Update counter
+            transaction.update(counterRef, { current: newCounter });
+          });
+
+          const updatedUserSnap = await getDoc(userRef);
+          const updatedUser = updatedUserSnap.data() as RegistrationData;
+          console.log(updatedUser);
+
+          if (!updatedUserSnap.exists()) {
+            throw new Error("Updated user data not found");
+          }
+
+          const smsBody = `Congrats! Your PGPHS Reunion 2026 registration is confirmed.
+          Keep your virtual card for entry.
+          Check status: https://pgmphs-reunion.com/check-status?n=${updatedUser.phone}`;
+
+          // 5️⃣ Send SMS if paid
+          if (updatedUser?.payment.status === "paid") {
+            const sendSmsData = {
+              phone: updatedUser.phone || "",
+              message: smsBody,
+            };
+
+            try {
+              const res = await fetch(
+                "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(sendSmsData),
+                }
+              );
+
+              const data = await res.json();
+              console.log("SMS response:", data);
+
+              if (data.status === "success") {
+                console.log(`Confirmation SMS sent to ${updatedUser.fullName}`);
+              } else {
+                toast.error(data?.data?.error_message || "SMS failed");
+              }
+            } catch (err) {
+              console.error(err);
+              console.log("SMS sending failed");
+            }
+          }
+        } catch (err) {
+          console.error("Transaction failed:", err);
+          toast.error("Status update failed");
+        }
+      } else {
+        alert(data.statusMessage);
+      }
+    };
+    paymentExecute();
+  }, [paymentID, user]); */
 
   return (
     <div className="min-h-screen py-8 bg-slate-900 text-white font-sans overflow-hidden flex items-center justify-center relative">
       {/* --- Ambient Background Effects --- */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse delay-700"></div>
-
-      {/* --- Confetti Effect (CSS Based) --- */}
-      {/* {showConfetti && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-           {[...Array(20)].map((_, i) => (
-             <div 
-                key={i}
-                className="absolute w-2 h-2 bg-amber-400 rounded-full animate-ping"
-                style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animationDuration: `${Math.random() * 2 + 1}s`,
-                  animationDelay: `${Math.random()}s`
-                }}
-             ></div>
-           ))}
-        </div>
-      )} */}
 
       {/* --- Main Content Card --- */}
       <div className="relative z-10 w-full max-w-2xl px-4">
@@ -123,8 +265,21 @@ export const ConfirmationPage = () => {
             Thank You!
           </h1>
           <p className="text-xl text-amber-400 font-medium mb-6">
-            Registration Submitted Successfully
+          
+             Registration Submitted Successfully
           </p>
+          {/* {isPaid && (
+            // ? " ✓ Payment completed successfully! Your registration is confirmed."
+            <div className="mb-3">
+              <Link
+                to={`https://pgmphs-reunion.com/check-status?n=${user?.phone}`}
+                className="flex items-center justify-center gap-2 px-8 py-4 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-amber-500/25 group"
+              >
+                See pass
+                
+              </Link>
+            </div>
+          )} */}
           {/* {showSuccessMessage && ( */}
           {/* <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <p className="text-green-800 dark:text-green-200">
@@ -133,16 +288,17 @@ export const ConfirmationPage = () => {
             </p>
           </div> */}
           {/* )} */}
-          {/* <p className="text-xl text-amber-400 font-medium mb-6">
-            Your number Registration is {}
-          </p> */}
+          {/* {isPaid && (
+            <p className="text-xl text-amber-400 font-medium mb-6">
+              Your number Registration is {}
+            </p>
+          )} */}
 
           {/* Download Reg card */}
-         
 
           <p className="text-slate-300 leading-relaxed mb-10 max-w-lg mx-auto">
             আপনার রেজিস্ট্রেশন তথ্য আমাদের কাছে জমা হয়েছে। আপনার পেমেন্ট ভেরিফাই
-            করার পর আপনাকে এসএমএস এর মাধ্যমে জানিয়ে দেওয়া হবে এবং ড্যাশবোর্ডে স্ট্যাটাস আপডেট হয়ে যাবে ।
+            করার পর আপনাকে এসএমএস এর মাধ্যমে জানিয়ে দেওয়া হবে।
           </p>
 
           {/* Summary / Next Steps Box */}
@@ -151,15 +307,17 @@ export const ConfirmationPage = () => {
               What's Next?
             </h3>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                  1
-                </span>
-                <p className="text-sm text-slate-300">
-                  <strong className="text-white">Verification:</strong> আমাদের
-                  টিম আপনার পেমেন্ট Txn ID চেক করবে (২৪ ঘন্টার মধ্যে)।
-                </p>
-              </li>
+       
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                    1
+                  </span>
+                  <p className="text-sm text-slate-300">
+                    <strong className="text-white">Verification:</strong> আমাদের
+                    টিম আপনার পেমেন্ট Txn ID চেক করবে (২৪ ঘন্টার মধ্যে)।
+                  </p>
+                </li>
+ 
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
                   2
@@ -174,7 +332,7 @@ export const ConfirmationPage = () => {
                   3
                 </span>
                 <p className="text-sm text-slate-300">
-                  <strong className="text-white">Ticket:</strong> এরপর
+                  <strong className="text-white">Vertual Pass:</strong> এরপর
                   ড্যাশবোর্ড থেকে আপনার ডিজিটাল এন্ট্রি টিকিট ডাউনলোড করতে
                   পারবেন।
                 </p>

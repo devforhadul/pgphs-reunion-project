@@ -187,7 +187,7 @@ export const RegistrationForm = () => {
       });
 
       return docRef.id;
-    };
+    };  
 
     toast
       .promise(saveRegistration(), {
@@ -200,41 +200,7 @@ export const RegistrationForm = () => {
       })
       .finally(() => setIsSubmitting(false));
 
-    // const counterRef = doc(db, "counters", "registrationCounter");
-    // const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
 
-    // try {
-    //   const serial = await runTransaction(db, async (transaction) => {
-    //     const counterDoc = await transaction.get(counterRef);
-
-    //     if (!counterDoc.exists()) {
-    //       throw new Error("Counter document does not exist!");
-    //     }
-
-    //     const current = counterDoc.data()?.current ?? 0;
-    //     const newCounter = current + 1;
-
-    //     const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
-
-    //     transaction.set(doc(registrationsRef), {
-    //       ...formData,
-    //       reg_id: serial,
-    //       createdAt: getBDTime(),
-    //     });
-
-    //     transaction.update(counterRef, { current: newCounter });
-
-    //     return serial; // return serial
-    //   });
-
-    //   // ⭐ SUCCESS → Navigate
-    //   navigate(`/cart/${serial}`);
-    // } catch (error) {
-    //   console.error("Registration failed:", error);
-
-    //   // ⭐ ERROR → Button enable again
-    //   setIsSubmitting(false);
-    // }
   };
 
   const handleChange = (
@@ -268,100 +234,67 @@ export const RegistrationForm = () => {
       return;
     }
 
-    // Check image dimensions and aspect ratio (to restrict full-body uploads)
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
+    // ✅ Compress and upload
+    try {
+      const options = {
+        maxSizeMB: 0.2, // max 200KB
+        maxWidthOrHeight: 300, // resize max
+        useWebWorker: true,
+      };
 
-    img.onload = async () => {
-      const width = img.naturalWidth;
-      const height = img.naturalHeight;
+      const compressedFile = await imageCompression(file, options);
 
-      if (!width || !height) {
-        alert("Invalid image file!");
-        return;
-      }
+      console.log("Original size:", file.size / 1024, "KB");
+      console.log("Compressed size:", compressedFile.size / 1024, "KB");
 
-      const ratio = width / height;
+      setPreview(URL.createObjectURL(compressedFile));
 
-      // Only allow roughly square images (face photos)
-      if (ratio < 0.8 || ratio > 1.2) {
-        alert("Please upload a face photo only (not full body).");
-        return;
-      }
+      const body = new FormData();
+      body.append("image", compressedFile);
 
-      // Optionally restrict very large images (full-body photos might be tall)
-      if (width > 1000 || height > 1000) {
-        alert("Please upload a smaller face photo.");
-        return;
-      }
+      setIsSubmitting(true);
 
-      // ✅ Compress and upload
-      try {
-        const options = {
-          maxSizeMB: 0.2, // max 200KB
-          maxWidthOrHeight: 300, // resize max
-          useWebWorker: true,
-        };
+      const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
 
-        const compressedFile = await imageCompression(file, options);
+      const saveImage = async () => {
+        const res = await fetch(
+          `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+          { method: "POST", body }
+        );
+        const data = await res.json();
+        const photoUrl = data.data.url ?? data.data.display_url;
 
-        console.log("Original size:", file.size / 1024, "KB");
-        console.log("Compressed size:", compressedFile.size / 1024, "KB");
-
-        setPreview(URL.createObjectURL(compressedFile));
-
-        const body = new FormData();
-        body.append("image", compressedFile);
-
-        setIsSubmitting(true);
-
-        const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
-
-        const saveImage = async () => {
-          const res = await fetch(
-            `https://api.imgbb.com/1/upload?key=${API_KEY}`,
-            { method: "POST", body }
-          );
-          const data = await res.json();
-          const photoUrl = data.data.url ?? data.data.display_url;
-
-          setFormData((prev) => ({
-            ...prev,
-            photo: photoUrl,
-          }));
-
-          console.log("Uploaded image:", photoUrl);
-
-          setIsSubmitting(false);
-          return photoUrl;
-        };
-
-        toast.promise(saveImage(), {
-          loading: "Photo Saving...",
-          success: <b>Photo saved!</b>,
-          error: <b>Could not save.</b>,
-        });
-      } catch (error) {
-        console.error("Compression error:", error);
-        setErrors((prev) => ({
+        setFormData((prev) => ({
           ...prev,
-          photo: "Image compression failed",
+          photo: photoUrl,
         }));
-      }
-    };
 
-    img.onerror = () => {
-      alert("Image cannot be loaded. Please upload a valid image.");
-    };
+        console.log("Uploaded image:", photoUrl);
+
+        setIsSubmitting(false);
+        return photoUrl;
+      };
+
+      toast.promise(saveImage(), {
+        loading: "Photo Saving...",
+        success: <b>Photo saved!</b>,
+        error: <b>Could not save.</b>,
+      });
+    } catch (error) {
+      console.error("Compression error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        photo: "Image compression failed",
+      }));
+    }
   };
-
 
   const instructions = [
     "শুধুমাত্র মুখের ছবি আপলোড করুন।",
     "পূর্ণদেহ বা বড় ছবি আপলোড করবেন না।",
     "ছবির আকার 2MB এর বেশি হতে পারবে না।",
     "ছবিটি ঝাপসা বা অস্পষ্ট হলে গ্রহণযোগ্য হবে না।",
-    "পরবর্তী পেজে ১,০০০ টাকা পেমেন্ট করে রেজিস্ট্রেশন সম্পন্ন করুন।"
+    "পরবর্তী পেজে ১,০০০ টাকা পেমেন্ট করে রেজিস্ট্রেশন সম্পন্ন করুন।",
     // "আপলোডের পর ছবিটি ক্রপ করে ঠিক আকারে সংরক্ষণ করুন।",
   ];
 
@@ -388,7 +321,7 @@ export const RegistrationForm = () => {
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+              className={`w-full px-4 py-4 border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.fullName ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Enter your full name"
@@ -411,7 +344,7 @@ export const RegistrationForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+              className={`w-full px-4 py-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="john.doe@example.com"
@@ -435,7 +368,7 @@ export const RegistrationForm = () => {
               value={formData.phone}
               onChange={handleChange}
               maxLength={11}
-              className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+              className={`w-full px-4 py-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.phone ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="01XXXXXXXXX"
@@ -461,7 +394,7 @@ export const RegistrationForm = () => {
               name="graduationYear"
               value={formData.graduationYear}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+              className={`w-full px-4 py-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.graduationYear ? "border-red-500" : "border-gray-300"
               }`}
             >
@@ -481,24 +414,6 @@ export const RegistrationForm = () => {
                 {errors.graduationYear}
               </p>
             )}
-
-            {/* <input
-              type="text"
-              id="graduationYear"
-              name="graduationYear"
-              value={formData.graduationYear}
-              onChange={handleChange}
-              maxLength={4}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                errors.graduationYear ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="2020"
-            />
-            {errors.graduationYear && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.graduationYear}
-              </p>
-            )} */}
           </div>
 
           {/* occpesion */}
@@ -515,7 +430,7 @@ export const RegistrationForm = () => {
               name="occupation"
               value={formData.occupation}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+              className={`w-full px-4 py-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.occupation ? "border-red-500" : "border-gray-300"
               }`}
             >
@@ -551,7 +466,7 @@ export const RegistrationForm = () => {
               value={formData.address}
               onChange={handleChange}
               rows={1}
-              className={`w-full px-4 py-2 border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+              className={`w-full px-4 py-4 border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.address ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Enter your address"
@@ -574,7 +489,7 @@ export const RegistrationForm = () => {
               name="tShirtSize"
               value={formData.tShirtSize}
               onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+              className={`w-full px-4 py-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
                 errors.tShirtSize ? "border-red-500" : "border-gray-300"
               }`}
             >
@@ -596,6 +511,9 @@ export const RegistrationForm = () => {
               </option>
               <option value="3XL">
                 3XL - Length: 32”, Chest: 48”, Sleeve Length: 11”
+              </option>
+              <option value="4XL">
+                4XL
               </option>
             </select>
             {errors.tShirtSize && (
@@ -662,7 +580,7 @@ export const RegistrationForm = () => {
             disabled={isSubmitting}
             className="w-full group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
           >
-            Submit Registration
+            Register & Pay Now (1000 tk)
           </button>
         </form>
 
@@ -673,7 +591,7 @@ export const RegistrationForm = () => {
               to={"/check-status"}
               className="ml-2 font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200 underline underline-offset-4"
             >
-              Pay now
+              Check Status
             </Link>
           </p>
         </div>

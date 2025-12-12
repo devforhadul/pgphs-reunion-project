@@ -16,12 +16,13 @@ import { LuHeartHandshake } from "react-icons/lu";
 import { GoTrophy } from "react-icons/go";
 import { GiKnifeFork } from "react-icons/gi";
 import { IoCameraReverseOutline } from "react-icons/io5";
+import v from '../assets/video/pgmphs_video_720p.mp4'
 
 export const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-slate-800 font-sans selection:bg-amber-200">
       {/* Hero Section - Asymmetrical & Premium */}
-      <section className="relative w-full  overflow-hidden bg-slate-900 pt-24 pb-32 lg:pt-40 lg:pb-48">
+      <section className="hidden relative w-full  overflow-hidden bg-slate-900 pt-24 pb-32 lg:pt-40 lg:pb-48">
         {/* Background Patterns */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[100px]"></div>
         <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px]"></div>
@@ -70,6 +71,119 @@ export const HomePage = () => {
 
             {/* Abstract Graphic / Visual */}
             <div className="relative hidden lg:block">
+              <div className="relative z-10 bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500 group">
+                <div className="absolute -top-10 -right-10 text-9xl text-white/5 font-serif font-black select-none">
+                  2026
+                </div>
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <p className="text-amber-500 font-bold text-sm tracking-widest uppercase">
+                      The Grand Reunion
+                    </p>
+                    <h3 className="text-3xl text-white font-serif mt-2">
+                      Class of Legends
+                    </h3>
+                  </div>
+                  <FaGraduationCap className="text-5xl text-white/20 group-hover:text-amber-500/50 transition-colors" />
+                </div>
+                <div className="space-y-4 border-t border-white/10 pt-6">
+                  <div className="flex items-center gap-4 text-slate-300">
+                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-amber-400">
+                      <FaCalendarAlt size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 uppercase">Date</p>
+                      <p className="font-semibold">March 22, 2026</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-slate-300">
+                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-amber-400">
+                      <FaMapMarkerAlt size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 uppercase">
+                        Location
+                      </p>
+                      <p className="font-semibold">PGPHS School Field</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Decorative Element */}
+              <div className="absolute inset-0 bg-amber-500 rounded-2xl -rotate-3 opacity-20 scale-95 z-0"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative w-full overflow-hidden pt-24 pb-32 lg:pt-40 lg:pb-48">
+        {/* 🎬 Video Background Layer (New Addition) */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline // For mobile compatibility
+          className="absolute inset-0 w-full h-full object-cover opacity-50" // opacity for dark overlay
+        >
+          {/* Replace 'your-slow-motion-video.mp4' with the actual path/URL */}
+          <source src={v} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Black/Dark Overlay to ensure text is readable (New Addition) */}
+        <div className="absolute inset-0 bg-slate-900/20"></div>
+
+        {/* Background Patterns (Kept the original, but placed above the video/overlay to maintain aesthetic) */}
+        {/* <div className="absolute top-0 right-0 -mt-20 -mr-20 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[100px] z-[1]"></div>
+        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[100px] z-[1]"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 z-[1]"></div> */}
+
+        {/* Rest of your content remains here with z-index to ensure it is above the video */}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Text Content */}
+            <div className="space-y-8 text-center lg:text-left z-10">
+              {/* ... (Existing content here) ... */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/10 rounded-full backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                <span className="text-amber-100 text-sm font-medium tracking-wide uppercase">
+                  PGMPHS Alumni Association
+                </span>
+              </div>
+
+              <h1 className="text-5xl lg:text-7xl font-bold text-white leading-[1.1]">
+                Back to the <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 font-serif italic">
+                  Golden Days
+                </span>
+              </h1>
+
+              <p className="text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light ">
+                Join us for the historic 1st Alumni Reunion of PGPHS. A night of
+                nostalgia, networking, and celebrating the journey that started
+                in our classrooms.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                <Link
+                  to="/registration"
+                  className="group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2"
+                >
+                  Confirm Registration
+                  <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="px-8 py-4 bg-transparent border border-white/20 text-white font-medium rounded-lg hover:bg-white/5 transition-all duration-300 flex items-center justify-center"
+                >
+                  Alumni Dashboard
+                </Link>
+              </div>
+            </div>
+
+            {/* Abstract Graphic / Visual */}
+            <div className="relative hidden  z-10">
+              {/* ... (Existing content here) ... */}
               <div className="relative z-10 bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500 group">
                 <div className="absolute -top-10 -right-10 text-9xl text-white/5 font-serif font-black select-none">
                   2026

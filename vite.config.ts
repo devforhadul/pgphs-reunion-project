@@ -18,7 +18,7 @@ export default defineConfig({
         "apple-touch-icon.png",
       ],
       manifest: {
-        name: "My React App",
+        name: "PGMPHS Reunion 2026",
         short_name: "PGMPHS Reunion",
         description: "This is PGMPHS Reunion App",
         theme_color: "#ffffff",

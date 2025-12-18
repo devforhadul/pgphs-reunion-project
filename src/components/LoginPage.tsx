@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router";
 
 export default function LoginPage() {
   const [isPhone, setIsPhone] = useState<string>("");
-  const [isPass, setIsPass] = useState<string>("");
+  // const [isPass, setIsPass] = useState<string>("");
   const navigate = useNavigate();
-  console.log(isPass);
+
 
   const loginFun = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +61,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password"
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
               />
             </div>
-          </div>
+          </div> */}
 
           <div>
             <button

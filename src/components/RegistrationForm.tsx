@@ -237,8 +237,8 @@ export const RegistrationForm = () => {
     // ✅ Compress and upload
     try {
       const options = {
-        maxSizeMB: 0.2, // max 200KB
-        maxWidthOrHeight: 300, // resize max
+        maxSizeMB: 0.4, // max 200KB
+        maxWidthOrHeight: 400, // resize max
         useWebWorker: true,
       };
 

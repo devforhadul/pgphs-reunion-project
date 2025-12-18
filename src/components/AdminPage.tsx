@@ -29,6 +29,7 @@ export default function AdminPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterMethod, setFilterMethod] = useState<string>("all");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [adminPass, setAdminPass] = useState<string>("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -95,7 +96,7 @@ export default function AdminPage() {
     // setLoadingId(user.id);
 
     Confirm.show(
-      "Status Update Confirmation",
+      `Status Update for ${user.fullName}`,
       `Are you sure update to ${newStatus}?`,
       "Yes",
       "No",
@@ -107,23 +108,58 @@ export default function AdminPage() {
           const counterRef = doc(db, "counters", "registrationCounter");
 
           await runTransaction(db, async (transaction) => {
-            // 1️⃣ Read counter
-            const counterDoc = await transaction.get(counterRef);
+            // 1️⃣ READ PHASE: Shob get age korte hobe
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists()) throw "User found hoyni!";
+
+            const counterDoc = await transaction.get(counterRef); // Counter-ta agei read kore rakhlam
             const current = counterDoc.data()?.current ?? 0;
-            const newCounter = current + 1;
 
-            // 2️⃣ Generate serial
-            const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
+            // 2️⃣ LOGIC & WRITE PHASE: If-Else use kore alada update
+            if (newStatus === "paid") {
+              // --- PAID HOLE ---
+              const newCounter = current + 1;
+              const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
 
-            // 3️⃣ Update user document: status + serial
-            transaction.update(userRef, {
-              "payment.status": newStatus,
-              reg_id: serial, // merge serial
-            });
+              // Counter update korlam
+              transaction.update(counterRef, { current: newCounter });
 
-            // 4️⃣ Update counter
-            transaction.update(counterRef, { current: newCounter });
+              // User-er status + reg_id update korlam
+              transaction.update(userRef, {
+                "payment.status": "paid",
+                reg_id: serial,
+              });
+
+              console.log("Paid logic executed");
+            } else {
+              // --- UNPAID HOLE (ELSE) ---
+              // Shudhu status update hobe, reg_id ba counter-e hat dibo na
+              transaction.update(userRef, {
+                "payment.status": newStatus,
+              });
+
+              console.log("Unpaid logic executed");
+            }
           });
+
+          // await runTransaction(db, async (transaction) => {
+          //   // 1️⃣ Read counter
+          //   const counterDoc = await transaction.get(counterRef);
+          //   const current = counterDoc.data()?.current ?? 0;
+          //   const newCounter = current + 1;
+
+          //   // 2️⃣ Generate serial
+          //   const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
+
+          //   // 3️⃣ Update user document: status + serial
+          //   transaction.update(userRef, {
+          //     "payment.status": newStatus,
+          //     reg_id: serial, // merge serial
+          //   });
+
+          //   // 4️⃣ Update counter
+          //   transaction.update(counterRef, { current: newCounter });
+          // });
 
           toast.success(
             `Payment status updated to ${newStatus} with Serial generated!`
@@ -137,7 +173,10 @@ export default function AdminPage() {
           //   }`
           // );
 
-          const smsBody = `Congrats {name}! Your PGPHS Reunion 2026 registration is confirmed. Keep your virtual card for entry. Check:https://pgmphs-reunion.com/check-status?n=${user?.phone}`;
+          const smsBody =`Congratulations ${user.fullName}
+                         Your PGPHS Reunion 2026 registration is confirmed.
+                         Keep your virtual card for entry.
+                         Check status: https://pgmphs-reunion.com/check-status?n=${user.phone}`;
 
           // 5️⃣ Send SMS if paid
           if (newStatus === "paid") {
@@ -341,94 +380,115 @@ export default function AdminPage() {
                 </select>
               </div>
             </div>
+            {/* admin input */}
+            <div className="my-5">
+              <input
+                type="password"
+                onChange={(e) => setAdminPass(e.target.value)}
+                name="password"
+                id=""
+                placeholder="Enter Pass"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
             {/* Table data */}
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  {[
-                    "Name",
-                    "Mobile Number",
-                    "Reg Id",
-                    "Payment Number",
-                    "Txn ID",
-                    "Status",
-                    "Actions",
-                  ].map((header, idx) => (
-                    <th
-                      key={idx}
-                      className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
-                    >
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
-                {filteredPayments.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-amber-50/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                      {user.fullName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                      {user.phone}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                      {user.reg_id ? user.reg_id : "Wait for Payment"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                      {user.payment.paymentNumber}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700">
-                      {user.payment.transactionId || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.payment.status === "paid"
-                            ? "bg-green-100 text-green-800"
-                            : user.payment.status === "unPaid"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
+            {adminPass === "Admin9599" && (
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
+                  <tr>
+                    {[
+                      "Photo",
+                      "Name",
+                      "SSC Batch",
+                      "Mobile Number",
+                      "Reg Id",
+                      "Payment Number",
+                      "Txn ID",
+                      "Status",
+                      "Actions",
+                    ].map((header, idx) => (
+                      <th
+                        key={idx}
+                        className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
                       >
-                        {user.payment.status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-2">
-                        {user.payment.status == "verifying" && (
-                          <button
-                            onClick={() => handleUpdateStatus(user, "paid")}
-                            disabled={loadingId === user.id}
-                            className="text-white bg-green-600 hover:bg-green-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
-                            title="Set to Paid"
-                          >
-                            {loadingId === user.id ? (
-                              <FaSpinner className="animate-spin" />
-                            ) : (
-                              <FaCheckCircle />
-                            )}
-                          </button>
-                        )}
-                        {user.payment.status === "verifying" && (
-                          <button
-                            onClick={() => handleUpdateStatus(user, "unPaid")}
-                            disabled={loadingId === user.id}
-                            className="text-white bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
-                            title="Set to Canceled"
-                          >
-                            <FaTimesCircle />
-                          </button>
-                        )}
-                      </div>
-                    </td>
+                        {header}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-200">
+                  {filteredPayments.map((user) => (
+                    <tr
+                      key={user.id}
+                      className="hover:bg-amber-50/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                        <img src={user.photo} alt="" />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                        {user.fullName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                        {user.graduationYear}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                        {user.phone}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                        {user.reg_id ? user.reg_id : "Wait for Payment"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                        {user.payment.paymentNumber || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700">
+                        {user.payment.transactionId || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            user.payment.status === "paid"
+                              ? "bg-green-100 text-green-800"
+                              : user.payment.status === "unPaid"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {user.payment.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex gap-2">
+                          {user.payment.status == "verifying" && (
+                            <button
+                              onClick={() => handleUpdateStatus(user, "paid")}
+                              disabled={loadingId === user.id}
+                              className="text-white bg-green-600 hover:bg-green-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
+                              title="Set to Paid"
+                            >
+                              {loadingId === user.id ? (
+                                <FaSpinner className="animate-spin" />
+                              ) : (
+                                <FaCheckCircle />
+                              )}
+                            </button>
+                          )}
+                          {user.payment.status === "verifying" && (
+                            <button
+                              onClick={() => handleUpdateStatus(user, "unPaid")}
+                              disabled={loadingId === user.id}
+                              className="text-white bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
+                              title="Set to Canceled"
+                            >
+                              <FaTimesCircle />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
             {users.length === 0 && (
               <p className="p-4 text-center text-slate-500 italic">
                 No registered users found.

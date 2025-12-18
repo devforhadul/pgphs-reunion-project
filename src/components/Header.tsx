@@ -107,9 +107,16 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
+            <Link
+              to="/login"
+              className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+            >
+              Login
+            </Link>
           </div>
         </div>
       )}
+
     </nav>
   );
 }

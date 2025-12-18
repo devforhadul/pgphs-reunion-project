@@ -1,7 +1,7 @@
 import { db } from "@/firebase/firebase.init";
 import type { RegistrationData } from "@/types";
 import { doc, getDoc, runTransaction } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -24,15 +24,17 @@ export const ConfirmationPage = () => {
 
   // const [isProcessing, setIsProcessing] = useState(true);
   const [updatedUser, setUpdatedUser] = useState<RegistrationData | null>(null);
-  // setIsPaid(false);
-  console.log(updatedUser);
+
+  const executionStarted = useRef(false);
 
   useEffect(() => {
+    if (!paymentID || executionStarted.current) return;
     const executePayment = async () => {
       if (!userId || !paymentID) {
         console.log("Missing userId or paymentID");
         return;
       }
+      executionStarted.current = true;
 
       try {
         // 1️⃣ Execute bKash payment via your backend
@@ -46,13 +48,7 @@ export const ConfirmationPage = () => {
         );
         const data = await res.json();
 
-        if (data.status !== "success") {
-          alert(data.statusMessage || "Payment failed");
-          // setIsProcessing(false);
-          return;
-        }
-
-        console.log("Payment executed successfully:", data);
+        console.log("Payment executed successfully:", data.statusMessage);
 
         // 2️⃣ Firestore transaction → update payment status + serial
         const userRef = doc(db, "pgphs_ru_reqisterd_users", userId);
@@ -68,7 +64,7 @@ export const ConfirmationPage = () => {
           transaction.update(userRef, {
             "payment.status": "paid",
             "payment.transactionId": data.trxID,
-            "payment.paidAt": data.paymentExecuteTime,
+            "payment.paidAt": new Date().toISOString(),
             "payment.paymentMethod": "bkash-auto",
             "payment.isManual": false,
             "payment.paymentNumber": data.payerAccount,
@@ -86,7 +82,8 @@ export const ConfirmationPage = () => {
         setUpdatedUser(userData);
 
         // 4️⃣ Send confirmation SMS
-        const smsBody = `Congrats! Your PGPHS Reunion 2026 registration is confirmed.
+        const smsBody = `Congratulations ${userData.fullName}
+                         Your PGPHS Reunion 2026 registration is confirmed.
                          Keep your virtual card for entry.
                          Check status: https://pgmphs-reunion.com/check-status?n=${userData.phone}`;
 
@@ -110,135 +107,12 @@ export const ConfirmationPage = () => {
       } catch (err) {
         console.error("Payment processing error:", err);
         toast.error("Payment execution failed. Please contact support.");
-        // setIsProcessing(false);
+        executionStarted.current = false;
       }
     };
 
     executePayment();
   }, [userId, paymentID]);
-
-  /* useEffect(() => {
-    const paymentExecute = async () => {
-      if (!user) {
-        console.log("user not fount");
-        return;
-      }
-
-      const executeBkash = await fetch(
-        "https://bkash-pgw-pgmphs-reunion.vercel.app/execute",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ paymentID: paymentID }),
-        }
-      );
-
-      const data = await executeBkash.json();
-      if (data.status == "success") {
-        // const docRef = doc(db, "pgphs_ru_reqisterd_users", user);
-
-        // Update all payment status
-        // try {
-        //   await updateDoc(docRef, {
-        //     "payment.status": "paid",
-        //     "payment.transactionId": data.trxID,
-        //     "payment.paidAt": data.paymentExecuteTime,
-        //     "payment.paymentMethod": "bkash-auto",
-        //     "payment.isManual": false,
-        //     "payment.paymentNumber": data.payerAccount,
-        //   });
-        //   setIsPaid(true);
-        // } catch (error) {
-        //   console.error("Error during payment update:", error);
-        //   alert("Payment failed. Please try again.");
-        // }
-
-        // user get reg id and send sms
-        console.log("Payment success");
-
-        try {
-          if (!user) return toast.error("User not found!");
-          const userRef = doc(db, "pgphs_ru_reqisterd_users", user);
-          const counterRef = doc(db, "counters", "registrationCounter");
-
-          await runTransaction(db, async (transaction) => {
-            // 1️⃣ Read counter
-            const counterDoc = await transaction.get(counterRef);
-            const current = counterDoc.data()?.current ?? 0;
-            const newCounter = current + 1;
-
-            // 2️⃣ Generate serial
-            const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
-
-            // 3️⃣ Update user document: status + serial
-            transaction.update(userRef, {
-              "payment.status": "paid",
-              "payment.transactionId": data.trxID,
-              "payment.paidAt": data.paymentExecuteTime,
-              "payment.paymentMethod": "bkash-auto",
-              "payment.isManual": false,
-              "payment.paymentNumber": data.payerAccount,
-              reg_id: serial, // merge serial
-            });
-
-            // 4️⃣ Update counter
-            transaction.update(counterRef, { current: newCounter });
-          });
-
-          const updatedUserSnap = await getDoc(userRef);
-          const updatedUser = updatedUserSnap.data() as RegistrationData;
-          console.log(updatedUser);
-
-          if (!updatedUserSnap.exists()) {
-            throw new Error("Updated user data not found");
-          }
-
-          const smsBody = `Congrats! Your PGPHS Reunion 2026 registration is confirmed.
-          Keep your virtual card for entry.
-          Check status: https://pgmphs-reunion.com/check-status?n=${updatedUser.phone}`;
-
-          // 5️⃣ Send SMS if paid
-          if (updatedUser?.payment.status === "paid") {
-            const sendSmsData = {
-              phone: updatedUser.phone || "",
-              message: smsBody,
-            };
-
-            try {
-              const res = await fetch(
-                "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(sendSmsData),
-                }
-              );
-
-              const data = await res.json();
-              console.log("SMS response:", data);
-
-              if (data.status === "success") {
-                console.log(`Confirmation SMS sent to ${updatedUser.fullName}`);
-              } else {
-                toast.error(data?.data?.error_message || "SMS failed");
-              }
-            } catch (err) {
-              console.error(err);
-              console.log("SMS sending failed");
-            }
-          }
-        } catch (err) {
-          console.error("Transaction failed:", err);
-          toast.error("Status update failed");
-        }
-      } else {
-        alert(data.statusMessage);
-      }
-    };
-    paymentExecute();
-  }, [paymentID, user]); */
 
   return (
     <div className="min-h-screen py-8 bg-slate-900 text-white font-sans overflow-hidden flex items-center justify-center relative">
@@ -264,10 +138,14 @@ export const ConfirmationPage = () => {
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 font-serif">
             Thank You!
           </h1>
-          <p className="text-xl text-amber-400 font-medium mb-6">
-          
-             Registration Submitted Successfully
-          </p>
+          {updatedUser?.payment.status === "paid" ? (
+            " ✓ Payment completed successfully! Your registration is confirmed."
+          ) : (
+            <p className="text-xl text-amber-400 font-medium mb-6">
+              Registration Submitted Successfully
+            </p>
+          )}
+
           {/* {isPaid && (
             // ? " ✓ Payment completed successfully! Your registration is confirmed."
             <div className="mb-3">
@@ -298,7 +176,7 @@ export const ConfirmationPage = () => {
 
           <p className="text-slate-300 leading-relaxed mb-10 max-w-lg mx-auto">
             আপনার রেজিস্ট্রেশন তথ্য আমাদের কাছে জমা হয়েছে। আপনার পেমেন্ট ভেরিফাই
-            করার পর আপনাকে এসএমএস এর মাধ্যমে জানিয়ে দেওয়া হবে।
+            হলে আপনাকে এসএমএস এর মাধ্যমে জানিয়ে দেওয়া হবে।
           </p>
 
           {/* Summary / Next Steps Box */}
@@ -307,17 +185,16 @@ export const ConfirmationPage = () => {
               What's Next?
             </h3>
             <ul className="space-y-4">
-       
-                <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                    1
-                  </span>
-                  <p className="text-sm text-slate-300">
-                    <strong className="text-white">Verification:</strong> আমাদের
-                    টিম আপনার পেমেন্ট Txn ID চেক করবে (২৪ ঘন্টার মধ্যে)।
-                  </p>
-                </li>
- 
+              <li className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                  1
+                </span>
+                <p className="text-sm text-slate-300">
+                  <strong className="text-white">Verification:</strong> আমাদের
+                  টিম আপনার পেমেন্ট Txn ID চেক করবে (২৪ ঘন্টার মধ্যে)।
+                </p>
+              </li>
+
               <li className="flex items-start gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-white">
                   2
@@ -332,7 +209,7 @@ export const ConfirmationPage = () => {
                   3
                 </span>
                 <p className="text-sm text-slate-300">
-                  <strong className="text-white">Vertual Pass:</strong> এরপর
+                  <strong className="text-white">Vertual Pass:</strong>
                   ড্যাশবোর্ড থেকে আপনার ডিজিটাল এন্ট্রি টিকিট ডাউনলোড করতে
                   পারবেন।
                 </p>

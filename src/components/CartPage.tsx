@@ -17,9 +17,9 @@ export const CartPage = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const { id: paramsID } = useParams();
-  // const [loading, setLoading] = useState<boolean>(true);
-  // const [error, setError] = useState<string | null>(null);
+
   const COLLECTION_NAME = "pgphs_ru_reqisterd_users";
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Get specific user
   useEffect(() => {
@@ -147,12 +147,14 @@ export const CartPage = () => {
   };
 
   const handleBkashAuto = async () => {
+    setIsLoading(true);
     if (!paramsID) {
       return alert("User not found. Please login again.");
     }
+
     const userPayInfo = {
       payerReference: user?.fullName,
-      callbackURL: `http://localhost:5173/confirmation?user=${paramsID}`,
+      callbackURL: `https://pgmphs-reunion.com/confirmation?user=${paramsID}`,
       amount: "1",
       merchantInvoiceNumber: `PGMPHS-Reunion2026`,
     };
@@ -171,12 +173,12 @@ export const CartPage = () => {
 
       const data = await initBkash.json();
       if (data.bkashURL) {
+        setIsLoading(false);
         window.location.href = data.bkashURL;
       } else {
+        setIsLoading(false);
         alert("Payment URL not found");
       }
-
-      // https://pgmphs-reunion.com/confirmation?paymentID=TR0011tJ2GZeX1765040512279&status=success&signature=QaGAXOTchK&apiVersion=1.2.0-beta/
     } catch (error) {
       console.log(error);
     }
@@ -508,26 +510,35 @@ export const CartPage = () => {
 
                     {/* Payment Button */}
                     <button
-                      disabled={true}
+                      // disabled={true}
                       className="w-full max-w-sm bg-[#E2136E] hover:bg-[#c40f5f] text-white font-bold py-3 px-4 rounded shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                       onClick={() => handleBkashAuto()}
                     >
                       {/* <span>Proceed to bKash</span> */}
-                      <span>Coming soon bKash pgw...</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="w-4 h-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                        />
-                      </svg>
+                      {!isLoading && <span>bKash pay</span>}
+                      {/* The Spinner */}
+                      {isLoading && (
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      )}
                     </button>
 
                     {/* Security Footer */}

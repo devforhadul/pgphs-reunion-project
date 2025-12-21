@@ -4,6 +4,7 @@ import { doc, getDoc, runTransaction } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // --- Custom SVG Icons ---
 const FaCheckCircle = (props: React.SVGProps<SVGSVGElement>) => (
@@ -72,6 +73,7 @@ export const ConfirmationPage = () => {
           });
 
           transaction.update(counterRef, { current: newCounter });
+          toast.success("Payment Success");
         });
 
         // 3️⃣ Get updated user document
@@ -82,10 +84,12 @@ export const ConfirmationPage = () => {
         setUpdatedUser(userData);
 
         // 4️⃣ Send confirmation SMS
-        const smsBody = `Congratulations ${userData.fullName}
-                         Your PGPHS Reunion 2026 registration is confirmed.
-                         Keep your virtual card for entry.
-                         Check status: https://pgmphs-reunion.com/check-status?n=${userData.phone}`;
+        const smsBody = [
+          `Congrats ${userData.fullName},`,
+          `Your PGPHS Reunion 2026 registration is confirmed.`,
+          `Keep your virtual card for entry.`,
+          `Check status: https://pgmphs-reunion.com/check-status?n=${userData.phone}`,
+        ].join("\n");
 
         const smsRes = await fetch(
           "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
@@ -106,7 +110,11 @@ export const ConfirmationPage = () => {
         // setIsProcessing(false);
       } catch (err) {
         console.error("Payment processing error:", err);
-        toast.error("Payment execution failed. Please contact support.");
+        Swal.fire({
+          title: "Error!",
+          text: "Something went wrong during payment. Please contact support",
+          icon: "error",
+        });
         executionStarted.current = false;
       }
     };

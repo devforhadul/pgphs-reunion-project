@@ -165,18 +165,12 @@ export default function AdminPage() {
             `Payment status updated to ${newStatus} with Serial generated!`
           );
 
-          // const smsBody = encodeURIComponent(
-          //   `Congratulations ${
-          //     user?.fullName || "Guest"
-          //   }\nYour registration for the PGPHS Reunion 2026 has been successfully completed. Keep your virtual registration card to collect your entry pass.\nView Details: https://pgmphs-reunion.com/check-status?n=${
-          //     user.phone
-          //   }`
-          // );
-
-          const smsBody =`Congratulations ${user.fullName}
-                         Your PGPHS Reunion 2026 registration is confirmed.
-                         Keep your virtual card for entry.
-                         Check status: https://pgmphs-reunion.com/check-status?n=${user.phone}`;
+          const smsBody = [
+            `Congrats ${user.fullName},`,
+            `Your PGPHS Reunion 2026 registration is confirmed.`,
+            `Keep your virtual card for entry.`,
+            `Check status: https://pgmphs-reunion.com/check-status?n=${user.phone}`,
+          ].join("\n");
 
           // 5️⃣ Send SMS if paid
           if (newStatus === "paid") {

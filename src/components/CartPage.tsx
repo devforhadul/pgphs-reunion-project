@@ -9,7 +9,7 @@ import bkash_logo from "../assets/bkash_logo.png";
 export const CartPage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<RegistrationData | null>();
-  const [paymentMethod, setPaymentMethod] = useState<string>("bkash-manual");
+  const [paymentMethod, setPaymentMethod] = useState<string>("bkash-auto");
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");
   // const [nagadNumber, setNagadNumber] = useState<string>("");
@@ -155,9 +155,9 @@ export const CartPage = () => {
     const userPayInfo = {
       payerReference: user?.fullName,
       callbackURL: `https://pgmphs-reunion.com/confirmation?user=${paramsID}`,
-      amount: "1",
+      amount: "1000",
       merchantInvoiceNumber: `PGMPHS-Reunion2026`,
-    };
+    };fire
 
     try {
       const initBkash = await fetch(
@@ -173,8 +173,8 @@ export const CartPage = () => {
 
       const data = await initBkash.json();
       if (data.bkashURL) {
-        setIsLoading(false);
         window.location.href = data.bkashURL;
+        setIsLoading(false);
       } else {
         setIsLoading(false);
         alert("Payment URL not found");
@@ -273,9 +273,9 @@ export const CartPage = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Payment Method <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Bkash onine payment */}
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => setPaymentMethod("bkash-auto")}
                     className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
@@ -290,24 +290,117 @@ export const CartPage = () => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Auto Payment
                     </p>
+                  </button> */}
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("bkash-auto")}
+                    className={`relative p-5 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
+                      paymentMethod === "bkash-auto"
+                        ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 ring-2 ring-[#E2136E]/20"
+                        : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
+                    }`}
+                  >
+                    {/* Selected Checkmark Badge */}
+                    {paymentMethod === "bkash-auto" && (
+                      <div className="absolute -top-3 -right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col">
+                      <span
+                        className={`font-bold text-lg ${
+                          paymentMethod === "bkash-auto"
+                            ? "text-[#E2136E]"
+                            : "text-gray-900 dark:text-white"
+                        }`}
+                      >
+                        bKash Gateway
+                      </span>
+
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className={`text-xs font-semibold px-2 py-0.5 rounded uppercase ${
+                            paymentMethod === "bkash-auto"
+                              ? "bg-[#E2136E] text-white"
+                              : "bg-gray-100 dark:bg-gray-700 text-gray-500"
+                          }`}
+                        >
+                          Instant
+                        </span>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Automatic Verification
+                        </p>
+                      </div>
+                    </div>
                   </button>
 
                   {/* Bkash manual payment */}
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("bkash-manual")}
-                    className={`p-4 border-2 rounded-lg transition-colors cursor-pointer ${
+                    className={`relative p-5 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
                       paymentMethod === "bkash-manual"
-                        ? "border-green-800 bg-primary-50 dark:bg-primary-900/20"
-                        : "border-g-300 dark:border-gray-600 hover:border-primary-300"
+                        ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 ring-2 ring-[#E2136E]/20"
+                        : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
                     }`}
                   >
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      bKash
-                    </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Manual Payment
-                    </p>
+                    {/* Selected Checkmark Badge */}
+                    {paymentMethod === "bkash-manual" && (
+                      <div className="absolute -top-3 -right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col">
+                      <span
+                        className={`font-bold text-lg ${
+                          paymentMethod === "bkash-manual"
+                            ? "text-[#E2136E]"
+                            : "text-gray-900 dark:text-white"
+                        }`}
+                      >
+                        bKash Manual
+                      </span>
+
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className={`text-xs font-bold px-2 py-0.5 rounded ${
+                            paymentMethod === "bkash-manual"
+                              ? "bg-[#E2136E] text-white"
+                              : "bg-gray-100 dark:bg-gray-700 text-gray-500"
+                          }`}
+                        >
+                          SEND MONEY
+                        </span>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Requires Transaction ID
+                        </p>
+                      </div>
+                    </div>
                   </button>
 
                   {/* Nagad */}
@@ -515,7 +608,7 @@ export const CartPage = () => {
                       onClick={() => handleBkashAuto()}
                     >
                       {/* <span>Proceed to bKash</span> */}
-                      {!isLoading && <span>bKash pay</span>}
+                      {!isLoading && <span>bKash pay (1000 tk)</span>}
                       {/* The Spinner */}
                       {isLoading && (
                         <svg

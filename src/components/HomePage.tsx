@@ -16,7 +16,7 @@ import { LuHeartHandshake } from "react-icons/lu";
 import { GoTrophy } from "react-icons/go";
 import { GiKnifeFork } from "react-icons/gi";
 import { IoCameraReverseOutline } from "react-icons/io5";
-import v from '../assets/video/pgmphs_video_720p.mp4'
+import v from "../assets/video/pgmphs_video_720p.mp4";
 
 export const HomePage = () => {
   return (
@@ -382,6 +382,147 @@ export const HomePage = () => {
         </div>
       </section>
 
+      {/* Photo Gallery*/}
+      <section className="py-20 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 font-serif">
+              Photo Gallery
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid gap-4">
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-md"
+                  src="https://i.ibb.co.com/zTp802jC/600334314-122107060137154307-4603891103089247975-n.jpg"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/Psxv4vp5/593016617-10225465712189610-1627367924489103022-n.jpg"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/20HTZhpN/595958439-888387626855726-5142704175034234326-n.jpg"
+                  alt=""
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/NnWvXRYj/image.png"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/RGnBpGCj/image.png"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/XxNrYDNt/593989644-122098613247154307-3507586352072381675-n.jpg"
+                  alt=""
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/RMdGHny/597613291-1183983953687813-8326230877977922681-n.jpg"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/NgVyLt0q/592377469-10225465844792925-6953975270016035291-n.jpg"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/JjkN8xTW/595414799-890464320293459-5119703340127139389-n.jpg"
+                  alt=""
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/JRwnLPxj/590455340-10225465711429591-7057565266677373155-n.jpg"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/GjPvyvQ/600339394-122107036467154307-5553515012301177600-n.jpg"
+                  alt=""
+                />
+              </div>
+              <div>
+                <img
+                  className="h-auto max-w-full rounded-xl"
+                  src="https://i.ibb.co.com/ycn2G7WD/602916722-122108662089154307-3876809675665251419-n.jpg"
+                  alt=""
+                />
+              </div>
+            </div>
+          </div>
+          {/* payment */}
+          <div className="hidden flex flex-wrap justify-center gap-8 items-center  transition-all duration-500">
+            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
+              <img
+                src={bkash_logo}
+                alt="bKash"
+                className="h-16 mx-auto object-contain mb-3"
+              />
+              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-pink-600">
+                01984839526 (Merchant)
+              </p> */}
+            </div>
+            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
+              <img
+                src={nagad_logo}
+                alt="Nagad"
+                className="h-16 mx-auto object-contain mb-3"
+              />
+              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-orange-600">
+                01984839526 (Merchant)
+              </p> */}
+            </div>
+            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
+              <img
+                src={rocket_logo}
+                alt="Rocket"
+                className="h-16 mx-auto object-contain mb-3"
+              />
+              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-purple-600">
+                01984839526 (Merchant)
+              </p> */}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section - Ticket Style */}
       <section className="py-24 bg-[#FDFBF7]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -435,7 +576,7 @@ export const HomePage = () => {
                   to="/registration"
                   className="inline-block bg-slate-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-slate-800 transition-colors w-full md:w-auto text-center"
                 >
-                  Register for ৳1000
+                  Registration Now
                 </Link>
               </div>
             </div>
@@ -450,56 +591,15 @@ export const HomePage = () => {
             {/* Right Side (Visual/QR placeholder) */}
             <div className="bg-slate-900 p-8 md:w-64 flex flex-col items-center justify-center text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
-              <div className="w-24 h-24 bg-white p-2 rounded-lg mb-4">
+              {/*  <div className="w-24 h-24 bg-white p-2 rounded-lg mb-4">
                 <div className="w-full h-full bg-slate-200 flex items-center justify-center text-xs text-slate-400 text-center leading-tight">
                   QR Code will be generated
                 </div>
-              </div>
+              </div> */}
               <p className="text-white/60 text-xs uppercase tracking-widest mb-1">
                 Fee
               </p>
               <p className="text-white text-2xl font-bold">1000 Tk</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Payment Methods - Minimalist */}
-      <section className="py-20 border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-slate-500 font-medium mb-8 uppercase tracking-widest text-sm">
-            Secure Payment Partners
-          </p>
-          <div className="flex flex-wrap justify-center gap-8 items-center  transition-all duration-500">
-            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
-              <img
-                src={bkash_logo}
-                alt="bKash"
-                className="h-16 mx-auto object-contain mb-3"
-              />
-              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-pink-600">
-                01984839526 (Merchant)
-              </p> */}
-            </div>
-            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
-              <img
-                src={nagad_logo}
-                alt="Nagad"
-                className="h-16 mx-auto object-contain mb-3"
-              />
-              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-orange-600">
-                01984839526 (Merchant)
-              </p> */}
-            </div>
-            <div className="group bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all w-64 grayscale hover:grayscale-0">
-              <img
-                src={rocket_logo}
-                alt="Rocket"
-                className="h-16 mx-auto object-contain mb-3"
-              />
-              {/* <p className="text-slate-400 text-xs font-mono group-hover:text-purple-600">
-                01984839526 (Merchant)
-              </p> */}
             </div>
           </div>
         </div>

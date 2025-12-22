@@ -5,7 +5,6 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import MainLayout from "./Layout/MainLayout";
 import { RegistrationForm } from "./components/RegistrationForm";
 import { PaymentDashboard } from "./components/PaymentDashboard";
-// import { AdminPanel } from "./components/AdminPanel";
 import { CartPage } from "./components/CartPage";
 import StatusCheck from "./components/StatusCheck";
 import { Toaster } from "react-hot-toast";
@@ -16,6 +15,8 @@ import { FloatingWhatsApp } from "react-floating-whatsapp";
 import forhad_img from "../src/assets/forhad_Photo.jpg";
 import LoginPage from "./components/LoginPage";
 import NotFound from "./components/NotFound";
+import AuthProvider from "./provider/AuthProvider";
+import  ProtectedRoute from "./Routes/ProtectedRoute";
 
 // const data = {
 //   name: "forhad",
@@ -47,8 +48,12 @@ const router = createBrowserRouter([
         element: <PaymentDashboard />,
       },
       {
-        path: "admin/9599",
-        element: <AdminPage />,
+        path: "admin",
+        element: (
+          <ProtectedRoute>
+            <AdminPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "check-status",
@@ -79,6 +84,8 @@ createRoot(document.getElementById("root")!).render(
       avatar={forhad_img}
       chatMessage="Hello! How can I help you?"
     />
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>
 );

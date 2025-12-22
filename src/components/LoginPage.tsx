@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { AuthContext } from "@/provider/AuthProvider";
+import { useContext, useState } from "react";
+import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 
 export default function LoginPage() {
   const [isPhone, setIsPhone] = useState<string>("");
   // const [isPass, setIsPass] = useState<string>("");
   const navigate = useNavigate();
-
+  const { signinWithGoogle } = useContext(AuthContext)!;
 
   const loginFun = (e: React.FormEvent) => {
     e.preventDefault();
     navigate(`/check-status?n=${isPhone}`);
+  };
+
+  const googleSignIn = async () => {
+    try {
+      await signinWithGoogle();
+      toast.success("Google login successfully")
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -101,6 +112,31 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
+
+        <div className="mt-5 text-center ">
+          <button
+            type="button"
+            onClick={() => googleSignIn()}
+            className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 box-border border border-transparent font-medium leading-5 rounded-full text-sm px-4 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 cursor-pointer"
+          >
+            <svg
+              className="w-4 h-4 me-1.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12.037 21.998a10.313 10.313 0 0 1-7.168-3.049 9.888 9.888 0 0 1-2.868-7.118 9.947 9.947 0 0 1 3.064-6.949A10.37 10.37 0 0 1 12.212 2h.176a9.935 9.935 0 0 1 6.614 2.564L16.457 6.88a6.187 6.187 0 0 0-4.131-1.566 6.9 6.9 0 0 0-4.794 1.913 6.618 6.618 0 0 0-2.045 4.657 6.608 6.608 0 0 0 1.882 4.723 6.891 6.891 0 0 0 4.725 2.07h.143c1.41.072 2.8-.354 3.917-1.2a5.77 5.77 0 0 0 2.172-3.41l.043-.117H12.22v-3.41h9.678c.075.617.109 1.238.1 1.859-.099 5.741-4.017 9.6-9.746 9.6l-.215-.002Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Sign in with Google
+          </button>
+        </div>
 
         <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">
           Not a Registrad?{" "}

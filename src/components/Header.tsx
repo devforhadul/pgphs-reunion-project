@@ -1,11 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { AuthContext } from "@/provider/AuthProvider";
+import { Confirm } from "notiflix";
 
 export default function Header() {
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, logOut } = useContext(AuthContext)!;
+
+
 
   // Detect Scroll for styling
   useEffect(() => {
@@ -69,12 +74,33 @@ export default function Header() {
             >
               Registration Now
             </Link>
-            <Link
-              to="/login"
-              className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
-            >
-              Login
-            </Link>
+            {user ? (
+              <button
+                onClick={() => {
+                  Confirm.show(
+                    "Logout Confirm",
+                    "Do you agree with logout?",
+                    "Yes",
+                    "No",
+                    () => {
+                      logOut();
+                    },
+                    () => {},
+                    {}
+                  );
+                }}
+                className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+              >
+                Log out
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -116,7 +142,6 @@ export default function Header() {
           </div>
         </div>
       )}
-
     </nav>
   );
 }

@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { RegistrationData } from "../types";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  query,
-  runTransaction,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
 import toast from "react-hot-toast";
 import imageCompression from "browser-image-compression";
@@ -25,9 +16,8 @@ export const RegistrationForm = () => {
   const [errors, setErrors] = useState<
     Partial<Record<keyof RegistrationData, string>>
   >({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  // const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<RegistrationData>({
     // reg_id: "",
     fullName: "",
@@ -56,7 +46,6 @@ export const RegistrationForm = () => {
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-auto");
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");
-  const COLLECTION_NAME = "pgphs_ru_reqisterd_users";
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof RegistrationData, string>> = {};
@@ -251,8 +240,7 @@ export const RegistrationForm = () => {
   };
 
   //* Manual payment submit */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!validate() || !formData.photo) {
       alert("Filled all required field");
       return;
@@ -295,12 +283,15 @@ export const RegistrationForm = () => {
         const docRef = await addDoc(usersRef, {
           ...formData,
           regAt: new Date().toISOString(),
-          "payment.status": "verifying",
-          "payment.transactionId": trxId,
-          "payment.paidAt": new Date().toISOString(),
-          "payment.paymentMethod": paymentMethod,
-          "payment.isManual": true,
-          "payment.paymentNumber": payNumber,
+          payment: {
+            ...formData.payment,
+            status: "verifying",
+            transactionId: trxId,
+            paidAt: new Date().toISOString(),
+            paymentMethod: paymentMethod,
+            isManual: true,
+            paymentNumber: payNumber,
+          },
         });
 
         if (docRef.id) {
@@ -441,15 +432,15 @@ export const RegistrationForm = () => {
 
       const compressedFile = await imageCompression(file, options);
 
-      console.log("Original size:", file.size / 1024, "KB");
-      console.log("Compressed size:", compressedFile.size / 1024, "KB");
+      // console.log("Original size:", file.size / 1024, "KB");
+      // console.log("Compressed size:", compressedFile.size / 1024, "KB");
 
       setPreview(URL.createObjectURL(compressedFile));
 
       const body = new FormData();
       body.append("image", compressedFile);
 
-      setIsSubmitting(true);
+      setPhotoUploading(true);
 
       const API_KEY = "bfb269ca176e774b90d6f9df3e7d7162";
 
@@ -468,7 +459,7 @@ export const RegistrationForm = () => {
 
         console.log("Uploaded image:", photoUrl);
 
-        setIsSubmitting(false);
+        setPhotoUploading(false);
         return photoUrl;
       };
 
@@ -816,7 +807,11 @@ export const RegistrationForm = () => {
                   </span>
                   <div className="text-right">
                     <span className="font-medium text-gray-900 dark:text-white block">
-                      {1000} Tk
+                      {formData.graduationYear >= "2023" &&
+                      formData.graduationYear <= "2025"
+                        ? 500
+                        : 1000}{" "}
+                      Tk
                     </span>
                   </div>
                 </div>
@@ -826,376 +821,379 @@ export const RegistrationForm = () => {
                   </span>
                   <div className="text-right">
                     <span className="text-primary-600 dark:text-primary-400 block">
-                      {1000} Tk
+                      {formData.graduationYear >= "2023" &&
+                      formData.graduationYear <= "2025"
+                        ? 500
+                        : 1000}{" "}
+                      Tk
                     </span>
                   </div>
                 </div>
                 {/* Payment */}
                 <div className="bg-gray-50 p-5 mt-3 rounded-xl">
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Payment Method <span className="text-red-500">*</span>
-                      </label>
-                      <div className="grid grid-cols-1  gap-4">
-                        {/* Bkash onine payment */}
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod("bkash-auto")}
-                          className={`relative p-5 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
-                            paymentMethod === "bkash-auto"
-                              ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 ring-2 ring-[#E2136E]/20"
-                              : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
-                          }`}
-                        >
-                          {/* Selected Checkmark Badge */}
-                          {paymentMethod === "bkash-auto" && (
-                            <div className="absolute -top-3 -right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          )}
-
-                          <div className="flex flex-col">
-                            <span
-                              className={`font-bold text-lg ${
-                                paymentMethod === "bkash-auto"
-                                  ? "text-[#E2136E]"
-                                  : "text-gray-900 dark:text-white"
-                              }`}
-                            >
-                              bKash Gateway
-                            </span>
-
-                            <div className="flex items-center gap-2 mt-1">
-                              <span
-                                className={`text-xs font-semibold px-2 py-0.5 rounded uppercase ${
-                                  paymentMethod === "bkash-auto"
-                                    ? "bg-[#E2136E] text-white"
-                                    : "bg-gray-100 dark:bg-gray-700 text-gray-500"
-                                }`}
-                              >
-                                Instant
-                              </span>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                Automatic Verification
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-
-                        {/* Bkash manual payment */}
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod("bkash-manual")}
-                          className={`relative p-5 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
-                            paymentMethod === "bkash-manual"
-                              ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 ring-2 ring-[#E2136E]/20"
-                              : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
-                          }`}
-                        >
-                          {/* Selected Checkmark Badge */}
-                          {paymentMethod === "bkash-manual" && (
-                            <div className="absolute -top-3 -right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          )}
-
-                          <div className="flex flex-col">
-                            <span
-                              className={`font-bold text-lg ${
-                                paymentMethod === "bkash-manual"
-                                  ? "text-[#E2136E]"
-                                  : "text-gray-900 dark:text-white"
-                              }`}
-                            >
-                              bKash Manual
-                            </span>
-
-                            <div className="flex items-center gap-2 mt-1">
-                              <span
-                                className={`text-xs font-bold px-2 py-0.5 rounded ${
-                                  paymentMethod === "bkash-manual"
-                                    ? "bg-[#E2136E] text-white"
-                                    : "bg-gray-100 dark:bg-gray-700 text-gray-500"
-                                }`}
-                              >
-                                SEND MONEY
-                              </span>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                Requires Transaction ID
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-
-                    {paymentMethod === "bkash-auto" && (
-                      <div className="space-y-4 mt-4">
-                        {/* Main Card */}
-                        <div className="border border-[#E2136E]/30 bg-pink-50/50 rounded-xl p-6 flex flex-col items-center text-center shadow-sm">
-                          {/* bKash Logo */}
-                          <div className="w-24 h-auto mb-3">
-                            {/* bKash logo image - Replace with your actual asset */}
-                            <img
-                              src={bkash_logo}
-                              alt="bKash Logo"
-                              className="w-full object-contain"
-                            />
-                          </div>
-
-                          <h3 className="text-gray-800 font-semibold text-lg">
-                            Pay with bKash
-                          </h3>
-
-                          <p className="text-sm text-gray-500 mt-1 mb-6 max-w-xs">
-                            You will be redirected to the secure bKash gateway.
-                          </p>
-
-                          {/* Payment Button */}
-                          <button
-                            // disabled={true}
-                            className="w-full max-w-sm bg-[#E2136E] hover:bg-[#c40f5f] text-white font-bold py-3 px-4 rounded shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                            onClick={() => handleBkashAuto()}
-                          >
-                            {/* <span>Proceed to bKash</span> */}
-                            {!isLoading && <span>Proceed to Payment</span>}
-                            {/* The Spinner */}
-                            {isLoading && <Spinner className="size-5" />}
-                          </button>
-
-                          {/* Security Footer */}
-                          <div className="flex items-center gap-1 mt-4 text-xs text-gray-400">
+                  <div className="space-y-6">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Payment Method <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-1  gap-4">
+                      {/* Bkash onine payment */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod("bkash-auto")}
+                        className={`relative px-5 py-3 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
+                          paymentMethod === "bkash-auto"
+                            ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 "
+                            : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
+                        }`}
+                      >
+                        {/* Selected Checkmark Badge */}
+                        {paymentMethod === "bkash-auto" && (
+                          <div className="absolute top-7 right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
+                              className="h-4 w-4"
+                              viewBox="0 0 20 20"
                               fill="currentColor"
-                              className="w-3 h-3 text-green-600"
                             >
                               <path
                                 fillRule="evenodd"
-                                d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 12c0 5.285 3.04 9.883 7.42 12.015a.75.75 0 00.66 0C14.71 21.883 17.75 17.285 17.75 12c0-2.34-.67-4.52-1.845-6.38a12.74 12.74 0 00-3.389-3.45zM10.25 16.25l-3-3a.75.75 0 011.06-1.06l1.94 1.94 4.19-4.19a.75.75 0 111.06 1.06l-4.72 4.72a.75.75 0 01-1.06 0z"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                 clipRule="evenodd"
                               />
                             </svg>
-                            <span>100% Secure Payment</span>
+                          </div>
+                        )}
+
+                        <div className="flex flex-col">
+                          <span
+                            className={`font-semibold text-lg ${
+                              paymentMethod === "bkash-auto"
+                                ? "text-[#E2136E]"
+                                : "text-gray-900 dark:text-white"
+                            }`}
+                          >
+                            bKash Gateway
+                          </span>
+
+                          <div className="flex items-center gap-2 mt-1">
+                            <span
+                              className={`text-xs font-medium px-2 py-0.5 rounded uppercase ${
+                                paymentMethod === "bkash-auto"
+                                  ? "bg-[#E2136E] text-white"
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-500"
+                              }`}
+                            >
+                              Instant
+                            </span>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Automatic Verification
+                            </p>
                           </div>
                         </div>
+                      </button>
 
-                        {/* Disclaimer Text */}
-                        <p className="text-xs text-gray-400 text-center">
-                          By clicking above, you agree to the{" "}
-                          <span className="underline cursor-pointer hover:text-[#E2136E]">
-                            Terms & Conditions
-                          </span>
-                          .
-                        </p>
-                      </div>
-                    )}
-
-                    {paymentMethod === "bkash-manual" && (
-                      <div className="space-y-4">
-                        <div className="max-w-md bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                          {/* Header Section */}
-                          <div className="bg-[#e2136e] p-4 text-white flex justify-between items-center">
-                            <h3 className="font-bold text-lg">Send Money</h3>
-                            <span className="text-xs bg-white/20 px-2 py-1 rounded">
-                              Personal
-                            </span>
+                      {/* Bkash manual payment */}
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod("bkash-manual")}
+                        className={`relative px-5 py-3 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
+                          paymentMethod === "bkash-manual"
+                            ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10"
+                            : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
+                        }`}
+                      >
+                        {/* Selected Checkmark Badge */}
+                        {paymentMethod === "bkash-manual" && (
+                          <div className="absolute top-7 right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
                           </div>
+                        )}
 
-                          <div className="p-5">
-                            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-                              আপনার bKash অ্যাপ থেকে নিচের নাম্বারে{" "}
-                              <strong>Send Money</strong> করুন। এরপর
-                              ট্রানজ্যাকশন আইডি (TxnID) ফর্মটিতে দিন।
+                        <div className="flex flex-col">
+                          <span
+                            className={`font-semibold text-lg ${
+                              paymentMethod === "bkash-manual"
+                                ? "text-[#E2136E]"
+                                : "text-gray-900 dark:text-white"
+                            }`}
+                          >
+                            bKash Manual
+                          </span>
+
+                          <div className="flex items-center gap-2 mt-1">
+                            <span
+                              className={`text-xs font-medium px-2 py-0.5 rounded ${
+                                paymentMethod === "bkash-manual"
+                                  ? "bg-[#E2136E] text-white"
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-500"
+                              }`}
+                            >
+                              SEND MONEY
+                            </span>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Require Trx ID
                             </p>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
 
-                            <div className="flex flex-col sm:flex-row gap-5 items-center">
-                              {/* QR Code Block */}
-                              <div className="shrink-0 p-2 border border-dashed border-pink-300 rounded-lg bg-pink-50">
-                                <img
-                                  src={bkash_qr_9607}
-                                  alt="bKash QR"
-                                  className="w-24 h-24 object-contain"
-                                />
-                              </div>
+                  {paymentMethod === "bkash-auto" && (
+                    <div className="space-y-4 mt-4">
+                      {/* Main Card */}
+                      <div className="border border-[#E2136E]/30 bg-pink-50/50 rounded-xl p-6 flex flex-col items-center text-center shadow-sm">
+                        {/* bKash Logo */}
+                        <div className="w-24 h-auto mb-3">
+                          {/* bKash logo image - Replace with your actual asset */}
+                          <img
+                            src={bkash_logo}
+                            alt="bKash Logo"
+                            className="w-full object-contain"
+                          />
+                        </div>
 
-                              {/* Number & Copy Section */}
-                              <div className="flex-1 w-full">
-                                <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">
-                                  bKash Personal Number
-                                </p>
+                        <h3 className="text-gray-800 font-semibold text-lg">
+                          Pay with bKash
+                        </h3>
 
-                                <div className="relative group">
-                                  <div className="flex items-center justify-between bg-gray-50 border border-gray-300 rounded-lg p-1 px-2  transition-colors">
-                                    <span className="font-mono text-lg font-bold text-gray-800 tracking-wider">
-                                      {number}
-                                    </span>
+                        <p className="text-sm text-gray-500 mt-1 mb-6 max-w-xs">
+                          You will be redirected to the secure bKash gateway.
+                        </p>
 
-                                    <button
-                                      onClick={handleCopy}
-                                      className="ml-3 p-2 rounded-md bg-white border border-gray-200 hover:bg-[#e2136e] hover:text-white hover:border-[#e2136e] transition-all group-hover:shadow-sm cursor-pointer"
-                                      title="Copy Number"
-                                    >
-                                      {copied ? (
-                                        <svg
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className="h-5 w-5"
-                                          fill="none"
-                                          viewBox="0 0 24 24"
-                                          stroke="currentColor"
-                                        >
-                                          <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M5 13l4 4L19 7"
-                                          />
-                                        </svg>
-                                      ) : (
-                                        <svg
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className="h-5 w-5"
-                                          fill="none"
-                                          viewBox="0 0 24 24"
-                                          stroke="currentColor"
-                                        >
-                                          <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                                          />
-                                        </svg>
-                                      )}
-                                    </button>
-                                  </div>
+                        {/* Payment Button */}
+                        <button
+                          disabled={photoUploading}
+                          className="w-full max-w-sm bg-[#E2136E] hover:bg-[#c40f5f] text-white font-bold py-3 px-4 rounded shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                          onClick={() => handleBkashAuto()}
+                        >
+                          {/* <span>Proceed to bKash</span> */}
+                          {!isLoading && <span>Proceed to Payment</span>}
+                          {/* The Spinner */}
+                          {isLoading && <Spinner className="size-5" />}
+                        </button>
 
-                                  {/* Copied Tooltip */}
-                                  {copied && (
-                                    <span className="absolute -top-8 right-0 bg-gray-800 text-white text-xs py-1 px-2 rounded shadow transition-opacity">
-                                      Copied!
-                                    </span>
-                                  )}
+                        {/* Security Footer */}
+                        <div className="flex items-center gap-1 mt-4 text-xs text-gray-400">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="w-3 h-3 text-green-600"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 12c0 5.285 3.04 9.883 7.42 12.015a.75.75 0 00.66 0C14.71 21.883 17.75 17.285 17.75 12c0-2.34-.67-4.52-1.845-6.38a12.74 12.74 0 00-3.389-3.45zM10.25 16.25l-3-3a.75.75 0 011.06-1.06l1.94 1.94 4.19-4.19a.75.75 0 111.06 1.06l-4.72 4.72a.75.75 0 01-1.06 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span>100% Secure Payment</span>
+                        </div>
+                      </div>
+
+                      {/* Disclaimer Text */}
+                      <p className="text-xs text-gray-400 text-center">
+                        By clicking above, you agree to the{" "}
+                        <span className="underline cursor-pointer hover:text-[#E2136E]">
+                          Terms & Conditions
+                        </span>
+                        .
+                      </p>
+                    </div>
+                  )}
+
+                  {paymentMethod === "bkash-manual" && (
+                    <div className="space-y-4 my-6">
+                      <div className="max-w-md bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                        {/* Header Section */}
+                        <div className="bg-[#e2136e] p-4 text-white flex justify-between items-center ">
+                          <h3 className="font-bold text-lg">Send Money</h3>
+                          <span className="text-xs bg-white/20 px-2 py-1 rounded">
+                            Personal
+                          </span>
+                        </div>
+
+                        <div className="p-5">
+                          <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                            আপনার bKash অ্যাপ থেকে নিচের নাম্বারে{" "}
+                            <strong>Send Money</strong> করুন। এরপর ট্রানজ্যাকশন
+                            আইডি (TxnID) ফর্মটিতে দিন।
+                          </p>
+
+                          <div className="flex flex-col sm:flex-row gap-5 items-center">
+                            {/* QR Code Block */}
+                            <div className="shrink-0 p-2 border border-dashed border-pink-300 rounded-lg bg-pink-50">
+                              <img
+                                src={bkash_qr_9607}
+                                alt="bKash QR"
+                                className="w-24 h-24 object-contain"
+                              />
+                            </div>
+
+                            {/* Number & Copy Section */}
+                            <div className="flex-1 w-full">
+                              <p className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wide">
+                                bKash Personal Number
+                              </p>
+
+                              <div className="relative group">
+                                <div className="flex items-center justify-between bg-gray-50 border border-gray-300 rounded-lg p-1 px-2  transition-colors">
+                                  <span className="font-mono text-lg font-bold text-gray-800 tracking-wider">
+                                    {number}
+                                  </span>
+
+                                  <button
+                                    onClick={handleCopy}
+                                    className="ml-3 p-2 rounded-md bg-white border border-gray-200 hover:bg-[#e2136e] hover:text-white hover:border-[#e2136e] transition-all group-hover:shadow-sm cursor-pointer"
+                                    title="Copy Number"
+                                  >
+                                    {copied ? (
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                    ) : (
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                        />
+                                      </svg>
+                                    )}
+                                  </button>
                                 </div>
+
+                                {/* Copied Tooltip */}
+                                {copied && (
+                                  <span className="absolute -top-8 right-0 bg-gray-800 text-white text-xs py-1 px-2 rounded shadow transition-opacity">
+                                    Copied!
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
                         </div>
-
-                        <div>
-                          <label
-                            htmlFor="bkashNumber"
-                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                          >
-                            Your bKash Number{" "}
-                            <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="tel"
-                            id="bkashNumber"
-                            value={bkashNumber}
-                            onChange={(e) => {
-                              let value = e.target.value.replace(/\D/g, "");
-                              if (value.length > 11) value = value.slice(0, 11);
-                              setBkashNumber(value);
-                              if (errors.bkashNumber) {
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  bkashNumber: "",
-                                }));
-                              }
-                            }}
-                            placeholder="01XXXXXXXXX"
-                            maxLength={11}
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                              errors.bkashNumber
-                                ? "border-red-500"
-                                : "border-gray-300"
-                            }`}
-                          />
-                          {errors.bkashNumber && (
-                            <p className="mt-1 text-sm text-red-500">
-                              {errors.bkashNumber}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <label
-                            htmlFor="bkashTrxId"
-                            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                          >
-                            Transaction ID (TrxID){" "}
-                            <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            id="bkashTrxId"
-                            value={bkashTrxId}
-                            onChange={(e) => {
-                              setBkashTrxId(e.target.value.toUpperCase());
-                              if (errors.bkashTrxId) {
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  bkashTrxId: "",
-                                }));
-                              }
-                            }}
-                            placeholder="Enter Transaction ID"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                              errors.bkashTrxId
-                                ? "border-red-500"
-                                : "border-gray-300"
-                            }`}
-                          />
-                          {errors.bkashTrxId && (
-                            <p className="mt-1 text-sm text-red-500">
-                              {errors.bkashTrxId}
-                            </p>
-                          )}
-                        </div>
                       </div>
-                    )}
 
-                    {paymentMethod === "bkash-auto" || (
-                      <div className="flex space-x-4">
-                        <button
-                          type="submit"
-                          /* disabled={isProcessing} */
-                          className="flex-1 group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
+                      <div>
+                        <label
+                          htmlFor="bkashNumber"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                         >
-                          {isLoading ? (
-                            <Spinner className="size-5" />
-                          ) : (
-                            `Send Payment`
-                          )}
-                        </button>
+                          Your bKash Number{" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          id="bkashNumber"
+                          value={bkashNumber}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, "");
+                            if (value.length > 11) value = value.slice(0, 11);
+                            setBkashNumber(value);
+                            if (errors.bkashNumber) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                bkashNumber: "",
+                              }));
+                            }
+                          }}
+                          placeholder="01XXXXXXXXX"
+                          maxLength={11}
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                            errors.bkashNumber
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          }`}
+                        />
+                        {errors.bkashNumber && (
+                          <p className="mt-1 text-sm text-red-500">
+                            {errors.bkashNumber}
+                          </p>
+                        )}
                       </div>
-                    )}
-                  </form>
+                      <div>
+                        <label
+                          htmlFor="bkashTrxId"
+                          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                        >
+                          Transaction ID (TrxID){" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="bkashTrxId"
+                          value={bkashTrxId}
+                          onChange={(e) => {
+                            setBkashTrxId(e.target.value.toUpperCase());
+                            if (errors.bkashTrxId) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                bkashTrxId: "",
+                              }));
+                            }
+                          }}
+                          placeholder="Enter Transaction ID"
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
+                            errors.bkashTrxId
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          }`}
+                        />
+                        {errors.bkashTrxId && (
+                          <p className="mt-1 text-sm text-red-500">
+                            {errors.bkashTrxId}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === "bkash-auto" || (
+                    <div className="flex space-x-4">
+                      <button
+                        type="button"
+                        disabled={photoUploading}
+                        onClick={() => handleSubmit()}
+                        className="flex-1 group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        {isLoading ? (
+                          <Spinner className="size-5" />
+                        ) : (
+                          `Send Payment`
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

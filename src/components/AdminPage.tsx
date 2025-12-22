@@ -32,7 +32,6 @@ export default function AdminPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterMethod, setFilterMethod] = useState<string>("all");
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [adminPass, setAdminPass] = useState<string>("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -345,11 +344,7 @@ export default function AdminPage() {
         {/* Manual Registration Form */}
         {/* <ManualRegistrationForm fetchUsers={fetchUsers} /> */}
 
-        <div className="border-t border-slate-200 pt-8">
-          <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6">
-            Database View
-          </h2>
-        </div>
+        
 
         {loading && (
           <div className="text-center p-10 bg-white rounded-xl shadow-lg">
@@ -383,7 +378,7 @@ export default function AdminPage() {
               </div>
             </div>
             {/* Filter data */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Filter by Status
@@ -414,125 +409,116 @@ export default function AdminPage() {
                 </select>
               </div>
             </div>
-            {/* admin input */}
-            <div className="my-5">
-              <input
-                type="password"
-                onChange={(e) => setAdminPass(e.target.value)}
-                name="password"
-                id=""
-                placeholder="Enter Pass"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
-            </div>
+          
+
             {/* Table data */}
-            {adminPass === "Admin9599" && (
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50">
-                  <tr>
-                    {[
-                      "Photo",
-                      "Name",
-                      "SSC Batch",
-                      "Mobile Number",
-                      "Reg Id",
-                      "Payment Number",
-                      "Txn ID",
-                      "Status",
-                      "Actions",
-                    ].map((header, idx) => (
-                      <th
-                        key={idx}
-                        className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
-                      >
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
-                  {filteredPayments.map((user) => (
-                    <tr
-                      key={user.id}
-                      className="hover:bg-amber-50/50 transition-colors"
+
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  {[
+                    "Photo",
+                    "Name",
+                    "SSC Batch",
+                    "Mobile Number",
+                    "Reg Id",
+                    "Payment Number",
+                    "Txn ID",
+                    "Status",
+                    "Actions",
+                  ].map((header, idx) => (
+                    <th
+                      key={idx}
+                      className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                        <img src={user.photo} alt="" />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                        {user.fullName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                        {user.graduationYear}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {user.phone}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {user.reg_id ? user.reg_id : "Wait for Payment"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {user.payment.paymentNumber || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700">
-                        {user.payment.transactionId || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            user.payment.status === "paid"
-                              ? "bg-green-100 text-green-800"
-                              : user.payment.status === "unPaid"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {user.payment.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex gap-2">
-                          {user.payment.status == "verifying" && (
-                            <button
-                              onClick={() => handleUpdateStatus(user, "paid")}
-                              disabled={loadingId === user.id}
-                              className="text-white bg-green-600 hover:bg-green-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
-                              title="Set to Paid"
-                            >
-                              {loadingId === user.id ? (
-                                <FaSpinner className="animate-spin" />
-                              ) : (
-                                <FaCheckCircle />
-                              )}
-                            </button>
-                          )}
-                          {user.payment.status === "verifying" && (
-                            <button
-                              onClick={() => handleUpdateStatus(user, "unPaid")}
-                              disabled={loadingId === user.id}
-                              className="text-white bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
-                              title="Set to Canceled"
-                            >
-                              <FaTimesCircle />
-                            </button>
-                          )}
-                          {user.payment.status === "unPaid" && (
-                            <button
-                              onClick={() => handleUpdateStatus(user, "delete")}
-                              disabled={loadingId === user.id}
-                              className="text-white bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
-                              title="Set to Canceled"
-                            >
-                              <MdDeleteForever />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
+                      {header}
+                    </th>
                   ))}
-                </tbody>
-              </table>
-            )}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {filteredPayments.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="hover:bg-amber-50/50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                      <img src={user.photo} alt="" />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                      {user.fullName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                      {user.graduationYear}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {user.phone}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {user.reg_id ? user.reg_id : "Wait for Payment"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {user.payment.paymentNumber || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700">
+                      {user.payment.transactionId || "N/A"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          user.payment.status === "paid"
+                            ? "bg-green-100 text-green-800"
+                            : user.payment.status === "unPaid"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {user.payment.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-2">
+                        {user.payment.status == "verifying" && (
+                          <button
+                            onClick={() => handleUpdateStatus(user, "paid")}
+                            disabled={loadingId === user.id}
+                            className="text-white bg-green-600 hover:bg-green-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
+                            title="Set to Paid"
+                          >
+                            {loadingId === user.id ? (
+                              <FaSpinner className="animate-spin" />
+                            ) : (
+                              <FaCheckCircle />
+                            )}
+                          </button>
+                        )}
+                        {user.payment.status === "verifying" && (
+                          <button
+                            onClick={() => handleUpdateStatus(user, "unPaid")}
+                            disabled={loadingId === user.id}
+                            className="text-white bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
+                            title="Set to Canceled"
+                          >
+                            <FaTimesCircle />
+                          </button>
+                        )}
+                        {user.payment.status === "unPaid" && (
+                          <button
+                            onClick={() => handleUpdateStatus(user, "delete")}
+                            disabled={loadingId === user.id}
+                            className="text-white bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
+                            title="Set to Canceled"
+                          >
+                            <MdDeleteForever />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
             {users.length === 0 && (
               <p className="p-4 text-center text-slate-500 italic">
                 No registered users found.

@@ -157,7 +157,7 @@ export const CartPage = () => {
       callbackURL: `https://pgmphs-reunion.com/confirmation?user=${paramsID}`,
       amount: "1000",
       merchantInvoiceNumber: `PGMPHS-Reunion2026`,
-    };fire
+    };
 
     try {
       const initBkash = await fetch(

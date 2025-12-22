@@ -17,6 +17,13 @@ import forhad_img from "../src/assets/forhad_Photo.jpg";
 import LoginPage from "./components/LoginPage";
 import NotFound from "./components/NotFound";
 
+// const data = {
+//   name: "forhad",
+//   sscBatch: "2015",
+//   regNo: "reg1", // e.g., "1234567890"
+//   imageUrl: "https://i.ibb.co.com/Qv7rJXvP/forhad-formal.jpg",
+// };
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -55,6 +62,10 @@ const router = createBrowserRouter([
         path: "login",
         element: <LoginPage />,
       },
+      // {
+      //   path: "card",
+      //   element: <ReunionCard  />,
+      // },
     ],
   },
 ]);

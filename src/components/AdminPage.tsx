@@ -5,6 +5,7 @@ import {
   doc,
   onSnapshot,
   runTransaction,
+  deleteDoc,
 } from "firebase/firestore";
 import {
   FaCheckCircle,
@@ -19,6 +20,8 @@ import { sortRegistrationsByLatest } from "@/utils/helpers";
 const COLLECTION_NAME = "pgphs_ru_reqisterd_users";
 import { Confirm } from "notiflix/build/notiflix-confirm-aio";
 import toast from "react-hot-toast";
+import { MdDeleteForever } from "react-icons/md";
+import Swal from "sweetalert2";
 
 // --- Main Component: AdminPage ---
 export default function AdminPage() {
@@ -94,127 +97,164 @@ export default function AdminPage() {
     if (loadingId) return;
 
     // setLoadingId(user.id);
-
-    Confirm.show(
-      `Status Update for ${user.fullName}`,
-      `Are you sure update to ${newStatus}?`,
-      "Yes",
-      "No",
-      async () => {
-        // setLoadingId(user.id);
-        try {
-          if (!user.id) return toast.error("User not found!");
-          const userRef = doc(db, "pgphs_ru_reqisterd_users", user?.id);
-          const counterRef = doc(db, "counters", "registrationCounter");
-
-          await runTransaction(db, async (transaction) => {
-            // 1️⃣ READ PHASE: Shob get age korte hobe
-            const userDoc = await transaction.get(userRef);
-            if (!userDoc.exists()) throw "User found hoyni!";
-
-            const counterDoc = await transaction.get(counterRef); // Counter-ta agei read kore rakhlam
-            const current = counterDoc.data()?.current ?? 0;
-
-            // 2️⃣ LOGIC & WRITE PHASE: If-Else use kore alada update
-            if (newStatus === "paid") {
-              // --- PAID HOLE ---
-              const newCounter = current + 1;
-              const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
-
-              // Counter update korlam
-              transaction.update(counterRef, { current: newCounter });
-
-              // User-er status + reg_id update korlam
-              transaction.update(userRef, {
-                "payment.status": "paid",
-                reg_id: serial,
-              });
-
-              console.log("Paid logic executed");
-            } else {
-              // --- UNPAID HOLE (ELSE) ---
-              // Shudhu status update hobe, reg_id ba counter-e hat dibo na
-              transaction.update(userRef, {
-                "payment.status": newStatus,
-              });
-
-              console.log("Unpaid logic executed");
-            }
-          });
-
-          // await runTransaction(db, async (transaction) => {
-          //   // 1️⃣ Read counter
-          //   const counterDoc = await transaction.get(counterRef);
-          //   const current = counterDoc.data()?.current ?? 0;
-          //   const newCounter = current + 1;
-
-          //   // 2️⃣ Generate serial
-          //   const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
-
-          //   // 3️⃣ Update user document: status + serial
-          //   transaction.update(userRef, {
-          //     "payment.status": newStatus,
-          //     reg_id: serial, // merge serial
-          //   });
-
-          //   // 4️⃣ Update counter
-          //   transaction.update(counterRef, { current: newCounter });
-          // });
-
-          toast.success(
-            `Payment status updated to ${newStatus} with Serial generated!`
-          );
-
-          const smsBody = [
-            `Congrats ${user.fullName},`,
-            `Your PGPHS Reunion 2026 registration is confirmed.`,
-            `Keep your virtual card for entry.`,
-            `Check status: https://pgmphs-reunion.com/check-status?n=${user.phone}`,
-          ].join("\n");
-
-          // 5️⃣ Send SMS if paid
-          if (newStatus === "paid") {
-            const sendSmsData = {
-              phone: user?.phone || "",
-              message: smsBody,
-            };
-
-            try {
-              const res = await fetch(
-                "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(sendSmsData),
-                }
-              );
-
-              const data = await res.json();
-              console.log("SMS response:", data);
-
-              if (data.status === "success") {
-                toast.success(`Confirmation SMS sent to ${user.fullName}`);
-              } else {
-                toast.error(data?.data?.error_message || "SMS failed");
-              }
-            } catch (err) {
-              console.error(err);
-              toast.error("SMS sending failed");
-            }
+    if (newStatus === "delete") {
+      Swal.fire({
+        title: "Enter your password to delete item",
+        input: "password",
+        inputAttributes: {
+          autocapitalize: "off",
+        },
+        showCancelButton: true,
+        confirmButtonText: "Delete",
+        showLoaderOnConfirm: true,
+        preConfirm: async (password) => {
+          if (password !== "683912") {
+            return Swal.showValidationMessage("Incorrect password!");
           }
-        } catch (err) {
-          console.error("Transaction failed:", err);
-          toast.error("Status update failed");
-        } finally {
-          setLoadingId(null);
+          if (!user?.id) {
+            return;
+          }
+          // If password correct, delete the item
+          const userRef = doc(db, "pgphs_ru_reqisterd_users", user?.id);
+          try {
+            await deleteDoc(userRef);
+          } catch (error) {
+            console.log(error);
+          }
+        },
+        allowOutsideClick: () => !Swal.isLoading(),
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            icon: "success",
+            title: "Item deleted successfully!",
+          });
         }
-      },
-      () => {
-        // Clicked No
-        console.log("Update cancelled");
-      },
-      {}
-    );
+      });
+    } else {
+      Confirm.show(
+        `Status Update for ${user.fullName}`,
+        `Are you sure update to ${newStatus}?`,
+        "Yes",
+        "No",
+        async () => {
+          // setLoadingId(user.id);
+          try {
+            if (!user.id) return toast.error("User not found!");
+            const userRef = doc(db, "pgphs_ru_reqisterd_users", user?.id);
+            const counterRef = doc(db, "counters", "registrationCounter");
+
+            await runTransaction(db, async (transaction) => {
+              // 1️⃣ READ PHASE: Shob get age korte hobe
+              const userDoc = await transaction.get(userRef);
+              if (!userDoc.exists()) throw "User found hoyni!";
+
+              const counterDoc = await transaction.get(counterRef); // Counter-ta agei read kore rakhlam
+              const current = counterDoc.data()?.current ?? 0;
+
+              // 2️⃣ LOGIC & WRITE PHASE: If-Else use kore alada update
+              if (newStatus === "paid") {
+                // --- PAID HOLE ---
+                const newCounter = current + 1;
+                const serial = `PGMPHS-${newCounter
+                  .toString()
+                  .padStart(4, "0")}`;
+
+                // Counter update korlam
+                transaction.update(counterRef, { current: newCounter });
+
+                // User-er status + reg_id update korlam
+                transaction.update(userRef, {
+                  "payment.status": "paid",
+                  reg_id: serial,
+                });
+
+                console.log("Paid logic executed");
+              } else {
+                // --- UNPAID HOLE (ELSE) ---
+                // Shudhu status update hobe, reg_id ba counter-e hat dibo na
+                transaction.update(userRef, {
+                  "payment.status": newStatus,
+                });
+
+                console.log("Unpaid logic executed");
+              }
+            });
+
+            // await runTransaction(db, async (transaction) => {
+            //   // 1️⃣ Read counter
+            //   const counterDoc = await transaction.get(counterRef);
+            //   const current = counterDoc.data()?.current ?? 0;
+            //   const newCounter = current + 1;
+
+            //   // 2️⃣ Generate serial
+            //   const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
+
+            //   // 3️⃣ Update user document: status + serial
+            //   transaction.update(userRef, {
+            //     "payment.status": newStatus,
+            //     reg_id: serial, // merge serial
+            //   });
+
+            //   // 4️⃣ Update counter
+            //   transaction.update(counterRef, { current: newCounter });
+            // });
+
+            toast.success(
+              `Payment status updated to ${newStatus} with Serial generated!`
+            );
+
+            const smsBody = [
+              `Congrats ${user.fullName},`,
+              `Your PGPHS Reunion 2026 registration is confirmed.`,
+              `Keep your virtual card for entry.`,
+              `Check status: https://pgmphs-reunion.com/check-status?n=${user.phone}`,
+            ].join("\n");
+
+            // 5️⃣ Send SMS if paid
+            if (newStatus === "paid") {
+              const sendSmsData = {
+                phone: user?.phone || "",
+                message: smsBody,
+              };
+
+              try {
+                const res = await fetch(
+                  "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(sendSmsData),
+                  }
+                );
+
+                const data = await res.json();
+                console.log("SMS response:", data);
+
+                if (data.status === "success") {
+                  toast.success(`Confirmation SMS sent to ${user.fullName}`);
+                } else {
+                  toast.error(data?.data?.error_message || "SMS failed");
+                }
+              } catch (err) {
+                console.error(err);
+                toast.error("SMS sending failed");
+              }
+            }
+          } catch (err) {
+            console.error("Transaction failed:", err);
+            toast.error("Status update failed");
+          } finally {
+            setLoadingId(null);
+          }
+        },
+        () => {
+          // Clicked No
+          console.log("Update cancelled");
+        },
+        {}
+      );
+    }
 
     // Confirm.show(
     //   "Status Update Confirmation",
@@ -474,6 +514,16 @@ export default function AdminPage() {
                               title="Set to Canceled"
                             >
                               <FaTimesCircle />
+                            </button>
+                          )}
+                          {user.payment.status === "unPaid" && (
+                            <button
+                              onClick={() => handleUpdateStatus(user, "delete")}
+                              disabled={loadingId === user.id}
+                              className="text-white bg-red-600 hover:bg-red-700 p-4 rounded-full transition-colors disabled:opacity-50 cursor-pointer"
+                              title="Set to Canceled"
+                            >
+                              <MdDeleteForever />
                             </button>
                           )}
                         </div>

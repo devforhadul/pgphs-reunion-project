@@ -1,6 +1,6 @@
 import { db } from "@/firebase/firebase.init";
 import type { RegistrationData } from "@/types";
-import { doc, getDoc, runTransaction } from "firebase/firestore";
+import { collection, doc, runTransaction } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
@@ -21,11 +21,7 @@ export const ConfirmationPage = () => {
   // const status = searchParams.get("status");
   // const signature = searchParams.get("signature");
   const userId = searchParams.get("user");
-  // const [isPaid, setIsPaid] = useState<boolean>(false);
-
-  // const [isProcessing, setIsProcessing] = useState(true);
   const [updatedUser, setUpdatedUser] = useState<RegistrationData | null>(null);
-
   const executionStarted = useRef(false);
 
   useEffect(() => {
@@ -37,6 +33,14 @@ export const ConfirmationPage = () => {
       }
       executionStarted.current = true;
 
+      const reunionUser = JSON.parse(
+        localStorage.getItem("reunionUser") || "{}"
+      );
+
+      if (!reunionUser?.fullName || !reunionUser?.phone) {
+        throw new Error("Invalid registration data");
+      }
+
       try {
         // 1️⃣ Execute bKash payment via your backend
         const res = await fetch(
@@ -47,48 +51,75 @@ export const ConfirmationPage = () => {
             body: JSON.stringify({ paymentID }),
           }
         );
-        const data = await res.json();
+        const bkashData = await res.json();
 
-        console.log("Payment executed successfully:", data.statusMessage);
-
-        // 2️⃣ Firestore transaction → update payment status + serial
-        const userRef = doc(db, "pgphs_ru_reqisterd_users", userId);
-        const counterRef = doc(db, "counters", "registrationCounter");
-
-        await runTransaction(db, async (transaction) => {
-          const counterDoc = await transaction.get(counterRef);
-          const current = counterDoc.data()?.current ?? 0;
-          const newCounter = current + 1;
-
-          const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
-
-          transaction.update(userRef, {
-            "payment.status": "paid",
-            "payment.transactionId": data.trxID,
-            "payment.paidAt": new Date().toISOString(),
-            "payment.paymentMethod": "bkash-auto",
-            "payment.isManual": false,
-            "payment.paymentNumber": data.payerAccount,
-            reg_id: serial,
-          });
-
-          transaction.update(counterRef, { current: newCounter });
-          toast.success("Payment Success");
+        Swal.fire({
+          title: "Payment Successfullly!",
+          icon: "success",
+          draggable: true,
         });
 
-        // 3️⃣ Get updated user document
-        const updatedSnap = await getDoc(userRef);
-        if (!updatedSnap.exists())
-          throw new Error("User not found after transaction");
-        const userData = updatedSnap.data() as RegistrationData;
-        setUpdatedUser(userData);
+        console.log("Payment executed successfully:", bkashData.statusMessage);
+
+        // Code for save in db
+        const usersRef = collection(db, "pgphs_ru_reqisterd_users");
+        const counterRef = doc(db, "counters", "registrationCounter");
+
+        // auto generated user doc id
+        const userRef = doc(usersRef);
+
+        let savedData: RegistrationData = null!;
+
+        await runTransaction(db, async (transaction) => {
+          // 1️⃣ counter read
+          const counterSnap = await transaction.get(counterRef);
+
+          let current = 0;
+
+          if (counterSnap.exists()) {
+            current = counterSnap.data().current ?? 0;
+          }
+
+          // 2️⃣ calculation
+          const newCounter = current + 1;
+
+          // 3️⃣ serial generate
+          const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
+
+          // 4️⃣ user insert
+          savedData = {
+            ...reunionUser,
+            reg_id: serial,
+            regAt: new Date().toISOString(),
+            payment: {
+              ...reunionUser.payment,
+              status: "paid",
+              transactionId: bkashData.trxID,
+              paidAt: new Date().toISOString(),
+              paymentMethod: "bkash-auto",
+              isManual: false,
+              paymentNumber: bkashData.payerAccount,
+            },
+          };
+
+          transaction.set(userRef, savedData);
+
+          // 5️⃣ counter update / create
+          if (counterSnap.exists()) {
+            transaction.update(counterRef, { current: newCounter });
+          } else {
+            transaction.set(counterRef, { current: newCounter });
+          }
+        });
+
+        setUpdatedUser(savedData);
 
         // 4️⃣ Send confirmation SMS
         const smsBody = [
-          `Congrats ${userData.fullName},`,
+          `Congrats ${savedData.fullName},`,
           `Your PGPHS Reunion 2026 registration is confirmed.`,
           `Keep your virtual card for entry.`,
-          `Check status: https://pgmphs-reunion.com/check-status?n=${userData.phone}`,
+          `Check status: https://pgmphs-reunion.com/check-status?n=${savedData.phone}`,
         ].join("\n");
 
         const smsRes = await fetch(
@@ -96,13 +127,13 @@ export const ConfirmationPage = () => {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone: userData.phone, message: smsBody }),
+            body: JSON.stringify({ phone: savedData.phone, message: smsBody }),
           }
         );
 
         const smsData = await smsRes.json();
         if (smsData.status === "success") {
-          console.log(`Confirmation SMS sent to ${userData.fullName}`);
+          console.log(`Confirmation SMS sent to ${savedData.fullName}`);
         } else {
           toast.error(smsData?.data?.error_message || "SMS failed");
         }
@@ -217,7 +248,7 @@ export const ConfirmationPage = () => {
                   3
                 </span>
                 <p className="text-sm text-slate-300">
-                  <strong className="text-white">Vertual Pass:</strong>
+                  <strong className="text-white">virtual Pass: </strong>
                   ড্যাশবোর্ড থেকে আপনার ডিজিটাল এন্ট্রি টিকিট ডাউনলোড করতে
                   পারবেন।
                 </p>

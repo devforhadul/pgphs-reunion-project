@@ -16,7 +16,8 @@ import forhad_img from "../src/assets/forhad_Photo.jpg";
 import LoginPage from "./components/LoginPage";
 import NotFound from "./components/NotFound";
 import AuthProvider from "./provider/AuthProvider";
-import  ProtectedRoute from "./Routes/ProtectedRoute";
+import ProtectedRoute from "./Routes/ProtectedRoute";
+import FinishSignIn from "./components/auth/FinishSignIn";
 
 // const data = {
 //   name: "forhad",
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
       //   path: "card",
       //   element: <ReunionCard  />,
       // },
+      {
+        path: "/finishSignIn",
+        element: <FinishSignIn />,
+      },
     ],
   },
 ]);

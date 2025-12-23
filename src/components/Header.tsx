@@ -47,7 +47,7 @@ export default function Header() {
               P
             </div>
             <span className="text-2xl font-bold text-white tracking-tight font-serif">
-              PGPHS <span className="text-amber-500">Reunion - 2026</span>
+              PGMPHS <span className="text-amber-500">Reunion - 2026</span>
             </span>
           </Link>
 

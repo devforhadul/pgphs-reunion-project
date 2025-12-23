@@ -1,23 +1,26 @@
 import { AuthContext } from "@/provider/AuthProvider";
 import { useContext, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 
 export default function LoginPage() {
-  const [isPhone, setIsPhone] = useState<string>("");
+  // const [isPhone, setIsPhone] = useState<string>("");
+  const [isEmail, setIsEmail] = useState<string>("");
   // const [isPass, setIsPass] = useState<string>("");
-  const navigate = useNavigate();
-  const { signinWithGoogle } = useContext(AuthContext)!;
+  // const navigate = useNavigate();
+  const { signinWithGoogle, sendSignInLink } = useContext(AuthContext)!;
 
-  const loginFun = (e: React.FormEvent) => {
+  const loginFun = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate(`/check-status?n=${isPhone}`);
+    await sendSignInLink(isEmail);
+    alert(`Email link sent to ${isEmail} Check your email for login link!`);
+    // navigate(`/check-status?n=${isPhone}`);
   };
 
   const googleSignIn = async () => {
     try {
       await signinWithGoogle();
-      toast.success("Google login successfully")
+      toast.success("Google login successfully");
     } catch (err) {
       console.error(err);
     }
@@ -51,7 +54,7 @@ export default function LoginPage() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={loginFun} className="space-y-6">
-          <div>
+          {/* <div>
             <label
               htmlFor="phone"
               className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
@@ -67,6 +70,28 @@ export default function LoginPage() {
                 required
                 autoComplete="phone"
                 placeholder="Enter phone number..."
+                className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
+              />
+            </div>
+          </div> */}
+
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
+            >
+              Email Address
+            </label>
+            <div className="mt-2">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                onChange={(e) => setIsEmail(e.target.value)}
+                required
+                autoComplete="phone"
+                placeholder="Enter Email..."
                 className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
               />
             </div>

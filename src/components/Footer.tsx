@@ -16,7 +16,7 @@ export const Footer = () => {
           <div className="space-y-6">
             <Link to="/" className="inline-block">
                <span className="text-2xl font-bold font-serif text-white">
-                 PGPHS <span className="text-amber-500">Reunion - 2026</span>
+                 PGMPHS <span className="text-amber-500">Reunion - 2026</span>
                </span>
             </Link>
             <p className="text-slate-400 leading-relaxed text-sm max-w-sm">

@@ -179,8 +179,8 @@ export const RegistrationForm = () => {
     setIsLoading(true);
     const userPayInfo = {
       payerReference: formData.fullName,
-      callbackURL: `https://pgmphs-reunion.com/confirmation?user=${formData.phone}`,
-      amount: "1",
+      callbackURL: `http://localhost:5173/confirmation?user=${formData.phone}`,
+      amount: "1000",
       merchantInvoiceNumber: `PGMPHS-Reunion2026`,
     };
 
@@ -496,16 +496,17 @@ export const RegistrationForm = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-8">
+      <div className="text-center">
+        <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          PGMPHS 1st Reunion 2026 Registration
+        </h1>
+        <p className="text-xs lg:text-base text-gray-600 dark:text-gray-400 mb-5 lg:mb-7">
+          Please fill out the form below to register for the reunion event.
+        </p>
+      </div>
       <div className="grid lg:grid-cols-[1fr_400px] gap-5">
         {/* Left side form */}
         <div className="backdrop-blur-md mx-3  bg-[#FAFAFA] border-white/30 dark:bg-gray-800 rounded-xl shadow-sm p-6 md:p-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            PGPHS 1st Reunion Registration
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Please fill out the form below to register for the reunion event.
-          </p>
-
           <form /* onSubmit={handleSubmit} */ className="space-y-6">
             <div>
               <label
@@ -807,11 +808,7 @@ export const RegistrationForm = () => {
                   </span>
                   <div className="text-right">
                     <span className="font-medium text-gray-900 dark:text-white block">
-                      {formData.graduationYear >= "2023" &&
-                      formData.graduationYear <= "2025"
-                        ? 500
-                        : 1000}{" "}
-                      Tk
+                      {1000} Tk
                     </span>
                   </div>
                 </div>
@@ -820,12 +817,8 @@ export const RegistrationForm = () => {
                     Total:
                   </span>
                   <div className="text-right">
-                    <span className="text-primary-600 dark:text-primary-400 block">
-                      {formData.graduationYear >= "2023" &&
-                      formData.graduationYear <= "2025"
-                        ? 500
-                        : 1000}{" "}
-                      Tk
+                    <span className="text-amber-500 font-bold dark:text-primary-400 block">
+                      {1000} Tk
                     </span>
                   </div>
                 </div>
@@ -840,7 +833,7 @@ export const RegistrationForm = () => {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod("bkash-auto")}
-                        className={`relative px-5 py-3 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
+                        className={`relative px-5 py-3 border-2  transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
                           paymentMethod === "bkash-auto"
                             ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 "
                             : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
@@ -848,7 +841,7 @@ export const RegistrationForm = () => {
                       >
                         {/* Selected Checkmark Badge */}
                         {paymentMethod === "bkash-auto" && (
-                          <div className="absolute top-7 right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
+                          <div className="absolute top-7 left-3 bg-[#E2136E] text-white rounded-full p-0.5 shadow-lg">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-4 w-4"
@@ -864,7 +857,7 @@ export const RegistrationForm = () => {
                           </div>
                         )}
 
-                        <div className="flex flex-col">
+                        <div className="flex flex-col ml-7">
                           <span
                             className={`font-semibold text-lg ${
                               paymentMethod === "bkash-auto"
@@ -896,7 +889,7 @@ export const RegistrationForm = () => {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod("bkash-manual")}
-                        className={`relative px-5 py-3 border-2 rounded-xl transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
+                        className={`relative px-5 py-3 border-2 transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
                           paymentMethod === "bkash-manual"
                             ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10"
                             : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
@@ -904,7 +897,7 @@ export const RegistrationForm = () => {
                       >
                         {/* Selected Checkmark Badge */}
                         {paymentMethod === "bkash-manual" && (
-                          <div className="absolute top-7 right-3 bg-[#E2136E] text-white rounded-full p-1 shadow-lg">
+                          <div className="absolute top-7 left-3 bg-[#E2136E] text-white rounded-full p-0.5 shadow-lg">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               className="h-4 w-4"
@@ -920,7 +913,7 @@ export const RegistrationForm = () => {
                           </div>
                         )}
 
-                        <div className="flex flex-col">
+                        <div className="flex flex-col ml-7">
                           <span
                             className={`font-semibold text-lg ${
                               paymentMethod === "bkash-manual"
@@ -1017,21 +1010,21 @@ export const RegistrationForm = () => {
                     <div className="space-y-4 my-6">
                       <div className="max-w-md bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
                         {/* Header Section */}
-                        <div className="bg-[#e2136e] p-4 text-white flex justify-between items-center ">
+                        <div className="bg-[#e2136e] px-4 py-2 text-white flex justify-between items-center ">
                           <h3 className="font-bold text-lg">Send Money</h3>
                           <span className="text-xs bg-white/20 px-2 py-1 rounded">
                             Personal
                           </span>
                         </div>
 
-                        <div className="p-5">
-                          <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                        <div className="p-5 ">
+                          {/* <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                             আপনার bKash অ্যাপ থেকে নিচের নাম্বারে{" "}
                             <strong>Send Money</strong> করুন। এরপর ট্রানজ্যাকশন
                             আইডি (TxnID) ফর্মটিতে দিন।
-                          </p>
+                          </p> */}
 
-                          <div className="flex flex-col sm:flex-row gap-5 items-center">
+                          <div className="flex flex-col  gap-5 items-center">
                             {/* QR Code Block */}
                             <div className="shrink-0 p-2 border border-dashed border-pink-300 rounded-lg bg-pink-50">
                               <img
@@ -1120,26 +1113,23 @@ export const RegistrationForm = () => {
                             let value = e.target.value.replace(/\D/g, "");
                             if (value.length > 11) value = value.slice(0, 11);
                             setBkashNumber(value);
-                            if (errors.bkashNumber) {
-                              setErrors((prev) => ({
-                                ...prev,
-                                bkashNumber: "",
-                              }));
-                            }
+                            // if (errors.bkashNumber) {
+                            //   setErrors((prev) => ({
+                            //     ...prev,
+                            //     bkashNumber: "",
+                            //   }));
+                            // }
                           }}
                           placeholder="01XXXXXXXXX"
                           maxLength={11}
-                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                            errors.bkashNumber
-                              ? "border-red-500"
-                              : "border-gray-300"
-                          }`}
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white 
+                            `}
                         />
-                        {errors.bkashNumber && (
+                        {/* {errors.bkashNumber && (
                           <p className="mt-1 text-sm text-red-500">
                             {errors.bkashNumber}
                           </p>
-                        )}
+                        )} */}
                       </div>
                       <div>
                         <label
@@ -1155,25 +1145,21 @@ export const RegistrationForm = () => {
                           value={bkashTrxId}
                           onChange={(e) => {
                             setBkashTrxId(e.target.value.toUpperCase());
-                            if (errors.bkashTrxId) {
-                              setErrors((prev) => ({
-                                ...prev,
-                                bkashTrxId: "",
-                              }));
-                            }
+                            // if (errors.bkashTrxId) {
+                            //   setErrors((prev) => ({
+                            //     ...prev,
+                            //     bkashTrxId: "",
+                            //   }));
+                            // }
                           }}
                           placeholder="Enter Transaction ID"
-                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                            errors.bkashTrxId
-                              ? "border-red-500"
-                              : "border-gray-300"
-                          }`}
+                          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white `}
                         />
-                        {errors.bkashTrxId && (
+                        {/* {errors.bkashTrxId && (
                           <p className="mt-1 text-sm text-red-500">
                             {errors.bkashTrxId}
                           </p>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   )}

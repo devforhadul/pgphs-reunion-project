@@ -6,14 +6,25 @@ import { Link } from "react-router";
 export default function LoginPage() {
   // const [isPhone, setIsPhone] = useState<string>("");
   const [isEmail, setIsEmail] = useState<string>("");
-  // const [isPass, setIsPass] = useState<string>("");
+  const [isPass, setIsPass] = useState<string>("");
   // const navigate = useNavigate();
-  const { signinWithGoogle, sendSignInLink } = useContext(AuthContext)!;
+  const { signinWithGoogle, signInWithEmailPass, forgotPassword } =
+    useContext(AuthContext)!;
+
+
 
   const loginFun = async (e: React.FormEvent) => {
     e.preventDefault();
-    await sendSignInLink(isEmail);
-    alert(`Email link sent to ${isEmail} Check your email for login link!`);
+
+    try {
+      await signInWithEmailPass(isEmail, isPass);
+    } catch (error) {
+      console.log(error);
+      alert(error);
+    }
+
+    // await sendSignInLink(isEmail);
+    // alert(`Email link sent to ${isEmail} Check your email for login link!`);
     // navigate(`/check-status?n=${isPhone}`);
   };
 
@@ -24,6 +35,11 @@ export default function LoginPage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleReset = async () => {
+    if (!isEmail) return alert("Enter your email");
+    await forgotPassword(isEmail);
   };
 
   return (
@@ -97,7 +113,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* <div>
+          <div>
             <div className="flex items-center justify-between">
               <label
                 htmlFor="password"
@@ -106,12 +122,13 @@ export default function LoginPage() {
                 Password
               </label>
               <div className="text-sm">
-                <a
-                  href="#"
+                <button
+                  type="button"
+                  onClick={() => handleReset()}
                   className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
                   Forgot password?
-                </a>
+                </button>
               </div>
             </div>
             <div className="mt-2">
@@ -126,7 +143,7 @@ export default function LoginPage() {
                 className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
               />
             </div>
-          </div> */}
+          </div>
 
           <div>
             <button

@@ -16,7 +16,8 @@ import { LuHeartHandshake } from "react-icons/lu";
 import { GoTrophy } from "react-icons/go";
 import { GiKnifeFork } from "react-icons/gi";
 import { IoCameraReverseOutline } from "react-icons/io5";
-import v from "../assets/video/pgmphs_video_720p.mp4";
+import v from "../../assets/video/pgmphs_video_720p.mp4";
+
 
 export const HomePage = () => {
   return (

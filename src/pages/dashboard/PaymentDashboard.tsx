@@ -184,6 +184,11 @@ export const PaymentDashboard = () => {
                           Confirmed Registration
                         </span>
                       )}
+                      {payment.payment.status === "verifying" && (
+                        <span className="bg-green-100 py-1.5 px-3 rounded-2xl text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          Verifying Payment
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400">

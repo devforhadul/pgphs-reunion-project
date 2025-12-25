@@ -8,8 +8,12 @@ import {
   type User,
   isSignInWithEmailLink,
   signInWithEmailLink as firebaseSignInWithEmailLink,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { createContext, useEffect, useState, type ReactNode } from "react";
+import toast from "react-hot-toast";
+
 
 export const AuthContext = createContext<AuthContextTypes | null>(null)!;
 const googleProvider = new GoogleAuthProvider();
@@ -25,12 +29,44 @@ interface AuthContextTypes {
   loading: boolean;
   logOut: () => Promise<void>;
   idToken?: string | null;
+  signInWithEmailPass: (email: string, password: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [idToken, setIdToken] = useState<string | null>(null);
+
+  const signInWithEmailPass = async (email: string, password: string) => {
+    try {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          setUser(user);
+          toast.success("Login successfully");
+
+          // ...
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          console.log(errorMessage);
+          alert(errorMessage);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const forgotPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset email sent! Check your inbox.");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const signinWithGoogle = async () => {
     setLoading(true);
@@ -122,6 +158,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     idToken,
     sendSignInLink,
     signInWithEmailLink,
+    signInWithEmailPass,
+    forgotPassword,
   };
 
   return (

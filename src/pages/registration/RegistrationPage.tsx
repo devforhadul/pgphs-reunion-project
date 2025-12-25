@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import type { RegistrationData } from "../types";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase.init";
-import toast from "react-hot-toast";
 import imageCompression from "browser-image-compression";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { FaCheckCircle } from "react-icons/fa";
-import bkash_qr_9607 from "../assets/qr_code/bkash_qr_9607.jpg";
-import bkash_logo from "../assets/bkash_logo.png";
-import { Spinner } from "./ui/spinner";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { Spinner } from "../../components/ui/spinner";
+import type { RegistrationData } from "../../types";
+import bkash_logo from "../../assets/bkash_logo.png";
+import bkash_qr_9607 from "../../assets/qr_code/bkash_qr_9607.jpg";
 
-export const RegistrationForm = () => {
+export const RegistrationPage = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<
     Partial<Record<keyof RegistrationData, string>>
@@ -179,7 +179,7 @@ export const RegistrationForm = () => {
     setIsLoading(true);
     const userPayInfo = {
       payerReference: formData.fullName,
-      callbackURL: `http://localhost:5173/confirmation?user=${formData.phone}`,
+      callbackURL: `https://pgmphs-reunion.com/confirmation?user=${formData.phone}`,
       amount: "1000",
       merchantInvoiceNumber: `PGMPHS-Reunion2026`,
     };
@@ -313,83 +313,9 @@ export const RegistrationForm = () => {
 
     saveRegistration();
 
-    // toast
-    //   .promise(saveRegistration(), {
-    //     loading: "Registration processing...",
-    //     success: "Registration successful! payment now.",
-    //     error: (err) => err.message,
-    //   })
-    //   .then((docId) => {
-    //     navigate(`/cart/${docId}`);
-    //   })
-    //   .finally(() => setIsSubmitting(false));
-
-    /* const docRef = doc(db, COLLECTION_NAME, saveRegistration);
-    try {
-      await updateDoc(docRef, {
-        "payment.status": "verifying",
-        "payment.transactionId": trxId,
-        "payment.paidAt": new Date().toISOString(),
-        "payment.paymentMethod": paymentMethod,
-        "payment.isManual": true,
-        "payment.paymentNumber": payNumber,
-      });
-
-      navigate(`/confirmation`);
-    } catch (error) {
-      console.error("Error during payment update:", error);
-      alert("Update failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    } */
+ 
   };
 
-  // Submit Form function
-  /*   const handleSubmitss = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // localStorage.setItem("tempData", JSON.stringify(formData));
-    // const a: RegistrationData = JSON.parse(
-    //   localStorage.getItem("tempData") || "null"
-    // );
-
-    // console.log(a);
-
-    // return;
-
-    if (!validate() || !formData.phone) return;
-
-    setIsSubmitting(true);
-
-    const saveRegistration = async () => {
-      const usersRef = collection(db, "pgphs_ru_reqisterd_users");
-      const q = query(usersRef, where("phone", "==", formData.phone));
-      const snapshot = await getDocs(q);
-
-      if (!snapshot.empty) {
-        return setIsRegisterdMess(
-          "Registration has been done using this number."
-        );
-      }
-
-      const docRef = await addDoc(usersRef, {
-        ...formData,
-        regAt: new Date().toISOString(),
-      });
-
-      return docRef.id;
-    };
-
-    toast
-      .promise(saveRegistration(), {
-        loading: "Registration processing...",
-        success: "Registration successful! payment now.",
-        error: (err) => err.message,
-      })
-      .then((docId) => {
-        navigate(`/cart/${docId}`);
-      })
-      .finally(() => setIsSubmitting(false));
-  }; */
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -761,13 +687,13 @@ export const RegistrationForm = () => {
               )}
             </div>
             {/* Instruction for image */}
-            <div className="w-full  my-4 p-4 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-700">
-              <h2 className="text-lg font-semibold mb-3">নির্দেশনা</h2>
+            <div className="w-full  my-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 rounded-lg shadow-sm text-gray-700">
+              <h2 className="text-lg font-semibold mb-3 text-black dark:text-white">নির্দেশনা</h2>
               <div className="flex flex-col space-y-2">
                 {instructions.map((text, idx) => (
                   <div key={idx} className="flex items-start space-x-2">
                     <FaCheckCircle className="text-green-500 mt-1" />
-                    <p className="text-sm">{text}</p>
+                    <p className="text-sm text-black dark:text-white">{text}</p>
                   </div>
                 ))}
               </div>
@@ -796,7 +722,7 @@ export const RegistrationForm = () => {
         </div>
         {/* Right side summary */}
         <div>
-          <div className="backdrop-blur-md mx-3 bg-blue-50 dark:bg-gray-700 rounded-lg p-6 sticky top-4">
+          <div className="backdrop-blur-md mx-3 bg-blue-50 dark:bg-gray-800 rounded-lg p-6 sticky top-4">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               Payment Summary
             </h2>
@@ -823,7 +749,7 @@ export const RegistrationForm = () => {
                   </div>
                 </div>
                 {/* Payment */}
-                <div className="bg-gray-50 p-5 mt-3 rounded-xl">
+                <div className="bg-gray-50 dark:bg-gray-900 p-5 mt-3 rounded-xl">
                   <div className="space-y-6">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Payment Method <span className="text-red-500">*</span>

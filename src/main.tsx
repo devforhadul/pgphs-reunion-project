@@ -1,30 +1,24 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router";
-import MainLayout from "./Layout/MainLayout";
-import { RegistrationForm } from "./components/RegistrationForm";
-import { PaymentDashboard } from "./components/PaymentDashboard";
-import { CartPage } from "./components/CartPage";
-import StatusCheck from "./components/StatusCheck";
-import { Toaster } from "react-hot-toast";
-import { HomePage } from "./components/HomePage";
-import AdminPage from "./components/AdminPage";
-import { ConfirmationPage } from "./components/ConfirmationPage";
 import { FloatingWhatsApp } from "react-floating-whatsapp";
+import { Toaster } from "react-hot-toast";
+import { createBrowserRouter, RouterProvider } from "react-router";
 import forhad_img from "../src/assets/forhad_Photo.jpg";
-import LoginPage from "./components/LoginPage";
+import AdminPage from "./components/AdminPage";
+import FinishSignIn from "./components/auth/FinishSignIn";
+import { CartPage } from "./components/CartPage";
+import { ConfirmationPage } from "./components/ConfirmationPage";
+import LoginPage from "./pages/login/LoginPage";
 import NotFound from "./components/NotFound";
+import "./index.css";
+import MainLayout from "./Layout/MainLayout";
+import StatusCheck from "./pages/checkstatus/StatusCheck";
+import { PaymentDashboard } from "./pages/dashboard/PaymentDashboard";
+import { HomePage } from "./pages/home/HomePage";
+import { RegistrationPage } from "./pages/registration/RegistrationPage";
 import AuthProvider from "./provider/AuthProvider";
 import ProtectedRoute from "./Routes/ProtectedRoute";
-import FinishSignIn from "./components/auth/FinishSignIn";
 
-// const data = {
-//   name: "forhad",
-//   sscBatch: "2015",
-//   regNo: "reg1", // e.g., "1234567890"
-//   imageUrl: "https://i.ibb.co.com/Qv7rJXvP/forhad-formal.jpg",
-// };
 
 const router = createBrowserRouter([
   {
@@ -38,7 +32,7 @@ const router = createBrowserRouter([
       },
       {
         path: "registration",
-        element: <RegistrationForm />,
+        element: <RegistrationPage />,
       },
       {
         path: "cart/:id",

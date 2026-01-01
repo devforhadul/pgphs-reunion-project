@@ -7,13 +7,13 @@ import {
   maskPhoneNumber,
   sortRegistrationsByLatest,
 } from "@/utils/helpers";
+import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 
 export const PaymentDashboard = () => {
   // const location = useLocation();
   const [users, setUsers] = useState<RegistrationData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-
-
+  const [loading, setLoading] = useState(true);
 
   // Show success message if coming from payment
   useEffect(() => {
@@ -27,7 +27,7 @@ export const PaymentDashboard = () => {
         ...(doc.data() as RegistrationData),
       }));
 
-      // তোমার sorting function 그대로 রাখলাম
+      setLoading(false);
       setUsers(sortRegistrationsByLatest(allData));
     });
 
@@ -53,9 +53,9 @@ export const PaymentDashboard = () => {
     (p) => p.payment.status === "paid" || p.payment.status === "verifying"
   );
 
-
   return (
     <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {loading && <LoadingOverlay />}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
@@ -118,7 +118,6 @@ export const PaymentDashboard = () => {
         </div>
 
         {/* Payments Table */}
-
 
         <div className="overflow-x-auto">
           {filteredPayments.length === 0 ? (
@@ -208,7 +207,6 @@ export const PaymentDashboard = () => {
             </table>
           )}
         </div>
-
       </div>
     </div>
   );

@@ -5,9 +5,10 @@ import QRCode from "react-qr-code";
 interface ReunionUSer {
   user: RegistrationData;
   cardRef: RefObject<HTMLDivElement | null>;
+  qrData: string
 }
 
-const AlumniCard = ({ user, cardRef }: ReunionUSer) => {
+const AlumniCard = ({ user, cardRef, qrData }: ReunionUSer) => {
   return (
     <>
       <div
@@ -26,7 +27,7 @@ const AlumniCard = ({ user, cardRef }: ReunionUSer) => {
         <div className="absolute bottom-[28%] right-[8%] w-[30px] h-2 bg-[#D8B4E2] rounded-full -rotate-45 opacity-60" />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center px-8 pb-12 pt-8">
+        <div className="relative z-10 flex flex-col items-center px-6 pb-10 pt-8">
           {/* Logo Section */}
           <div className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm mb-6 flex items-center gap-2 border border-green-100/50">
             <div className="flex flex-col items-end leading-none border-r border-green-200 pr-2">
@@ -51,7 +52,7 @@ const AlumniCard = ({ user, cardRef }: ReunionUSer) => {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl font-extrabold text-gray-900 text-center leading-tight mb-8 font-display">
+          <h1 className="text-3xl font-extrabold text-gray-900 text-center leading-tight mb-5 font-display">
             Meet Our <br />
             <span className="relative inline-block">
               Alumni
@@ -60,12 +61,12 @@ const AlumniCard = ({ user, cardRef }: ReunionUSer) => {
           </h1>
 
           {/* Image Container with Glow Effect */}
-          <div className="relative mb-10 group">
+          <div className="relative mb-5 group">
             {/* Outer glow ring */}
             <div className="absolute inset-0 bg-linear-to-tr from-purple-200/50 to-blue-200/50 rounded-full blur-xl scale-110 opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
 
             {/* Inner white border wrapper */}
-            <div className="relative w-56 h-56 rounded-full p-2 bg-white/40 backdrop-blur-sm shadow-xl ring-1 ring-white/60">
+            <div className="relative w-46 h-46 rounded-full p-2 bg-white/40 backdrop-blur-sm shadow-xl ring-1 ring-white/60">
               <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 relative ">
                 <img
                   src={user.photo}
@@ -104,7 +105,7 @@ const AlumniCard = ({ user, cardRef }: ReunionUSer) => {
                   className="flex flex-1 justify-end"
                 >
                   <QRCode
-                    value={"forhad"}
+                    value={qrData}
                     size={60}
                     level="L"
                     fgColor="#000000"

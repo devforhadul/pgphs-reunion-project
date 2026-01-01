@@ -18,7 +18,6 @@ import { GiKnifeFork } from "react-icons/gi";
 import { IoCameraReverseOutline } from "react-icons/io5";
 import v from "../../assets/video/pgmphs_video_720p.mp4";
 
-
 export const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-slate-800 font-sans selection:bg-amber-200">
@@ -116,6 +115,8 @@ export const HomePage = () => {
           </div>
         </div>
       </section>
+
+ 
 
       <section className="relative w-full overflow-hidden pt-24 pb-32 lg:pt-40 lg:pb-48">
         {/* 🎬 Video Background Layer (New Addition) */}

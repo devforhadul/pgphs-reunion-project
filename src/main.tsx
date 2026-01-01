@@ -20,6 +20,7 @@ import AuthProvider from "./provider/AuthProvider";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -72,6 +73,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+ 
 ]);
 
 createRoot(document.getElementById("root")!).render(

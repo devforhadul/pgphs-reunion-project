@@ -11,8 +11,6 @@ export default function LoginPage() {
   const { signinWithGoogle, signInWithEmailPass, forgotPassword } =
     useContext(AuthContext)!;
 
-
-
   const loginFun = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -42,6 +40,61 @@ export default function LoginPage() {
     await forgotPassword(isEmail);
   };
 
+  /*   async function checkAvailableModels() {
+    const API_KEY = "AIzaSyDNKRe5ALLGqwwkjsIbNL86RSrF3HPKJKQ"; // আপনার কী দিন
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      console.log("Available Models:", data); // কনসোল চেক করুন
+    } catch (error) {
+      console.error("Error checking models:", error);
+    }
+  }
+
+  checkAvailableModels() */
+
+  // const [prompt, setPrompt] = useState("");
+  // const [response, setResponse] = useState("");
+  // const [loading, setLoading] = useState(false);
+
+  // // ১. আপনার API Key এখানে দিন (অথবা environment variable থেকে নিন)
+  // // Vite হলে: import.meta.env.VITE_GEMINI_API_KEY
+  // // CRA হলে: process.env.REACT_APP_GEMINI_API_KEY
+  // const API_KEY = "AIzaSyDNKRe5ALLGqwwkjsIbNL86RSrF3HPKJKQ";
+
+  // const handleGenerate = async () => {
+  //   if (!prompt) return;
+
+  //   setLoading(true);
+  //   setResponse(""); // আগের রেসপন্স ক্লিয়ার করা হচ্ছে
+
+  //   try {
+  //     const genAI = new GoogleGenerativeAI(API_KEY);
+
+  //     // আপনার লেটেস্ট মডেলটি ব্যবহার করুন
+  //     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  //     // ১. generateContent এর বদলে generateContentStream ব্যবহার করা হয়েছে
+  //     const result = await model.generateContentStream(prompt);
+
+  //     let fullText = "";
+
+  //     // ২. লুপ চালিয়ে অল্প অল্প করে টেক্সট দেখানো হচ্ছে
+  //     for await (const chunk of result.stream) {
+  //       const chunkText = chunk.text();
+  //       fullText += chunkText;
+  //       setResponse(fullText); // প্রতিবার স্টেট আপডেট হচ্ছে, তাই এনিমেশন মনে হবে
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     setResponse("Something went wrong. Check console.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   return (
     <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -68,6 +121,36 @@ export default function LoginPage() {
         </h2>
       </div>
 
+      {/* <div className="p-5 max-w-xl mx-auto border rounded shadow-lg mt-10">
+        <h2 className="text-2xl font-bold mb-4">
+          Chat with Gemini (Streaming)
+        </h2>
+
+        <textarea
+          className="w-full p-2 border rounded mb-3"
+          rows="4"
+          placeholder="Ask anything..."
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+        />
+
+        <button
+          onClick={handleGenerate}
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          {loading ? "Generating..." : "Ask Gemini"}
+        </button>
+
+        {response && (
+          <div className="mt-5 p-3 bg-gray-100 rounded">
+            <h3 className="font-bold">Response:</h3>
+
+            <p className="whitespace-pre-wrap">{response}</p>
+          </div>
+        )}
+      </div>
+ */}
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={loginFun} className="space-y-6">
           {/* <div>

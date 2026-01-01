@@ -10,6 +10,7 @@ import { Spinner } from "../../components/ui/spinner";
 import type { RegistrationData } from "../../types";
 import bkash_logo from "../../assets/bkash_logo.png";
 import bkash_qr_9607 from "../../assets/qr_code/bkash_qr_9607.jpg";
+import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 
 export const RegistrationPage = () => {
   const navigate = useNavigate();
@@ -312,10 +313,7 @@ export const RegistrationPage = () => {
     };
 
     saveRegistration();
-
- 
   };
-
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -422,6 +420,8 @@ export const RegistrationPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto py-8">
+      {photoUploading  && <LoadingOverlay text="Photo uploading..." />}
+      {isLoading  && <LoadingOverlay text="Processing..." />}
       <div className="text-center">
         <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
           PGMPHS 1st Reunion 2026 Registration
@@ -688,7 +688,9 @@ export const RegistrationPage = () => {
             </div>
             {/* Instruction for image */}
             <div className="w-full  my-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 rounded-lg shadow-sm text-gray-700">
-              <h2 className="text-lg font-semibold mb-3 text-black dark:text-white">নির্দেশনা</h2>
+              <h2 className="text-lg font-semibold mb-3 text-black dark:text-white">
+                নির্দেশনা
+              </h2>
               <div className="flex flex-col space-y-2">
                 {instructions.map((text, idx) => (
                   <div key={idx} className="flex items-start space-x-2">

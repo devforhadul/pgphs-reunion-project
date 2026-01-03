@@ -1,7 +1,7 @@
+import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 import { AuthContext } from "@/provider/AuthProvider";
 import { useContext, type ReactNode } from "react";
 import { Navigate } from "react-router";
-
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -9,19 +9,24 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const auth = useContext(AuthContext);
+  const ADMIN_EMAILS = [
+    "forhadul75@gmail.com",
+    "fiforhad2003@gmail.com",
+    "shakilchowdhuryshihab84@gmail.com",
+  ];
 
-  if (!auth) return <p>Loading...</p>; // Context এখনও load হচ্ছে
+  if (!auth) return <LoadingOverlay />; // Context এখনও load হচ্ছে
 
   const { user, loading } = auth;
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <LoadingOverlay />;
 
   if (!user) {
     // যদি login না করা থাকে
     return <Navigate to="/login" replace />;
   }
 
-  if (user.email !== "forhadul75@gmail.com") {
+  if (!ADMIN_EMAILS.includes(user.email!)) {
     // যদি email match না করে
     return <Navigate to="/unauthorized" replace />;
   }

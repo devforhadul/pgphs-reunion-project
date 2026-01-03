@@ -1,17 +1,16 @@
 import { AuthContext } from "@/provider/AuthProvider";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import toast from "react-hot-toast";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export default function LoginPage() {
   // const [isPhone, setIsPhone] = useState<string>("");
-  const [isEmail, setIsEmail] = useState<string>("");
-  const [isPass, setIsPass] = useState<string>("");
-  // const navigate = useNavigate();
-  const { signinWithGoogle, signInWithEmailPass, forgotPassword } =
-    useContext(AuthContext)!;
+  /*   const [isEmail, setIsEmail] = useState<string>("");
+  const [isPass, setIsPass] = useState<string>(""); */
+  const navigate = useNavigate();
+  const { signinWithGoogle } = useContext(AuthContext)!;
 
-  const loginFun = async (e: React.FormEvent) => {
+  /*   const loginFun = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
@@ -25,35 +24,21 @@ export default function LoginPage() {
     // alert(`Email link sent to ${isEmail} Check your email for login link!`);
     // navigate(`/check-status?n=${isPhone}`);
   };
-
+ */
   const googleSignIn = async () => {
     try {
       await signinWithGoogle();
-      toast.success("Google login successfully");
+      navigate("/");
+      toast.success("Login successfully");
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleReset = async () => {
+  /*   const handleReset = async () => {
     if (!isEmail) return alert("Enter your email");
     await forgotPassword(isEmail);
-  };
-
-  /*   async function checkAvailableModels() {
-    const API_KEY = "AIzaSyDNKRe5ALLGqwwkjsIbNL86RSrF3HPKJKQ"; // আপনার কী দিন
-    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      console.log("Available Models:", data); // কনসোল চেক করুন
-    } catch (error) {
-      console.error("Error checking models:", error);
-    }
-  }
-
-  checkAvailableModels() */
+  }; */
 
   // const [prompt, setPrompt] = useState("");
   // const [response, setResponse] = useState("");
@@ -96,27 +81,17 @@ export default function LoginPage() {
   // };
 
   return (
-    <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="flex min-h-screen flex-col justify-center px-6  lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        {/* <img
-          alt="Your Company"
-          src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-          className="mx-auto h-10 w-auto dark:hidden"
-        />
-        <img
-          alt="Your Company"
-          src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-          className="mx-auto h-10 w-auto not-dark:hidden"
-        /> */}
-        <Link to="/" className="flex items-center gap-2 group">
+        {/* <Link to="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">
             P
           </div>
           <span className="text-2xl font-bold text-black dark:text-white tracking-tight font-serif">
             PGPHS <span className="text-amber-500">Reunion - 2026</span>
           </span>
-        </Link>
-        <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
+        </Link> */}
+        <h2 className="text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
           Log in to your account
         </h2>
       </div>
@@ -151,30 +126,9 @@ export default function LoginPage() {
         )}
       </div>
  */}
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={loginFun} className="space-y-6">
-          {/* <div>
-            <label
-              htmlFor="phone"
-              className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
-            >
-              Registrad Mobile Number
-            </label>
-            <div className="mt-2">
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                onChange={(e) => setIsPhone(e.target.value)}
-                required
-                autoComplete="phone"
-                placeholder="Enter phone number..."
-                className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
-              />
-            </div>
-          </div> */}
-
-          {/* Email */}
+      <div className=" sm:mx-auto sm:w-full sm:max-w-sm">
+        {/* <form onSubmit={loginFun} className="space-y-6">
+          
           <div>
             <label
               htmlFor="email"
@@ -236,10 +190,10 @@ export default function LoginPage() {
               Log in
             </button>
           </div>
-        </form>
+        </form> */}
 
         <div className="mt-5 text-center ">
-          <button
+          {/* <button
             type="button"
             onClick={() => googleSignIn()}
             className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 box-border border border-transparent font-medium leading-5 rounded-full text-sm px-4 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 cursor-pointer"
@@ -260,6 +214,51 @@ export default function LoginPage() {
               />
             </svg>
             Sign in with Google
+          </button> */}
+          <button
+            onClick={() => googleSignIn()}
+            className="
+        flex items-center justify-center
+        w-full max-w-sm /* Adjust width as needed */
+        px-6 py-3
+        bg-white
+        border border-gray-300
+        rounded-lg /* Rounded corners */
+        shadow-sm hover:shadow-md
+        hover:bg-gray-50
+        transition-all duration-200 ease-in-out
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer
+      "
+          >
+            <div className="mr-3">
+              {/* Paste the SVG here if not importing */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                width="24px"
+                height="24px"
+              >
+                <path
+                  fill="#FFC107"
+                  d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.223,0-9.654-3.343-11.303-8l-6.571,4.819C9.656,39.663,16.318,44,24,44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
+                />
+              </svg>
+            </div>
+            <span className="text-sm font-medium text-gray-700 font-inter">
+              Sign in with Google
+            </span>
           </button>
         </div>
 

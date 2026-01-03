@@ -18,8 +18,7 @@ import { HomePage } from "./pages/home/HomePage";
 import { RegistrationPage } from "./pages/registration/RegistrationPage";
 import AuthProvider from "./provider/AuthProvider";
 import ProtectedRoute from "./Routes/ProtectedRoute";
-
-
+import UserDashboard from "./pages/user-dashboard/UserDashboard";
 
 const router = createBrowserRouter([
   {
@@ -71,14 +70,17 @@ const router = createBrowserRouter([
         path: "/finishSignIn",
         element: <FinishSignIn />,
       },
+      {
+        path: "user-dash",
+        element: <UserDashboard />,
+      },
     ],
   },
- 
 ]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Toaster position="top-center" reverseOrder={false} />
+    <Toaster position="top-right" reverseOrder={false} />
     <FloatingWhatsApp
       phoneNumber="8801976-213292"
       accountName="Support"

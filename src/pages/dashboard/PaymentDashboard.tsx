@@ -69,28 +69,28 @@ export const PaymentDashboard = () => {
 
           {/* Summary states */}
           <div className="mt-4 md:mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <div className="grid grid-cols-1  gap-4">
+              {/* <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Wait For Payment
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {users.filter((r) => r.payment.status === "unPaid").length}
                 </p>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Completed Registration
-                </p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {users.filter((p) => p.payment.status === "paid").length}
-                </p>
-              </div>
+              </div> */}
+                {/* <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Completed Registration
+                  </p>
+                  <p className="text-2xl font-bold text-blue-600 dark:text-green-400">
+                    {users.filter((p) => p.payment.status === "paid").length}
+                  </p>
+                </div> */}
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Total Collected
                 </p>
-                <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                <p className="text-2xl font-bold text-green-600 dark:text-primary-400">
                   {users.reduce((sum, item) => {
                     if (item.payment?.status === "paid") {
                       return sum + (item.payment.amount || 0);

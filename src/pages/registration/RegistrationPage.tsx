@@ -209,7 +209,7 @@ export const RegistrationPage = () => {
       console.log(error);
     }
   };
-
+  // callbackURL: `http://localhost:5173/confirmation?user=${formData.phone}`,
   const validatePayment = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -553,8 +553,8 @@ export const RegistrationPage = () => {
                   <option value="">Select Year</option>
 
                   {Array.from(
-                    { length: 2025 - 1975 + 1 },
-                    (_, i) => 1975 + i
+                    { length: 2025 - 1945 + 1 },
+                    (_, i) => 1945 + i
                   ).map((year) => (
                     <option key={year} value={year}>
                       {year}
@@ -826,7 +826,7 @@ export const RegistrationPage = () => {
                                   : "text-gray-900 dark:text-white"
                               }`}
                             >
-                              bKash Gateway
+                              bKash
                             </span>
 
                             <div className="flex items-center gap-2 mt-1">
@@ -847,7 +847,7 @@ export const RegistrationPage = () => {
                         </button>
 
                         {/* Bkash manual payment */}
-                        <button
+                        {/* <button
                           type="button"
                           onClick={() => setPaymentMethod("bkash-manual")}
                           className={`relative px-5 py-3 border-2 transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
@@ -856,7 +856,7 @@ export const RegistrationPage = () => {
                               : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
                           }`}
                         >
-                          {/* Selected Checkmark Badge */}
+                          
                           {paymentMethod === "bkash-manual" && (
                             <div className="absolute top-7 left-3 bg-[#E2136E] text-white rounded-full p-0.5 shadow-lg">
                               <svg
@@ -900,7 +900,7 @@ export const RegistrationPage = () => {
                               </p>
                             </div>
                           </div>
-                        </button>
+                        </button> */}
                       </div>
                     </div>
 

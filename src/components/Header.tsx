@@ -3,6 +3,7 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { AuthContext } from "@/provider/AuthProvider";
 import { Confirm } from "notiflix";
+import pgmphs_logo from '@/assets/pgphs_logo_png.png'
 
 export default function Header() {
   const location = useLocation();
@@ -44,19 +45,20 @@ export default function Header() {
   return (
     <nav
       ref={menuRef}
-      className={`sticky w-full z-50 transition-all duration-300 border-b ${
+      className={`sticky top-0 w-full z-999 transition-all duration-300 border-b ${
         isScrolled
           ? "bg-slate-900/95 backdrop-blur-md border-slate-800 py-2 shadow-lg"
-          : "bg-slate-900 border-white/5 py-4"
+          : "bg-slate-900 backdrop-blur-xl border-white/5 py-4"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">
+            {/* <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">
               P
-            </div>
+            </div> */}
+            <img src={pgmphs_logo} className="h-14 w-14 bg-white rounded-full" alt="" />
             <span className="text-2xl font-bold text-white tracking-tight font-serif">
               PGMPHS <span className="text-amber-500">Reunion - 2026</span>
             </span>
@@ -91,7 +93,7 @@ export default function Header() {
                   to={link.path}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     isActive(link.path)
-                      ? "text-amber-400 bg-white/5 border border-white/10"
+                      ? "text-amber-400"
                       : "text-slate-300 hover:text-white hover:bg-white/5"
                   }`}
                 >
@@ -162,6 +164,7 @@ export default function Header() {
                       Profile{" "}
                     </Link>
                   </li>
+
                   <li>
                     <Link
                       to={"/admin"}
@@ -198,14 +201,14 @@ export default function Header() {
               </div>
             )}
 
-            {!user && (
+            {/* {!user && (
               <Link
                 to="/login"
                 className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
               >
                 Login
               </Link>
-            )}
+            )} */}
           </div>
 
           {/* Mobile Menu Button */}
@@ -336,14 +339,14 @@ export default function Header() {
               </div>
             )}
 
-            {!user && (
+            {/* {!user && (
               <Link
                 to="/login"
                 className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
               >
                 Login
               </Link>
-            )}
+            )} */}
           </div>
         </div>
       )}

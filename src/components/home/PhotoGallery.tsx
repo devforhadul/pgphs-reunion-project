@@ -1,19 +1,18 @@
+import image1 from "../../assets/photo_gallery/image1.png";
+import image2 from "@/assets/photo_gallery/pgmphs_logo.png";
+
 export default function PhotoGallery() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div className="grid gap-4">
         <div>
-          <img
-            className="h-auto max-w-full rounded-base"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image.jpg"
-            alt=""
-          />
+          <img className="h-auto max-w-full rounded-base" src={image1} alt="" />
         </div>
         <div>
           <img
             className="h-auto max-w-full rounded-base"
-            src="https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-1.jpg"
-            alt=""
+            src={image2}
+            alt="logo"
           />
         </div>
         <div>

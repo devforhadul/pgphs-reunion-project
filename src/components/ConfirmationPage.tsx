@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { LoadingOverlay } from "./shared/LoadingOverlay";
 
 // --- Custom SVG Icons ---
 const FaCheckCircle = (props: React.SVGProps<SVGSVGElement>) => (
@@ -23,6 +24,7 @@ export const ConfirmationPage = () => {
   const userId = searchParams.get("user");
   const [updatedUser, setUpdatedUser] = useState<RegistrationData | null>(null);
   const executionStarted = useRef(false);
+  const [loding, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!paymentID || executionStarted.current) return;
@@ -54,12 +56,13 @@ export const ConfirmationPage = () => {
         const bkashData = await res.json();
 
         Swal.fire({
-          title: "Payment Successfullly!",
+          title: "Payment Successful!",
           icon: "success",
           draggable: true,
         });
 
         console.log("Payment executed successfully:", bkashData.statusMessage);
+        setLoading(false);
 
         // Code for save in db
         const usersRef = collection(db, "pgphs_ru_reqisterd_users");
@@ -147,6 +150,8 @@ export const ConfirmationPage = () => {
           icon: "error",
         });
         executionStarted.current = false;
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -155,6 +160,7 @@ export const ConfirmationPage = () => {
 
   return (
     <div className="min-h-screen py-8 bg-slate-900 text-white font-sans overflow-hidden flex items-center justify-center relative">
+      {loding && <LoadingOverlay text="Payment Processing" />}
       {/* --- Ambient Background Effects --- */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse delay-700"></div>

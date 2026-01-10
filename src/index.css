@@ -2,9 +2,68 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* মেইন কার্ড কন্টেইনার ডিজাইন (সাদা বক্সটি) */
+#google_translate_element {
+  background-color: white !important;
+  padding: 12px !important;
+  /* border-radius: 8px !important;     */
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important; */
+  display: inline-block !important;
+  width: 100% !important; /* কন্টেইনারের পুরোটা নেবে */
+  /* border: 1px solid #e2e8f0 !important; */
+}
+
+/* ড্রপডাউন সিলেক্ট বক্স (Full Width) */
+#google_translate_element select {
+  width: 100% !important; /* বক্সটি পুরো চওড়া হবে */
+  background-color: white !important;
+  color: #333 !important;
+  border: 1px solid #999 !important; /* ইমেজের মতো বর্ডার */
+  border-radius: 4px !important;
+  padding: 6px 10px !important;
+  font-size: 16px !important;
+  outline: none !important;
+  cursor: pointer !important;
+  margin-bottom: 5px !important;
+  display: flex;
+}
+
+/* 'Powered by Google' টেক্সট ডিজাইন */
+.goog-te-gadget {
+  font-family: Arial, sans-serif !important;
+  font-size: 11px !important;
+  color: #666 !important;
+  white-space: nowrap !important;
+}
+
+/* গুগলের লোগো এবং বাড়তি লিঙ্ক সুন্দর করা */
+.goog-te-gadget img {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  margin: 0 2px !important;
+}
+
+/* ওপরের সেই সাদা বারটি (Toolbar) চিরতরে রিমুভ করা */
+iframe.goog-te-banner-frame {
+  display: none !important;
+}
+
+iframe#\:1\.container {
+    display: none;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
 body {
   margin: 0; /* Should be handled by Tailwind's reset, but adding for safety */
   padding: 0;
+}
+
+:root {
+  color-scheme: light; /* এটা ব্রাউজারকে ফোর্স করবে লাইট মোড ব্যবহার করতে */
 }
 
 @theme inline {
@@ -125,4 +184,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-

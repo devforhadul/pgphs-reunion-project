@@ -17,10 +17,14 @@ import { GoTrophy } from "react-icons/go";
 import { GiKnifeFork } from "react-icons/gi";
 import { IoCameraReverseOutline } from "react-icons/io5";
 import v from "../../assets/video/pgmphs_video_720p.mp4";
+import img1 from '@/assets/photo_gallery/image1.png'
+import img2_logo from '@/assets/photo_gallery/pgmphs_logo.png'
+
 
 export const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-slate-800 font-sans selection:bg-amber-200">
+
       {/* Hero Section - Asymmetrical & Premium */}
       <section className="hidden relative w-full  overflow-hidden bg-slate-900 pt-24 pb-32 lg:pt-40 lg:pb-48">
         {/* Background Patterns */}
@@ -397,7 +401,7 @@ export const HomePage = () => {
               <div>
                 <img
                   className="h-auto max-w-full rounded-md"
-                  src="https://i.ibb.co.com/zTp802jC/600334314-122107060137154307-4603891103089247975-n.jpg"
+                  src={img1}
                   alt=""
                 />
               </div>
@@ -421,7 +425,7 @@ export const HomePage = () => {
               <div>
                 <img
                   className="h-auto max-w-full rounded-xl"
-                  src="https://i.ibb.co.com/NnWvXRYj/image.png"
+                  src={img2_logo}
                   alt=""
                 />
               </div>

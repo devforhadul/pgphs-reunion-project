@@ -1,6 +1,7 @@
 import type { RegistrationData } from "@/types";
 import type { RefObject } from "react";
 import QRCode from "react-qr-code";
+// import logo from "@/assets/pgphs_logo_png.png"
 
 interface ReunionUSer {
   user: RegistrationData;

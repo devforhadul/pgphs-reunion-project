@@ -19,6 +19,7 @@ import { RegistrationPage } from "./pages/registration/RegistrationPage";
 import AuthProvider from "./provider/AuthProvider";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import UserDashboard from "./pages/user-dashboard/UserDashboard";
+import PhotoFrame from "./components/PhotoFrame";
 
 const router = createBrowserRouter([
   {
@@ -87,6 +88,7 @@ createRoot(document.getElementById("root")!).render(
       avatar={forhad_img}
       chatMessage="Hello! How can I help you?"
     />
+    <PhotoFrame/>
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>

@@ -48,3 +48,21 @@ export interface PaymentData {
   amount: number;
   paymentMethod: string;
 }
+
+export interface PaymentResponseType {
+  paymentID: string;
+  trxID: string;
+  transactionStatus: string;
+  amount: string;
+  currency: "BDT";
+  intent: "sale";
+  paymentExecuteTime: string; // ISO datetime string
+  merchantInvoiceNumber: string;
+  payerType: string;
+  payerReference: string;
+  customerMsisdn: string;
+  payerAccount: string;
+  maxRefundableAmount: string;
+  statusCode: string;
+  statusMessage: string;
+}

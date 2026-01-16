@@ -24,6 +24,9 @@ import { MdDeleteForever } from "react-icons/md";
 import Swal from "sweetalert2";
 import StatisticsPanel from "./StatisticsPanel";
 import SectionLoader from "./SectionLoader";
+import Papa from "papaparse";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 // --- Main Component: AdminPage ---
 export default function AdminPage() {
@@ -182,25 +185,6 @@ export default function AdminPage() {
               }
             });
 
-            // await runTransaction(db, async (transaction) => {
-            //   // 1️⃣ Read counter
-            //   const counterDoc = await transaction.get(counterRef);
-            //   const current = counterDoc.data()?.current ?? 0;
-            //   const newCounter = current + 1;
-
-            //   // 2️⃣ Generate serial
-            //   const serial = `PGMPHS-${newCounter.toString().padStart(4, "0")}`;
-
-            //   // 3️⃣ Update user document: status + serial
-            //   transaction.update(userRef, {
-            //     "payment.status": newStatus,
-            //     reg_id: serial, // merge serial
-            //   });
-
-            //   // 4️⃣ Update counter
-            //   transaction.update(counterRef, { current: newCounter });
-            // });
-
             toast.success(
               `Payment status updated to ${newStatus} with Serial generated!`
             );
@@ -330,8 +314,114 @@ export default function AdminPage() {
     // );
   };
 
+  const exportToCSV = (data: RegistrationData[]) => {
+    const sorted = [...data].sort((a, b) =>
+      (a.reg_id || "").localeCompare(b.reg_id || "", undefined, {
+        numeric: true,
+      })
+    );
+
+    const rows = sorted.map((item) => ({
+      "Registration ID": item.reg_id || "N/A",
+      "Full Name": item.fullName,
+      Phone: item.phone,
+      Email: item.email || "N/A",
+      "Graduation Year": item.graduationYear,
+      Occupation: item.occupation,
+      "T-Shirt Size": item.tShirtSize,
+      Photo: item.photo,
+      "Payment Status": item.payment.status,
+      "Transaction ID": item.payment.transactionId || "N/A",
+      Amount: item.payment.amount,
+      "Payment Number": item.payment.paymentNumber,
+      "Registered At": item.regAt || "N/A",
+    }));
+
+    // 1. Convert JSON to CSV string
+    const csv = Papa.unparse(rows);
+
+    // 2. Create a blob and trigger download
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `registration_user_data_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToPDF = (data: RegistrationData[]) => {
+    const doc = new jsPDF();
+
+    // Sorting logic (1 to last)
+    const sortedData = [...data].sort((a, b) =>
+      (a.reg_id || "").localeCompare(b.reg_id || "", undefined, {
+        numeric: true,
+      })
+    );
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    // --- MAIN HEADER SECTION START ---
+    // Main Title
+    doc.setFontSize(22);
+    doc.setTextColor(40, 40, 40); // Dark Gray color
+    doc.setFont("helvetica", "bold");
+    doc.text("PGMPHS REUNION 2026", doc.internal.pageSize.getWidth() / 2, 15, {
+      align: "center",
+    });
+
+    // Subtitle/Report Name
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      "Complete Registration Data",
+      doc.internal.pageSize.getWidth() / 2,
+      22,
+      { align: "center" }
+    );
+
+    // Date and Time (Right side)
+    doc.setFontSize(10);
+    doc.text(
+      `${new Date().toLocaleDateString()}`,
+      doc.internal.pageSize.getWidth() - 15,
+      22,
+      { align: "right" }
+    );
+    // --- MAIN HEADER SECTION END ---
+
+    const tableColumn = ["Reg ID", "Name", "Phone", "SSC Batch"];
+    const tableRows = sortedData.map((item) => [
+      item.reg_id || "N/A",
+      item.fullName,
+      item.phone,
+      item.graduationYear,
+    ]);
+
+    // EIKHANE CHANGE: doc.autoTable er poriborte 'autoTable(doc, ...)' use korun
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 35,
+      margin: { top: 30 },
+      didDrawPage: (dataArg) => {
+        doc.setFontSize(10);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `Page ${dataArg.pageNumber}`,
+          pageWidth / 2,
+          doc.internal.pageSize.getHeight() - 10,
+          { align: "center" }
+        );
+      },
+    });
+
+    doc.save(`reunion_registration_data_${Date.now()}.pdf`);
+  };
+
   return (
-    <Suspense fallback={<SectionLoader/>}>
+    <Suspense fallback={<SectionLoader />}>
       <div className="min-h-screen bg-[#FDFBF7] text-slate-800 font-sans pb-20">
         {/* Admin Header */}
         <div className="bg-slate-900 pt-28 pb-10 text-center shadow-lg">
@@ -413,6 +503,22 @@ export default function AdminPage() {
                     <option value="nagad-manual">Nagad</option>
                   </select>
                 </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mb-5">
+                <button
+                  onClick={() => exportToCSV(users)}
+                  className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-emerald-700 hover:shadow-lg active:scale-95 cursor-pointer"
+                >
+                  CSV Export
+                </button>
+
+                <button
+                  onClick={() => exportToPDF(users)}
+                  className="flex items-center gap-2 rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-rose-700 hover:shadow-lg active:scale-95 cursor-pointer"
+                >
+                  PDF Export
+                </button>
               </div>
 
               {/* Table data */}

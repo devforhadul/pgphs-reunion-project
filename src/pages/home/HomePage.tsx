@@ -45,7 +45,7 @@ export const HomePage = () => {
 
               <h1 className="text-5xl lg:text-7xl font-bold text-white leading-[1.1]">
                 Back to the <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 font-serif italic">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200  italic">
                   Golden Days
                 </span>
               </h1>
@@ -76,7 +76,7 @@ export const HomePage = () => {
             {/* Abstract Graphic / Visual */}
             <div className="relative hidden lg:block">
               <div className="relative z-10 bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500 group">
-                <div className="absolute -top-10 -right-10 text-9xl text-white/5 font-serif font-black select-none">
+                <div className="absolute -top-10 -right-10 text-9xl text-white/5  font-black select-none">
                   2026
                 </div>
                 <div className="flex justify-between items-start mb-8">
@@ -84,7 +84,7 @@ export const HomePage = () => {
                     <p className="text-amber-500 font-bold text-sm tracking-widest uppercase">
                       The Grand Reunion
                     </p>
-                    <h3 className="text-3xl text-white font-serif mt-2">
+                    <h3 className="text-3xl text-white mt-2">
                       Class of Legends
                     </h3>
                   </div>
@@ -160,7 +160,7 @@ export const HomePage = () => {
 
               <h1 className="text-5xl lg:text-7xl font-bold text-white leading-[1.1]">
                 Back to the <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 font-serif italic">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 italic">
                   Golden Days
                 </span>
               </h1>
@@ -192,7 +192,7 @@ export const HomePage = () => {
             <div className="relative hidden  z-10">
               {/* ... (Existing content here) ... */}
               <div className="relative z-10 bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-2xl border border-white/10 shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500 group">
-                <div className="absolute -top-10 -right-10 text-9xl text-white/5 font-serif font-black select-none">
+                <div className="absolute -top-10 -right-10 text-9xl text-white/5  font-black select-none">
                   2026
                 </div>
                 <div className="flex justify-between items-start mb-8">
@@ -200,7 +200,7 @@ export const HomePage = () => {
                     <p className="text-amber-500 font-bold text-sm tracking-widest uppercase">
                       The Grand Reunion
                     </p>
-                    <h3 className="text-3xl text-white font-serif mt-2">
+                    <h3 className="text-3xl text-white  mt-2">
                       Class of Legends
                     </h3>
                   </div>
@@ -269,7 +269,7 @@ export const HomePage = () => {
               <h2 className="text-amber-600 font-bold tracking-widest uppercase text-sm mb-3">
                 Our Story
               </h2>
-              <h3 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 font-serif">
+              <h3 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 ">
                 Decades passed, <br />
                 but the{" "}
                 <span className="underline decoration-amber-400 underline-offset-4 decoration-4">
@@ -345,7 +345,7 @@ export const HomePage = () => {
             <span className="text-amber-500 font-bold tracking-widest uppercase text-sm">
               Save The Date
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4 font-serif">
+            <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4 ">
               Event Schedule
             </h2>
             <div className="w-24 h-1 bg-amber-500 mx-auto rounded-full"></div>
@@ -392,7 +392,7 @@ export const HomePage = () => {
       <section className="py-20 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 font-serif">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 ">
               Photo Gallery
             </h2>
           </div>
@@ -533,7 +533,7 @@ export const HomePage = () => {
       <section className="py-24 bg-[#FDFBF7]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 font-serif">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 ">
               Get Your Pass
             </h2>
           </div>
@@ -615,7 +615,7 @@ export const HomePage = () => {
       <section className="py-24 bg-slate-900 text-center px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10"></div>
         <div className="relative z-10 max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 font-serif">
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 ">
             Ready to reconnect?
           </h2>
           <p className="text-slate-400 text-xl mb-10">

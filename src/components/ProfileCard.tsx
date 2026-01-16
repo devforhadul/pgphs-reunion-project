@@ -220,7 +220,7 @@ const DataField: React.FC<DataFieldProps> = ({ label, name, value, isEditing, on
     <div className="flex flex-col gap-1.5">
       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] ml-0.5">{label}</label>
       {isEditing ? (
-        isTextArea ? (
+      isTextArea ? (
           <textarea
             name={name}
             value={value}

@@ -162,7 +162,7 @@ export default function StatusCheck() {
         {/* --- Search Card (Input/Action) --- */}
         <Card>
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold font-serif dark:text-white text-black mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold  dark:text-white text-black mb-2">
               Registration <span className="text-amber-500">Status</span>
             </h1>
             <p className="text-slate-900 dark:text-white">
@@ -212,7 +212,7 @@ export default function StatusCheck() {
         {/* --- Search Card (Input/Action) --- */}
         {/* <div className="dark:bg-slate-800/60 backdrop-blur-md bg-[#FAFAFA] rounded-2xl border border-white/30 shadow-sm p-8 mb-10">
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold font-serif dark:text-white text-black mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold  dark:text-white text-black mb-2">
               Registration <span className="text-amber-500">Status</span>
             </h1>
             <p className="text-slate-900 dark:text-white">
@@ -376,7 +376,7 @@ export default function StatusCheck() {
                           CONFIRMED
                         </span>
                       </div>
-                      <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2 font-serif">
+                      <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2 ">
                         Official Entry Pass
                       </h3>
                       <p className="text-slate-500 mb-8">

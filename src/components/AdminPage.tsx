@@ -6,6 +6,7 @@ import {
   onSnapshot,
   runTransaction,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import {
   FaCheckCircle,
@@ -27,6 +28,7 @@ import SectionLoader from "./SectionLoader";
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { EditUserModal } from "./admin/EditUserModal";
 
 // --- Main Component: AdminPage ---
 export default function AdminPage() {
@@ -36,6 +38,7 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<RegistrationData | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -417,14 +420,42 @@ export default function AdminPage() {
     doc.save(`reunion_registration_data_${Date.now()}.pdf`);
   };
 
-  console.log(users);
+  const handleSaveEdit = async (updatedUser: RegistrationData) => {
+    // ১. আইডি চেক এবং টাইপ ন্যারোইং
+    if (!updatedUser || !updatedUser.id) {
+      toast.error("User ID not found!");
+      return;
+    }
+
+    try {
+      // ২. আইডিটি স্টোর করুন
+      const userId = updatedUser.id;
+
+      // ৩. ডাটা কপি করুন এবং অবজেক্ট থেকে 'id' সরাসরি ডিলিট করে দিন
+      // এতে কোনো নতুন ভেরিয়েবল তৈরি হবে না, তাই ESLint এরর আসবে না
+      const dataToUpdate = { ...updatedUser };
+      delete dataToUpdate.id;
+
+      // ৪. Firestore আপডেট
+      const userDocRef = doc(db, "pgphs_ru_reqisterd_users", userId);
+
+      await updateDoc(userDocRef, {
+        ...dataToUpdate,
+      });
+
+      toast.success("User data updated successfully! 🎉");
+    } catch (error) {
+      console.error("Update Error:", error);
+      toast.error("Failed to update user data.");
+    }
+  };
 
   return (
     <Suspense fallback={<SectionLoader />}>
-      <div className="min-h-screen bg-[#FDFBF7] text-slate-800 font-sans pb-20">
+      <div className="min-h-screen bg-[#FDFBF7] text-slate-800 pb-20">
         {/* Admin Header */}
         <div className="bg-slate-900 pt-28 pb-10 text-center shadow-lg">
-          <h1 className="text-4xl font-bold font-serif text-white">
+          <h1 className="text-4xl font-bold  text-white">
             <span className="text-amber-500">PGPHS</span> Admin Panel
           </h1>
           <p className="text-slate-400 mt-2">
@@ -455,7 +486,7 @@ export default function AdminPage() {
 
           {!loading && !error && (
             <div className="bg-white p-6 rounded-xl shadow-2xl border border-slate-100 overflow-x-auto">
-              <h3 className="text-2xl font-serif font-bold text-slate-800 mb-6 flex items-center gap-2">
+              <h3 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                 <FaClipboardList className="text-amber-500" /> Registered Users
                 Data
               </h3>
@@ -530,9 +561,8 @@ export default function AdminPage() {
                       "Name",
                       "SSC Batch",
                       "Mobile Number",
-                      "Reg Id",
-                      "Payment Number",
                       "Txn ID",
+                      "Payment Number",
                       "Status",
                       "Actions",
                     ].map((header, idx) => (
@@ -552,10 +582,14 @@ export default function AdminPage() {
                       className="hover:bg-amber-50/50 transition-colors"
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                        <img src={user.photo} alt="" />
+                        <img src={user.photo} alt="" className="h-20 w-20" />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                        {user.fullName}
+                        <span> {user.fullName}</span>
+                        <br />
+                        <span className="">
+                          {user.reg_id ? user.reg_id : "Wait for Payment"}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
                         {user.graduationYear}
@@ -563,15 +597,13 @@ export default function AdminPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                         {user.phone}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {user.reg_id ? user.reg_id : "Wait for Payment"}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700">
+                        {user.payment.transactionId || "N/A"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                         {user.payment.paymentNumber || "N/A"}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-700">
-                        {user.payment.transactionId || "N/A"}
-                      </td>
+
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -585,8 +617,28 @@ export default function AdminPage() {
                           {user.payment.status.toUpperCase()}
                         </span>
                       </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
+                          <button
+                            onClick={() => setEditingUser(user)}
+                            className="p-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all border border-indigo-100"
+                            title="Edit User"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
                           {user.payment.status == "verifying" && (
                             <button
                               onClick={() => handleUpdateStatus(user, "paid")}
@@ -636,6 +688,13 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+        {editingUser && (
+          <EditUserModal
+            user={editingUser}
+            onClose={() => setEditingUser(null)}
+            onSave={handleSaveEdit}
+          />
+        )}
       </div>
     </Suspense>
   );

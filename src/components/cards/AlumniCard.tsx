@@ -6,7 +6,7 @@ import QRCode from "react-qr-code";
 interface ReunionUSer {
   user: RegistrationData;
   cardRef: RefObject<HTMLDivElement | null>;
-  qrData: string
+  qrData: string;
 }
 
 const AlumniCard = ({ user, cardRef, qrData }: ReunionUSer) => {
@@ -79,26 +79,38 @@ const AlumniCard = ({ user, cardRef, qrData }: ReunionUSer) => {
           </div>
 
           {/* Personal Details */}
-          <div
-            className="w-full text-left space-y-1 border-l-4 border-[#E6CDE] pl-3"
-          >
-            <h2 className="text-2xl font-bold text-gray-900 font-display">
+          <div className="w-full text-left space-y-1 border-l-4 border-[#E6CDE] pl-3">
+            <h2 className="text-2xl font-bold text-gray-900 font-display uppercase">
               {user.fullName}
             </h2>
 
-            <div className="space-y-1 pt-1">
-              <p className="text-lg font-semibold text-gray-800">
-                Reg. No: {user.reg_id}
-              </p>
+            <div className="space-y-2 pt-1">
+              {/* Reg No Row */}
+              <div className="grid grid-cols-[85px_15px_1fr] items-start text-gray-800">
+                <span className="text-sm font-semibold uppercase tracking-wider">
+                  Reg. No
+                </span>
+                <span className="text-sm font-bold">:</span>
+                <span className="text-sm font-medium">{user.reg_id}</span>
+              </div>
 
-              <p className="text-base text-gray-700 font-medium leading-relaxed">
-                SSC Batch: {user.graduationYear}
-              </p>
-
+              {/* Batch Row */}
+              <div className="grid grid-cols-[85px_15px_1fr] items-start text-gray-700">
+                <span className="text-sm font-semibold uppercase tracking-wider">
+                  Batch
+                </span>
+                <span className="text-sm font-bold">:</span>
+                <span className="text-sm font-medium">
+                  {user.graduationYear}
+                </span>
+              </div>
               <div className="flex items-start">
                 <div className=" space-y-1 flex-2 self-start">
-                  <p className="text-sm font-semibold text-gray-600 tracking-wide uppercase">
-                    Address: {user.address}
+                  <p className="text-sm font-semibold text-gray-600 tracking-wide">
+                    <span className="text-sm font-semibold uppercase tracking-wider">
+                      Address:
+                    </span>{" "}
+                    {user.address}
                   </p>
                 </div>
                 <div
@@ -129,86 +141,6 @@ const AlumniCard = ({ user, cardRef, qrData }: ReunionUSer) => {
             >
               www.pgmphs-reunion.com
             </a>
-          </div>
-        </div>
-      </div>
-
-      <div className=" hidden flex justify-center items-center   p-4">
-        {/* Main Card Container */}
-        {/* Styling: max-w-xs (কমপ্যাক্ট), bg-white, rounded-xl, shadow-2xl */}
-        <div className="w-full max-w-xs bg-white rounded-xl shadow-2xl overflow-hidden">
-          {/* Header Section: Feni Polytechnic Alumni */}
-          {/* Styling: Dark Blue Header (bg-blue-800), text-white, flex for logo/text alignment */}
-          <div className="bg-blue-800 text-white flex items-center p-3">
-            {/* Logo Placeholder (চিত্রের লোগোর জন্য) */}
-            <div className="w-10 h-10 rounded-full flex items-center justify-center mr-3 border-2 border-blue-900">
-              {/* এখানে আপনি লোগো img ট্যাগ ব্যবহার করতে পারেন */}
-              <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">
-                P
-              </div>
-            </div>
-
-            <h1 className="text-lg font-semibold tracking-wide">
-              PGMPHS Reunion 2026
-            </h1>
-          </div>
-
-          {/* Card Body: Photo and Name */}
-          <div className="py-6 px-4">
-            {/* Photo Container */}
-            {/* Styling: w-32/h-40 (লম্বা ছবি), mx-auto, border/shadow */}
-            <div className="w-32 h-40 mx-auto my-4 border border-gray-300 shadow-md rounded-md overflow-hidden">
-              <img
-                src={user?.photo}
-                alt={user?.fullName}
-                className="w-full h-full object-cover"
-                crossOrigin="anonymous"
-              />
-            </div>
-
-            {/* Name */}
-            <p className="text-xl font-bold uppercase text-center text-blue-800 mb-5 tracking-wider">
-              {user?.fullName}
-            </p>
-          </div>
-
-          {/* Details Grid: REG NO, DEPT, SESSION */}
-          {/* Styling: bg-blue-50, Grid layout for Label/Value alignment */}
-          <div className="bg-blue-50 p-4 space-y-3">
-            {/* Registration Number */}
-            <div className="grid grid-cols-2">
-              <span className="font-bold text-gray-700">REG NO</span>
-              <span className="text-right text-gray-900 font-medium tracking-wider">
-                {user?.reg_id}
-              </span>
-            </div>
-
-            {/* Department */}
-            <div className="grid grid-cols-2">
-              <span className="font-bold text-gray-700">SSC Batch</span>
-              <span className="text-right text-gray-900 font-medium">
-                {user?.graduationYear}
-              </span>
-            </div>
-
-            {/* Session */}
-            <div className="grid grid-cols-2">
-              <span className="font-bold text-gray-700">Address</span>
-              <span className="text-right text-gray-900 font-medium">
-                {user?.address}
-              </span>
-            </div>
-          </div>
-
-          {/* Footer/Status Bar: Valid for Reunion */}
-          {/* Styling: Green Status (bg-green-100), text-green-700, rounded-b-xl */}
-          <div className="bg-green-100 text-green-700 font-semibold text-center py-3 rounded-b-xl">
-            <span className="flex items-center justify-center">
-              {/* Checkmark Icon (Tailwind Heroicons) */}
-              <span className="text-sm">
-                এন্ট্রি টিকিট সংগ্রহের জন্য এই কার্ডটি আবশ্যক
-              </span>
-            </span>
           </div>
         </div>
       </div>

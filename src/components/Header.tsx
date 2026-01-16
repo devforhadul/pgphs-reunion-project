@@ -55,11 +55,11 @@ export default function Header() {
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            {/* <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl font-serif">
+            {/* <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-slate-900 font-bold text-xl">
               P
             </div> */}
             <img src={pgmphs_logo} className="h-14 w-14 bg-white rounded-full" alt="" />
-            <span className="text-2xl font-bold text-white tracking-tight font-serif">
+            <span className="text-2xl font-bold text-white tracking-tight ">
               PGMPHS <span className="text-amber-500">Reunion - 2026</span>
             </span>
           </Link>

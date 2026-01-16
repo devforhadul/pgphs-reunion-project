@@ -15,11 +15,11 @@ export const Footer = () => {
           {/* Brand / About Section */}
           <div className="space-y-6">
             <Link to="/" className="inline-block">
-               <span className="text-2xl font-bold font-serif text-white">
+               <span className="text-2xl font-bold  text-white">
                  PGMPHS <span className="text-amber-500">Reunion - 2026</span>
                </span>
             </Link>
-            <p className="text-slate-400 leading-relaxed text-sm max-w-sm">
+            <p className="text-slate-400 text-sm max-w-sm">
               Reconnecting alumni from all batches. Join us for an unforgettable
               evening of memories, laughter, and celebration. Let's create history together.
             </p>
@@ -33,7 +33,7 @@ export const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-bold font-serif text-white mb-6 flex items-center gap-2">
+            <h3 className="text-lg font-bold  text-white mb-6 flex items-center gap-2">
                 <span className="w-8 h-[2px] bg-amber-500"></span> 
                 Quick Links
             </h3>
@@ -60,7 +60,7 @@ export const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-bold font-serif text-white mb-6 flex items-center gap-2">
+            <h3 className="text-lg font-bold  text-white mb-6 flex items-center gap-2">
                 <span className="w-8 h-[2px] bg-amber-500"></span>
                 Contact Us
             </h3>

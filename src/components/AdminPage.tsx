@@ -35,7 +35,6 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterMethod, setFilterMethod] = useState<string>("all");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -71,11 +70,9 @@ export default function AdminPage() {
 
       const matchesStatus =
         filterStatus === "all" || payment.payment.status === filterStatus;
-      const matchesMethod =
-        filterMethod === "all" || payment.payment.status === filterMethod;
-      return matchesSearch && matchesStatus && matchesMethod;
+      return matchesSearch && matchesStatus;
     });
-  }, [users, searchTerm, filterStatus, filterMethod]);
+  }, [users, searchTerm, filterStatus]);
 
   /* After status update realtime update */
   useEffect(() => {
@@ -420,6 +417,8 @@ export default function AdminPage() {
     doc.save(`reunion_registration_data_${Date.now()}.pdf`);
   };
 
+  console.log(users);
+
   return (
     <Suspense fallback={<SectionLoader />}>
       <div className="min-h-screen bg-[#FDFBF7] text-slate-800 font-sans pb-20">
@@ -475,9 +474,9 @@ export default function AdminPage() {
               {/* Filter data */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {/* <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Filter by Status
-                  </label>
+                  </label> */}
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
@@ -489,7 +488,23 @@ export default function AdminPage() {
                     <option value="unPaid">UNPAID</option>
                   </select>
                 </div>
-                <div>
+                {/* ----- */}
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => exportToCSV(users)}
+                    className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-1 text-sm font-medium text-white shadow-md transition hover:bg-emerald-700 hover:shadow-lg active:scale-95 cursor-pointer"
+                  >
+                    CSV Export
+                  </button>
+
+                  <button
+                    onClick={() => exportToPDF(users)}
+                    className="flex items-center gap-2 rounded-lg bg-rose-600 px-5 py-1 text-sm font-medium text-white shadow-md transition hover:bg-rose-700 hover:shadow-lg active:scale-95 cursor-pointer"
+                  >
+                    PDF Export
+                  </button>
+                </div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Filter by Payment Method
                   </label>
@@ -502,23 +517,7 @@ export default function AdminPage() {
                     <option value="bkash-manual">bKash</option>
                     <option value="nagad-manual">Nagad</option>
                   </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mb-5">
-                <button
-                  onClick={() => exportToCSV(users)}
-                  className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-emerald-700 hover:shadow-lg active:scale-95 cursor-pointer"
-                >
-                  CSV Export
-                </button>
-
-                <button
-                  onClick={() => exportToPDF(users)}
-                  className="flex items-center gap-2 rounded-lg bg-rose-600 px-5 py-2.5 text-sm font-medium text-white shadow-md transition hover:bg-rose-700 hover:shadow-lg active:scale-95 cursor-pointer"
-                >
-                  PDF Export
-                </button>
+                </div> */}
               </div>
 
               {/* Table data */}

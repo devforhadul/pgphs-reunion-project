@@ -35,15 +35,19 @@ export const PaymentDashboard = () => {
     return () => unsubscribe();
   }, []);
 
-  const filteredPayments = useMemo(() => {
-    return users.filter((payment) => {
-      const matchesSearch =
-        payment.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.phone.toLowerCase().includes(searchTerm.toLowerCase());
+const filteredPayments = useMemo(() => {
+  return users.filter((payment) => {
+    const searchLower = searchTerm.toLowerCase();
+    
+    const matchesSearch =
+      payment.fullName.toLowerCase().includes(searchLower) ||
+      payment.phone.toLowerCase().includes(searchLower) ||
+      // Graduation Year check (toString use kora hoyeche jate error na hoy)
+      payment.graduationYear?.toString().includes(searchLower);
 
-      return matchesSearch;
-    });
-  }, [users, searchTerm]);
+    return matchesSearch;
+  });
+}, [users, searchTerm]);
 
   // const totalAmount = useMemo(() => {
   //   return filteredPayments.reduce((sum, payment) => sum + payment.amount, 0);
@@ -63,7 +67,7 @@ export const PaymentDashboard = () => {
               Dashboard
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              View all payment transactions and statistics
+              View all Confirmed Registration and statistics
             </p>
           </div>
 
@@ -78,7 +82,7 @@ export const PaymentDashboard = () => {
                   {users.filter((r) => r.payment.status === "unPaid").length}
                 </p>
               </div> */}
-                {/* <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+              {/* <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Completed Registration
                   </p>
@@ -86,7 +90,7 @@ export const PaymentDashboard = () => {
                     {users.filter((p) => p.payment.status === "paid").length}
                   </p>
                 </div> */}
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <div className="hidden bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Total Collected
                 </p>
@@ -109,7 +113,7 @@ export const PaymentDashboard = () => {
           <div>
             <input
               type="text"
-              placeholder="Search by name or Phone number.."
+              placeholder="Search by name or number or batch no..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
@@ -130,23 +134,24 @@ export const PaymentDashboard = () => {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider ">
                     Registration ID ®
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Name
                   </th>
-                  {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Amount
-                  </th> */}
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Batch
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Mobile Number
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+
+                  <th className="hidden px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     Date
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Status
                   </th>
                 </tr>
               </thead>
@@ -162,34 +167,29 @@ export const PaymentDashboard = () => {
                         {payment.reg_id ? payment.reg_id : "Unpaid"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {payment.fullName}
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900">
+                        {payment.fullName
+                          ?.toLowerCase()
+                          .split(" ")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
                       </div>
                     </td>
-                    {/* <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {payment.payment.amount} Tk
+                        {payment.graduationYear}
                       </div>
-                    </td> */}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-lg text-gray-500 dark:text-gray-400 capitalize">
                         {maskPhoneNumber(payment?.phone)}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {payment.payment.status === "paid" && (
-                        <span className="bg-green-100 py-1.5 px-3 rounded-2xl text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                          Confirmed Registration
-                        </span>
-                      )}
-                      {payment.payment.status === "verifying" && (
-                        <span className="bg-green-100 py-1.5 px-3 rounded-2xl text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                          Verifying Payment
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="hidden px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         {/* {payment.payment.paidAt
                           ? formatISOToDateTime(payment.payment.paidAt)
@@ -200,6 +200,18 @@ export const PaymentDashboard = () => {
                             new Date().toISOString()
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {payment.payment.status === "paid" && (
+                        <span className="bg-green-100 py-1.5 px-3 rounded-2xl text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          Confirmed Registration
+                        </span>
+                      )}
+                      {payment.payment.status === "verifying" && (
+                        <span className="bg-green-100 py-1.5 px-3 rounded-2xl text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          Verifying Payment
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}

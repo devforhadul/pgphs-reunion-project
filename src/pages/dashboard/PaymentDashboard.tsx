@@ -219,7 +219,7 @@ export const PaymentDashboard = () => {
                   </td>
                   <td className="px-6 py-4">
                     <Link
-                      to={`https://aura-card.creativeshop.store/frame/3?photo=${item.photo}&n=${item.fullName}&b=${item.graduationYear}`}
+                      to={`https://photoframe.creativeshop.store/frame/3`}
                     >
                       <button className="text-blue-600 hover:text-blue-800 text-xs font-bold cursor-pointer">
                         Photocard{"  "}

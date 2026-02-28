@@ -20,7 +20,7 @@ export default function PhotoFrame() {
 
       {/* Floating Button */}
       <a
-        href="https://aura-card.creativeshop.store"
+        href="https://photoframe.creativeshop.store/"
         target="_blank"
         rel="noopener noreferrer"
         className="w-14 h-14

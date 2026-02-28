@@ -20,7 +20,7 @@ import AuthProvider from "./provider/AuthProvider";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import UserDashboard from "./pages/user-dashboard/UserDashboard";
 import PhotoFrame from "./components/PhotoFrame";
-import NotificationHandler from "./service/NotificationHandler";
+// import { Maintainance } from "./Maintainance";
 
 const router = createBrowserRouter([
   {
@@ -84,13 +84,12 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Toaster position="top-right" reverseOrder={false} />
     <FloatingWhatsApp
-      phoneNumber="8801976-213292"
+      phoneNumber="8801984839526"
       accountName="Support"
       avatar={forhad_img}
       chatMessage="Hello! How can I help you?"
     />
     <PhotoFrame />
-    <NotificationHandler />
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>

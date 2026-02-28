@@ -133,7 +133,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      console.log("Current:", currentUser);
+      // console.log("Current:", currentUser);
 
       if (currentUser) {
         const token = await currentUser.getIdToken();

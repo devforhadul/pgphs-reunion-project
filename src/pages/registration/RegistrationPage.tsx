@@ -45,6 +45,7 @@ export const RegistrationPage = () => {
   // =============
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<string>("bkash-auto");
+  // bkash-manual | bkash-auto
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");
 
@@ -140,7 +141,7 @@ export const RegistrationPage = () => {
       try {
         const q = query(
           collection(db, "pgphs_ru_reqisterd_users"),
-          where("phone", "==", formData.phone)
+          where("phone", "==", formData.phone),
         );
         const snapshot = await getDocs(q);
 
@@ -173,7 +174,7 @@ export const RegistrationPage = () => {
     }
     if (isRegisterd) {
       return alert(
-        "This number already Registrad. Check status using your number."
+        "This number already Registrad. Check status using your number.",
       );
     }
     localStorage.setItem("reunionUser", JSON.stringify(formData));
@@ -194,7 +195,7 @@ export const RegistrationPage = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(userPayInfo),
-        }
+        },
       );
 
       const data = await initBkash.json();
@@ -248,7 +249,7 @@ export const RegistrationPage = () => {
     }
     if (isRegisterd) {
       return alert(
-        "This number already Registrad. Check status using your number."
+        "This number already Registrad. Check status using your number.",
       );
     }
     localStorage.setItem("reunionUser", JSON.stringify(formData));
@@ -276,7 +277,7 @@ export const RegistrationPage = () => {
 
       if (!snapshot.empty) {
         return setIsRegisterdMess(
-          "Registration has been done using this number."
+          "Registration has been done using this number.",
         );
       }
 
@@ -296,7 +297,7 @@ export const RegistrationPage = () => {
         });
 
         if (docRef.id) {
-          navigate(`/confirmation`);
+          navigate(`/dashboard`);
           Swal.fire({
             title: "Payment Send. Wait for verify.",
             icon: "success",
@@ -318,7 +319,7 @@ export const RegistrationPage = () => {
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -388,7 +389,7 @@ export const RegistrationPage = () => {
           setPhotoUploading(true);
           const res = await fetch(
             `https://api.imgbb.com/1/upload?key=${API_KEY}`,
-            { method: "POST", body: formData }
+            { method: "POST", body: formData },
           );
           const data = await res.json();
           const photoUrl = data.data.url ?? data.data.display_url;
@@ -554,7 +555,7 @@ export const RegistrationPage = () => {
 
                   {Array.from(
                     { length: 2025 - 1945 + 1 },
-                    (_, i) => 1945 + i
+                    (_, i) => 1945 + i,
                   ).map((year) => (
                     <option key={year} value={year}>
                       {year}
@@ -758,10 +759,10 @@ export const RegistrationPage = () => {
           {/* Right side summary */}
           <div>
             <div className="backdrop-blur-md mx-3 bg-blue-50 dark:bg-gray-800 rounded-lg p-6 sticky top-4">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              <h2 className=" text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Payment Summary
               </h2>
-              <div className="space-y-4">
+              <div className=" space-y-4">
                 <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-gray-600 font-medium dark:text-gray-400">
@@ -794,7 +795,7 @@ export const RegistrationPage = () => {
                         <button
                           type="button"
                           onClick={() => setPaymentMethod("bkash-auto")}
-                          className={`relative px-5 py-3 border-2  transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
+                          className={` relative px-5 py-3 border-2  transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
                             paymentMethod === "bkash-auto"
                               ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 "
                               : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
@@ -850,13 +851,12 @@ export const RegistrationPage = () => {
                         {/* <button
                           type="button"
                           onClick={() => setPaymentMethod("bkash-manual")}
-                          className={`relative px-5 py-3 border-2 transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
+                          className={` relative px-5 py-3 border-2 transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
                             paymentMethod === "bkash-manual"
                               ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10"
                               : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
                           }`}
                         >
-                          
                           {paymentMethod === "bkash-manual" && (
                             <div className="absolute top-7 left-3 bg-[#E2136E] text-white rounded-full p-0.5 shadow-lg">
                               <svg
@@ -1144,6 +1144,12 @@ export const RegistrationPage = () => {
                   </div>
                 </div>
               </div>
+              {/*  */}
+              {/* <div className="closed-message">
+                <h2>দুঃখিত, রেজিষ্ট্রেশন বর্তমানে বন্ধ আছে।</h2>
+                <p>পরবর্তী আপডেটের জন্য অপেক্ষা করুন।</p>
+              </div> */}
+              {/* = */}
             </div>
           </div>
         </div>

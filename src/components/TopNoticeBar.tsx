@@ -23,8 +23,7 @@ const TopNoticeBar = () => {
             gradient={false} // দুই পাশে ফেইড ইফেক্ট বন্ধ করা
           >
             <span className="mx-4 text-base font-medium">
-              📢 পরশুরাম সরকারি পাইলট উচ্চ বিদ্যালয় পুনর্মিলনী ২০২৬ নিবন্ধন
-              শুরু! নিবন্ধনের শেষ তারিখ ২০ জানুয়ারি ২০২৬
+              📢 Parashuram Government Pilot High School Reunion 2026 | Registration is ongoing.
             </span>
             <span className="mx-4 text-sm text-yellow-300">
               {/* ⚠️ জরুরি নোটিশ: সার্ভার মেইনটেইনেন্সের কারণে সাময়িকভাবে ছবি আপলোড
@@ -32,7 +31,7 @@ const TopNoticeBar = () => {
               করুন। ধন্যবাদ। */}
               ⚡ Bkash Payment Gateway is now active.
             </span>
-            <span className="mx-4 text-sm">Call 01612929275 for support.</span>
+            {/* <span className="mx-4 text-sm">Call 01612929275 for support.</span> */}
           </Marquee>
         </div>
 

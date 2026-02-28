@@ -31,7 +31,7 @@ export function DashboardSidebar() {
   ]
 
   return (
-    <div className="w-64 bg-white border border-[#e5e7eb] rounded-lg p-3 flex flex-col h-fit">
+    <div className="w-64 hidden bg-white border border-[#e5e7eb] rounded-lg p-3 flex flex-col h-fit">
       <h2 className="text-[#3b82f6] text-3xl font-medium px-4 pt-2 pb-4 text-center">Dashboard</h2>
       <div className="flex flex-col gap-1">
         {items.map((item) => (

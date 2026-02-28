@@ -92,7 +92,7 @@ export default function LoginPage() {
           </span>
         </Link> */}
         <h2 className="text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">
-          Log in to your account
+          Log in with your Registrad email
         </h2>
       </div>
 

@@ -26,7 +26,7 @@ export const ConfirmationPage = () => {
   const executionStarted = useRef(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [paymentInfo, setPaymentInfo] = useState<PaymentResponseType | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const ConfirmationPage = () => {
       executionStarted.current = true;
 
       const reunionUser = JSON.parse(
-        localStorage.getItem("reunionUser") || "{}"
+        localStorage.getItem("reunionUser") || "{}",
       );
 
       if (!reunionUser?.fullName || !reunionUser?.phone) {
@@ -60,7 +60,7 @@ export const ConfirmationPage = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ paymentID }),
-          }
+          },
         );
         const bkashData = await res.json();
         if (bkashData.statusCode !== "0000") {
@@ -141,7 +141,7 @@ export const ConfirmationPage = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ phone: savedData.phone, message: smsBody }),
-          }
+          },
         );
 
         const smsData = await smsRes.json();
@@ -171,7 +171,10 @@ export const ConfirmationPage = () => {
   return (
     <>
       <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
-        {loading && <LoadingOverlay text="Payment Processing..." />}
+        {loading && paymentID && (
+          <LoadingOverlay text="Payment Processing..." />
+        )}
+        {/* {loading && paymentID && <LoadingOverlay text="Payment Processing..." />} */}
         <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
           <div className="p-8 sm:p-10 flex flex-col items-center text-center">
             {/* Status Icon */}
@@ -180,8 +183,8 @@ export const ConfirmationPage = () => {
                 isSuccess
                   ? "bg-green-100 text-green-600"
                   : isFailure
-                  ? "bg-red-100 text-red-600"
-                  : "bg-amber-100 text-amber-600"
+                    ? "bg-red-100 text-red-600"
+                    : "bg-amber-100 text-amber-600"
               }`}
             >
               {isSuccess && (
@@ -235,8 +238,8 @@ export const ConfirmationPage = () => {
               {isSuccess
                 ? "Payment Successful"
                 : isFailure
-                ? "Payment Failed"
-                : "Payment Cancelled"}
+                  ? "Payment Failed"
+                  : "Payment Cancelled"}
             </h1>
 
             <div className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
@@ -334,15 +337,15 @@ export const ConfirmationPage = () => {
                 isSuccess
                   ? "bg-green-600 hover:bg-green-700 shadow-green-200/50"
                   : isFailure
-                  ? "bg-red-600 hover:bg-red-700 shadow-red-200/50"
-                  : "bg-amber-600 hover:bg-amber-700 shadow-amber-200/50"
+                    ? "bg-red-600 hover:bg-red-700 shadow-red-200/50"
+                    : "bg-amber-600 hover:bg-amber-700 shadow-amber-200/50"
               }`}
             >
               {isSuccess
                 ? "Get Virtual Pass"
                 : isFailure
-                ? "Retry Payment"
-                : "Start Again"}
+                  ? "Retry Payment"
+                  : "Start Again"}
             </button>
 
             {/* {isSuccess && (

@@ -121,7 +121,7 @@ export default function Header() {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-width="2"
+                    strokeWidth="2"
                     d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                   />
                 </svg>
@@ -137,9 +137,9 @@ export default function Header() {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="m19 9-7 7-7-7"
                   />
                 </svg>
@@ -201,14 +201,14 @@ export default function Header() {
               </div>
             )}
 
-            {/* {!user && (
+            {!user && (
               <Link
                 to="/login"
                 className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
               >
                 Login
               </Link>
-            )} */}
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -260,7 +260,7 @@ export default function Header() {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-width="2"
+                    strokeWidth="2"
                     d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                   />
                 </svg>
@@ -276,9 +276,9 @@ export default function Header() {
                 >
                   <path
                     stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="m19 9-7 7-7-7"
                   />
                 </svg>
@@ -339,14 +339,14 @@ export default function Header() {
               </div>
             )}
 
-            {/* {!user && (
+            {!user && (
               <Link
                 to="/login"
                 className="ml-4 px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold rounded-full transition-all shadow-[0_0_10px_rgba(245,158,11,0.2)] hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]"
               >
                 Login
               </Link>
-            )} */}
+            )}
           </div>
         </div>
       )}

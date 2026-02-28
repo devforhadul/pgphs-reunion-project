@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
+import pkg from "./package.json";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -43,6 +44,9 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    "_APP_VERSION_": JSON.stringify(pkg.version),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

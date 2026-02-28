@@ -17,7 +17,7 @@ const NotificationHandler = () => {
           });
 
           if (token) {
-            console.log("FCM Token Generated:", token);
+            // console.log("FCM Token Generated:", token);
 
             // টোকেনের প্রথম ১০ অক্ষরের ওপর ভিত্তি করে একটি ইউনিক আইডি তৈরি করা
             const docId = `token_${token.substring(0, 15)}`;

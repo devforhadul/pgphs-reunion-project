@@ -2,7 +2,7 @@ import { db } from '@/firebase/firebase.init';
 import { RegistrationData } from '@/types';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
-import  { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Html5QrcodeScanner } from "html5-qrcode";
 
 
@@ -12,150 +12,154 @@ type StatusType = "idle" | "loading" | "success" | "error";
 
 export default function Verify() {
 
-  const [user, setUser] = useState<RegistrationData | null>(null);
-  const [status, setStatus] = useState<StatusType>("idle");
+    const [user, setUser] = useState<RegistrationData | null>(null);
+    const [status, setStatus] = useState<StatusType>("idle");
 
-  const handleScan = async (text: string): Promise<void> => {
-    if (!text) return;
+    const handleScan = async (text: string): Promise<void> => {
+        if (!text) return;
 
-    try {
-      setStatus("loading");
+        try {
+            setStatus("loading");
 
-      // Example:
-      // https://yourdomain.com/verify/uid
-      const uid = text.split("/").pop();
-      console.log("hi", uid);
+            // Example:
+            // https://yourdomain.com/verify/uid
+            const uid = text.split("/").pop();
 
-      if (!uid) {
-        setStatus("error");
-        return;
-      }
+            if (!uid) {
+                setStatus("error");
+                return;
+            }
 
-      const q = query(
-        collection(db, "pgphs_ru_reqisterd_users"),
-        where("reg_id", "==", uid)
-      );
+            const q = query(
+                collection(db, "pgphs_ru_reqisterd_users"),
+                where("reg_id", "==", uid)
+            );
 
-      const querySnapshot = await getDocs(q);
+            const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((docSnap) => {
-        console.log("Found user:", docSnap.id, docSnap.data());
-        setStatus("success");
-        setUser(docSnap.data() as RegistrationData)
-      });
+            querySnapshot.forEach((docSnap) => {
+                console.log("Found user:", docSnap.id, docSnap.data());
+                setStatus("success");
+                setUser(docSnap.data() as RegistrationData)
+            });
 
-      if (querySnapshot.empty) {
-        setUser(null);
-        setStatus("error");
-      }
+            if (querySnapshot.empty) {
+                setUser(null);
+                setStatus("error");
+            }
 
 
-      /*       const ref = doc(db, "pgphs_ru_reqisterd_users", uid);
-            const snap = await getDoc(ref);
-      
-            if (snap.exists()) {
-      
-              setUser(snap.data() as RegistrationData);
-      
-              setStatus("success");
-            } else {
-              setUser(null);
-              setStatus("error");
-            } */
-
-    } catch (error) {
-      console.error(error);
-      setStatus("error");
-    }
-  };
-
-  useEffect(() => {
-    const scanner = new Html5QrcodeScanner(
-      "reader",
-      {
-        fps: 10,
-        qrbox: {
-          width: 250,
-          height: 250,
-        },
-        aspectRatio: 1,
-      },
-      false
-    );
-
-    scanner.render(
-      async (decodedText) => {
-        await handleScan(decodedText);
-
-        // Stop scanner after successful scan
-        scanner.clear().catch(() => { });
-
-      },
-      () => { }
-    );
-
-    return () => {
-      scanner.clear().catch(() => { });
+        } catch (error) {
+            console.error(error);
+            setStatus("error");
+        }
     };
-  }, []);
+
+    useEffect(() => {
+        let scanner: Html5QrcodeScanner | null = null;
+
+        if (status === 'idle') {
+            // ছোট একটি টাইমআউট দিন যাতে রিঅ্যাক্ট আগে ডিভটি রেন্ডার করার সুযোগ পায়
+            const timer = setTimeout(() => {
+                scanner = new Html5QrcodeScanner(
+                    "reader",
+                    {
+                        fps: 10,
+                        qrbox: { width: 200, height: 250 },
+                        aspectRatio: 1.333334,
+                    },
+                    false
+                );
+
+                scanner.render(
+                    async (decodedText) => {
+                        // স্ক্যান সফল হলে স্ট্যাটাস চেঞ্জ করবেন handleScan এর ভেতর বা এখানে
+                        await handleScan(decodedText);
+                        scanner!.clear().catch(() => { });
+                    },
+                    () => { }
+                );
+            }, 100); // ১০০ মিলি-সেকেন্ড দেরি করুন
+
+            return () => {
+                clearTimeout(timer);
+                if (scanner) {
+                    scanner.clear().catch(() => { });
+                }
+            };
+        }
+    }, [status]); // status অবশ্যই এখানে থাকতে হবে
 
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
 
-      {/* Title */}
-      <h1 className="text-2xl font-semibold mb-4">
-        QR Verification
-      </h1>
+    return (
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
 
-      {/* Scanner */}
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-4">
-        <div id="reader" />
-      </div>
+            {/* Title */}
+            <h1 className="text-2xl font-semibold mb-4">
+                QR Verification
+            </h1>
 
-      {/* Result */}
-      <div className="w-full max-w-md mt-6">
+            {/* Scanner */}
 
-        {/* Loading */}
-        {status === "loading" && (
-          <div className="bg-white p-6 rounded-2xl shadow text-center">
-            <p className="text-gray-500">Checking...</p>
-          </div>
-        )}
+            {
+                status === 'idle' ? (
+                    <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-4">
+                        <div id="reader" />
+                    </div>
+                ) : (<button
+                    onClick={() => setStatus('idle')}
+                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded cursor-pointer"
+                >
+                    Scan Again
+                </button>)
+            }
 
-        {/* Success */}
-        {status === "success" && user && (
-          <div className="bg-green-100 border border-green-300 p-6 rounded-2xl shadow text-center">
 
-            <img
-              src={user.photo}
-              alt={user.fullName}
-              className="w-20 h-20 rounded-full mx-auto mb-3 object-cover border"
-            />
 
-            <h2 className="text-lg font-semibold">
-              {user.fullName}
-            </h2>
+            {/* Result */}
+            <div className="w-full max-w-md mt-6">
 
-            <p className="text-sm text-gray-600">
-              ID: {user.reg_id}
-            </p>
+                {/* Loading */}
+                {status === "loading" && (
+                    <div className="bg-white p-6 rounded-2xl shadow text-center">
+                        <p className="text-gray-500">Checking...</p>
+                    </div>
+                )}
 
-            <div className="mt-3 text-2xl text-green-700 font-medium">
-              ✔ Verified User
+                {/* Success */}
+                {status === "success" && user && (
+                    <div className="bg-green-100 border border-green-300 p-6 rounded-2xl shadow text-center">
+
+                        <img
+                            src={user.photo}
+                            alt={user.fullName}
+                            className="w-20 h-20 rounded-full mx-auto mb-3 object-cover border"
+                        />
+
+                        <h2 className="text-lg font-semibold">
+                            {user.fullName}
+                        </h2>
+
+                        <p className="text-sm text-gray-600">
+                            ID: {user.reg_id}
+                        </p>
+
+                        <div className="mt-3 text-2xl text-green-700 font-medium">
+                            ✔ Verified User
+                        </div>
+                    </div>
+                )}
+
+                {/* Error */}
+                {status === "error" && (
+                    <div className="bg-red-100 border border-red-300 p-6 rounded-2xl shadow text-center">
+                        <p className="text-red-600 font-medium">
+                            ❌ Invalid QR Code
+                        </p>
+                    </div>
+                )}
             </div>
-          </div>
-        )}
-
-        {/* Error */}
-        {status === "error" && (
-          <div className="bg-red-100 border border-red-300 p-6 rounded-2xl shadow text-center">
-            <p className="text-red-600 font-medium">
-              ❌ Invalid QR Code
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
+        </div >
+    )
 }

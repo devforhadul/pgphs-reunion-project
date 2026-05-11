@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { AuthContext } from "@/provider/AuthProvider";
 import { Confirm } from "notiflix";
-import pgmphs_logo from '@/assets/pgphs_logo_png.png'
+import pgmphs_logo from '/reunion_logo_trns.png'
 
 export default function Header() {
   const location = useLocation();

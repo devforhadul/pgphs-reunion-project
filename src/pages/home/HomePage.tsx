@@ -19,6 +19,7 @@ import { IoCameraReverseOutline } from "react-icons/io5";
 import v from "../../assets/video/pgmphs_video_720p.mp4";
 import img1 from '@/assets/photo_gallery/image1.png'
 import img2_logo from '@/assets/photo_gallery/pgmphs_logo.png'
+import reunion_logo from '/reunion_logo_trns.png'
 
 
 export const HomePage = () => {
@@ -97,7 +98,7 @@ export const HomePage = () => {
                     </div>
                     <div>
                       <p className="text-xs text-slate-400 uppercase">Date</p>
-                      <p className="font-semibold">March 22, 2026</p>
+                      <p className="font-semibold">29 may, 2026</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-slate-300">
@@ -120,7 +121,7 @@ export const HomePage = () => {
         </div>
       </section>
 
- 
+
 
       <section className="relative w-full overflow-hidden pt-24 pb-32 lg:pt-40 lg:pb-48">
         {/* 🎬 Video Background Layer (New Addition) */}
@@ -176,7 +177,7 @@ export const HomePage = () => {
                   to="/registration"
                   className="group relative px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2"
                 >
-                  Confirm Registration
+                  Registration Closed!
                   <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
                 {/* <Link
@@ -355,8 +356,8 @@ export const HomePage = () => {
             {/* Date Card */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-colors">
               <FaCalendarAlt className="text-5xl text-amber-400 mb-6 opacity-80" />
-              <h3 className="text-2xl font-bold mb-2">March 22, 2026</h3>
-              <p className="text-slate-400">Sunday</p>
+              <h3 className="text-2xl font-bold mb-2">29 may, 2026</h3>
+              <p className="text-slate-400">Fridyay</p>
               <div className="mt-6 inline-block px-3 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-bold uppercase tracking-wider">
                 Confirmed
               </div>
@@ -449,7 +450,7 @@ export const HomePage = () => {
               <div>
                 <img
                   className="h-auto max-w-full rounded-xl"
-                  src="https://i.ibb.co.com/RMdGHny/597613291-1183983953687813-8326230877977922681-n.jpg"
+                  src={reunion_logo}
                   alt=""
                 />
               </div>

@@ -23,13 +23,13 @@ const TopNoticeBar = () => {
             gradient={false} // দুই পাশে ফেইড ইফেক্ট বন্ধ করা
           >
             <span className="mx-4 text-base font-medium">
-              📢 Parashuram Government Pilot High School Reunion 2026 | Registration is ongoing.
+              📢 Parashuram Government Pilot High School Reunion 2026 | <span className="text-red-400">Registration Closed!!</span>.
             </span>
             <span className="mx-4 text-sm text-yellow-300">
               {/* ⚠️ জরুরি নোটিশ: সার্ভার মেইনটেইনেন্সের কারণে সাময়িকভাবে ছবি আপলোড
               বন্ধ আছে। রেজিস্ট্রেশনে সমস্যা হলে অনুগ্রহ করে কিছুক্ষণ পর চেষ্টা
               করুন। ধন্যবাদ। */}
-              ⚡ Bkash Payment Gateway is now active.
+              {/* ⚡ Bkash Payment Gateway is now active. */}
             </span>
             {/* <span className="mx-4 text-sm">Call 01612929275 for support.</span> */}
           </Marquee>

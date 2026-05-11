@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { FloatingWhatsApp } from "react-floating-whatsapp";
 import { Toaster } from "react-hot-toast";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import forhad_img from "../src/assets/forhad_Photo.jpg";
+import pgphs_logo from "../src/assets/pgphs_logo_png.png";
 import AdminPage from "./components/AdminPage";
 import FinishSignIn from "./components/auth/FinishSignIn";
 import { CartPage } from "./components/CartPage";
@@ -20,7 +20,8 @@ import AuthProvider from "./provider/AuthProvider";
 import ProtectedRoute from "./Routes/ProtectedRoute";
 import UserDashboard from "./pages/user-dashboard/UserDashboard";
 import PhotoFrame from "./components/PhotoFrame";
-// import { Maintainance } from "./Maintainance";
+import Verify from "./pages/verify/Verify";
+
 
 const router = createBrowserRouter([
   {
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
         path: "user-dash",
         element: <UserDashboard />,
       },
+      {
+        path: "verify",
+        element: <Verify/>
+      }
     ],
   },
 ]);
@@ -84,9 +89,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Toaster position="top-right" reverseOrder={false} />
     <FloatingWhatsApp
-      phoneNumber="8801984839526"
+      phoneNumber="8801976213292"
       accountName="Support"
-      avatar={forhad_img}
+      avatar={pgphs_logo}
       chatMessage="Hello! How can I help you?"
     />
     <PhotoFrame />

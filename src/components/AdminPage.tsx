@@ -29,6 +29,7 @@ import Papa from "papaparse";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { EditUserModal } from "./admin/EditUserModal";
+import { Search } from "lucide-react";
 
 // --- Main Component: AdminPage ---
 export default function AdminPage() {
@@ -36,7 +37,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  // const [filterStatus, setFilterStatus] = useState<string>("all");
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<RegistrationData | null>(null);
 
@@ -69,13 +70,15 @@ export default function AdminPage() {
     return users.filter((payment) => {
       const matchesSearch =
         payment.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.phone.toLowerCase().includes(searchTerm.toLowerCase());
+        payment.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.graduationYear.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus =
-        filterStatus === "all" || payment.payment.status === filterStatus;
-      return matchesSearch && matchesStatus;
+      // const matchesStatus =
+      //   filterStatus === "all" || payment.payment.status === filterStatus;
+
+      return matchesSearch;
     });
-  }, [users, searchTerm, filterStatus]);
+  }, [users, searchTerm]);
 
   /* After status update realtime update */
   useEffect(() => {
@@ -241,77 +244,7 @@ export default function AdminPage() {
       );
     }
 
-    // Confirm.show(
-    //   "Status Update Confirmation",
-    //   `Are you sure update to ${newStatus}`,
-    //   "Yes",
-    //   "No",
-    //   async () => {
-    //     try {
-    //       if (!user.id) {
-    //         return "User not found!!";
-    //       }
-    //       const docRef = doc(db, "pgphs_ru_reqisterd_users", user.id);
 
-    //       await updateDoc(docRef, {
-    //         "payment.status": newStatus,
-    //       });
-    //       toast.success(`Payment status successfully updated to ${newStatus}`);
-
-    //       //const counterRef = doc(db, "counters", "registrationCounter");
-    //       // const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
-
-    //       // For gat counter number
-
-    //       const sendSmsData = {
-    //         phone: user?.phone || "",
-    //         message: `Congratulations ${
-    //           user?.fullName || "Guest"
-    //         }\nYour registration for the PGPHS Reunion 2026 has been successfully completed. Keep your virtual registration card to collect your entry pass.`,
-    //       };
-
-    //       if (newStatus === "paid") {
-    //         try {
-    //           const res = await fetch(
-    //             "https://modern-hotel-booking-server-nine.vercel.app/send-sms",
-    //             {
-    //               method: "POST",
-    //               headers: { "Content-Type": "application/json" },
-    //               body: JSON.stringify(sendSmsData),
-    //             }
-    //           );
-
-    //           const data = await res.json();
-
-    //           if (data.status === "success") {
-    //             toast.success(`Confirmation sms sent to ${user.fullName}`);
-    //           }
-
-    //           //               {
-    //           //     "status": "success",
-    //           //     "data": {
-    //           //         "response_code": 1032,
-    //           //         "success_message": "",
-    //           //         "error_message": "Your ip 100.27.223.141 not Whitelisted. Please whitelist ip from Phonebook"
-    //           //     }
-    //           // }
-    //           console.log("SMS response:", data);
-    //         } catch (err) {
-    //           console.error(err);
-    //           alert("SMS sending failed");
-    //         }
-    //       }
-    //     } catch (error) {
-    //       console.error("Error:", error);
-    //     } finally {
-    //       setLoadingId(null);
-    //     }
-    //   },
-    //   () => {
-    //     // if click no
-    //   },
-    //   {}
-    // );
   };
 
   const exportToCSV = (data: RegistrationData[]) => {
@@ -326,6 +259,7 @@ export default function AdminPage() {
       "Full Name": item.fullName,
       Phone: item.phone,
       Email: item.email || "N/A",
+      address: item.address,
       "Graduation Year": item.graduationYear,
       Occupation: item.occupation,
       "T-Shirt Size": item.tShirtSize,
@@ -490,36 +424,23 @@ export default function AdminPage() {
                 <FaClipboardList className="text-amber-500" /> Registered Users
                 Data
               </h3>
-              {/* Search */}
-              <div className="mb-6 space-y-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3 items-center">
+                {/* Search */}
+                <div className="mb-6 space-y-4 relative">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={18} 
+                  />
                   <input
                     type="text"
-                    placeholder="Search by name or mobile number"
-                    value={searchTerm}
+                    placeholder="Search by name or number or batch no..."
+                    className="pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 w-full"
+                   value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
+
                 </div>
-              </div>
-              {/* Filter data */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                <div>
-                  {/* <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Filter by Status
-                  </label> */}
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="paid">PAID</option>
-                    <option value="verifying">Verifying</option>
-                    <option value="unPaid">UNPAID</option>
-                  </select>
-                </div>
-                {/* ----- */}
+                {/* export data */}
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={() => exportToCSV(users)}
@@ -535,21 +456,8 @@ export default function AdminPage() {
                     PDF Export
                   </button>
                 </div>
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Filter by Payment Method
-                  </label>
-                  <select
-                    value={filterMethod}
-                    onChange={(e) => setFilterMethod(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="all">All Methods</option>
-                    <option value="bkash-manual">bKash</option>
-                    <option value="nagad-manual">Nagad</option>
-                  </select>
-                </div> */}
               </div>
+
 
               {/* Table data */}
 
@@ -606,13 +514,12 @@ export default function AdminPage() {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            user.payment.status === "paid"
-                              ? "bg-green-100 text-green-800"
-                              : user.payment.status === "unPaid"
+                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${user.payment.status === "paid"
+                            ? "bg-green-100 text-green-800"
+                            : user.payment.status === "unPaid"
                               ? "bg-red-100 text-red-800"
                               : "bg-yellow-100 text-yellow-800"
-                          }`}
+                            }`}
                         >
                           {user.payment.status.toUpperCase()}
                         </span>

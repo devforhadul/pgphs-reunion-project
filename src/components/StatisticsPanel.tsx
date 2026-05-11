@@ -3,8 +3,6 @@ import { useMemo, type ReactNode } from 'react';
 import {
   FaCheckCircle,
   FaMoneyBillWave,
-  FaSpinner,
-  FaTimesCircle,
   FaUsers,
 } from 'react-icons/fa';
 
@@ -56,20 +54,20 @@ export default function StatisticsPanel({ users }: UsersProps) {
       icon: <FaCheckCircle className="text-4xl text-green-500" />,
       color: 'bg-green-100 border-green-200',
     },
-    {
-      title: 'Total Unpaid Users',
-      value: stats.unpaidUsers,
-      icon: <FaTimesCircle className="text-4xl text-red-500" />,
-      color: 'bg-red-100 border-red-200',
-    },
-    {
+    // {
+    //   title: 'Total Unpaid Users',
+    //   value: stats.unpaidUsers,
+    //   icon: <FaTimesCircle className="text-4xl text-red-500" />,
+    //   color: 'bg-red-100 border-red-200',
+    // },
+/*     {
       title: 'Users Verifying',
       value: stats.verifyingUsers,
       icon: <FaSpinner className="text-4xl text-yellow-500" />,
       color: 'bg-yellow-100 border-yellow-200',
-    },
+    }, */
     {
-      title: 'Total Revenue (BDT)',
+      title: 'Total Collected',
       value: stats.totalRevenue.toLocaleString('en-BD'),
       icon: <FaMoneyBillWave className="text-4xl text-purple-500" />,
       color: 'bg-purple-100 border-purple-200',
@@ -77,7 +75,7 @@ export default function StatisticsPanel({ users }: UsersProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mt-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
       {statItems.map((item, index) => (
         <div
           key={index}

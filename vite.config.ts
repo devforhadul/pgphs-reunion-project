@@ -14,6 +14,7 @@ export default defineConfig({
       registerType: "autoUpdate",
       workbox: {
         cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 3000000
       },
       includeAssets: [
         "favicon.svg",

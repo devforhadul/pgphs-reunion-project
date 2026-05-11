@@ -12,6 +12,7 @@ import bkash_qr_9607 from "../../assets/qr_code/bkash_qr_9607.jpg";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
 import TopNoticeBar from "@/components/TopNoticeBar";
 
+
 export const RegistrationPage = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<
@@ -48,7 +49,7 @@ export const RegistrationPage = () => {
   // bkash-manual | bkash-auto
   const [bkashNumber, setBkashNumber] = useState<string>("");
   const [bkashTrxId, setBkashTrxId] = useState<string>("");
-
+  const isClosed = true;
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof RegistrationData, string>> = {};
 
@@ -86,55 +87,7 @@ export const RegistrationPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  /* const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
-    if (!validate() && !formData.phone) return;
-    setIsSubmitting(true);
-
-    const counterRef = doc(db, "counters", "registrationCounter");
-    const registrationsRef = collection(db, "pgphs_ru_reqisterd_users");
-
-    // --- Wrap transaction inside toast.promise ---
-    toast
-      .promise(
-        runTransaction(db, async (transaction) => {
-          const counterDoc = await transaction.get(counterRef);
-
-          if (!counterDoc.exists()) {
-            throw new Error("Counter document does not exist!");
-          }
-
-          const current = counterDoc.data()?.current ?? 0;
-          const newCounter = current + 1;
-
-          const serial = `PGPHS-${newCounter.toString().padStart(4, "0")}`;
-
-          transaction.set(doc(registrationsRef), {
-            ...formData,
-            reg_id: serial,
-            createdAt: getBDTime(),
-          });
-
-          transaction.update(counterRef, { current: newCounter });
-
-          return serial; // IMPORTANT: return serial
-        }),
-        {
-          loading: "Registering...",
-          success: "Registration successful!",
-          error: "Failed to register!",
-        }
-      )
-      .then((serial) => {
-        setTimeout(() => {
-          setIsSubmitting(false);
-          navigate(`/cart/${serial}`);
-        }, 1000);
-      });
-
-    setIsSubmitting(false);
-  }; */
 
   useEffect(() => {
     const checkNumber = async () => {
@@ -474,9 +427,8 @@ export const RegistrationPage = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg bg-white  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.fullName ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 border rounded-lg bg-white  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.fullName ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="Enter your full name"
                 />
                 {errors.fullName && (
@@ -497,9 +449,8 @@ export const RegistrationPage = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.email ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="john.doe@example.com"
                 />
                 {errors.email && (
@@ -521,9 +472,8 @@ export const RegistrationPage = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   maxLength={11}
-                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.phone ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.phone ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="01XXXXXXXXX"
                 />
                 {errors.phone && (
@@ -547,9 +497,8 @@ export const RegistrationPage = () => {
                   name="graduationYear"
                   value={formData.graduationYear}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.graduationYear ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.graduationYear ? "border-red-500" : "border-gray-300"
+                    }`}
                 >
                   <option value="">Select Year</option>
 
@@ -584,9 +533,8 @@ export const RegistrationPage = () => {
                   name="occupation"
                   value={formData.occupation}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.occupation ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.occupation ? "border-red-500" : "border-gray-300"
+                    }`}
                 >
                   <option value="">-- Select Occupation -- </option>
                   <option value="student">Student</option>
@@ -622,9 +570,8 @@ export const RegistrationPage = () => {
                   value={formData.address}
                   onChange={handleChange}
                   rows={1}
-                  className={`w-full px-4 py-3 bg-white border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.address ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-lg  dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.address ? "border-red-500" : "border-gray-300"
+                    }`}
                   placeholder="Enter your address"
                 />
                 {errors.address && (
@@ -645,9 +592,8 @@ export const RegistrationPage = () => {
                   name="tShirtSize"
                   value={formData.tShirtSize}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${
-                    errors.tShirtSize ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white ${errors.tShirtSize ? "border-red-500" : "border-gray-300"
+                    }`}
                 >
                   <option value="">-- Select --</option>
                   <option value="S">
@@ -786,7 +732,8 @@ export const RegistrationPage = () => {
                   </div>
                   {/* Payment */}
                   <div className="bg-gray-50 dark:bg-gray-900 p-5 mt-3 rounded-xl">
-                    <div className="space-y-6">
+                    <p className="text-xl font-bold text-red-500">Registration Closed!!!</p>
+                    <div className="space-y-6 hidden">
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Payment Method <span className="text-red-500">*</span>
                       </label>
@@ -795,11 +742,10 @@ export const RegistrationPage = () => {
                         <button
                           type="button"
                           onClick={() => setPaymentMethod("bkash-auto")}
-                          className={` relative px-5 py-3 border-2  transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${
-                            paymentMethod === "bkash-auto"
-                              ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 "
-                              : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
-                          }`}
+                          className={` relative px-5 py-3 border-2  transition-all duration-300 cursor-pointer w-full text-left focus:outline-none ${paymentMethod === "bkash-auto"
+                            ? "border-[#E2136E] bg-[#fdf2f7] dark:bg-[#E2136E]/10 "
+                            : "border-gray-200 dark:border-gray-700 hover:border-[#E2136E]/50 bg-white dark:bg-gray-800"
+                            }`}
                         >
                           {/* Selected Checkmark Badge */}
                           {paymentMethod === "bkash-auto" && (
@@ -821,22 +767,20 @@ export const RegistrationPage = () => {
 
                           <div className="flex flex-col ml-7">
                             <span
-                              className={`font-semibold text-lg ${
-                                paymentMethod === "bkash-auto"
-                                  ? "text-[#E2136E]"
-                                  : "text-gray-900 dark:text-white"
-                              }`}
+                              className={`font-semibold text-lg ${paymentMethod === "bkash-auto"
+                                ? "text-[#E2136E]"
+                                : "text-gray-900 dark:text-white"
+                                }`}
                             >
                               bKash
                             </span>
 
                             <div className="flex items-center gap-2 mt-1">
                               <span
-                                className={`text-xs font-medium px-2 py-0.5 rounded uppercase ${
-                                  paymentMethod === "bkash-auto"
-                                    ? "bg-[#E2136E] text-white"
-                                    : "bg-gray-100 dark:bg-gray-700 text-gray-500"
-                                }`}
+                                className={`text-xs font-medium px-2 py-0.5 rounded uppercase ${paymentMethod === "bkash-auto"
+                                  ? "bg-[#E2136E] text-white"
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-500"
+                                  }`}
                               >
                                 Instant
                               </span>
@@ -905,7 +849,7 @@ export const RegistrationPage = () => {
                     </div>
 
                     {paymentMethod === "bkash-auto" && (
-                      <div className="space-y-4 mt-4">
+                      <div className="space-y-4 mt-4 hidden">
                         {/* Main Card */}
                         <div className="border border-[#E2136E]/30 bg-pink-50/50 rounded-xl p-6 flex flex-col items-center text-center shadow-sm">
                           {/* bKash Logo */}
@@ -1152,6 +1096,30 @@ export const RegistrationPage = () => {
               {/* = */}
             </div>
           </div>
+          {/* --- Registration Closed Overlay Card --- */}
+          {isClosed && (
+            <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900/60 backdrop-blur-[2px]">
+              <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full mx-4 text-center border-t-8 border-red-600">
+
+                <h2 className="text-3xl font-bold text-red-600 mb-2">
+                  Registration Closed!!
+                </h2>
+
+                <p className="text-gray-600 text-base leading-relaxed mb-8">
+                  Sorry, the registration period has ended. We are no longer accepting new applications.
+                </p>
+
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="w-full bg-gray-800 hover:bg-black text-white font-semibold py-3 rounded-md transition-colors cursor-pointer"
+                >
+                  Go Back
+                </button>
+
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </>

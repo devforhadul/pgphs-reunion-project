@@ -1,11 +1,13 @@
 import { useState } from "react";
-import Marquee from "react-fast-marquee"; // ইমপোর্ট করো
+import Marquee from "react-fast-marquee";
 import { X } from "lucide-react";
 
 const TopNoticeBar = () => {
   const [isVisible, setIsVisible] = useState(true);
 
   if (!isVisible) return null;
+
+  console.log(Marquee);
 
   return (
     <div className="sticky top-0 z-50 bg-blue-900 text-white shadow-md">

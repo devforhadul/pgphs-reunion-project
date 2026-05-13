@@ -21,6 +21,7 @@ import ProtectedRoute from "./Routes/ProtectedRoute";
 import UserDashboard from "./pages/user-dashboard/UserDashboard";
 import PhotoFrame from "./components/PhotoFrame";
 import Verify from "./pages/verify/Verify";
+import VerifyByID from "./pages/verify/VerifyByID";
 
 
 const router = createBrowserRouter([
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
       {
         path: "verify",
         element: <Verify/>
+      },
+      {
+        path: "verify/:id",
+        element: <VerifyByID/>
       }
     ],
   },

@@ -10,7 +10,7 @@ import type { RegistrationData } from "../../types";
 import bkash_logo from "../../assets/bkash_logo.png";
 import bkash_qr_9607 from "../../assets/qr_code/bkash_qr_9607.jpg";
 import { LoadingOverlay } from "@/components/shared/LoadingOverlay";
-import TopNoticeBar from "@/components/TopNoticeBar";
+/* import TopNoticeBar from "@/components/TopNoticeBar"; */
 
 
 export const RegistrationPage = () => {
@@ -399,7 +399,7 @@ export const RegistrationPage = () => {
 
   return (
     <>
-      <TopNoticeBar />
+      {/* <TopNoticeBar /> */}
       <div className="max-w-7xl mx-auto py-8">
         {photoUploading && <LoadingOverlay text="Photo uploading..." />}
         {isLoading && <LoadingOverlay text="Processing..." />}

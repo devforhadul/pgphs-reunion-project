@@ -1,19 +1,20 @@
 import type { RegistrationData } from "@/types";
-import type { RefObject } from "react";
-import QRCode from "react-qr-code";
+import  { forwardRef } from "react";
+import { QRCode } from "react-qr-code";
 // import logo from "@/assets/pgphs_logo_png.png"
 
 interface ReunionUSer {
   user: RegistrationData;
-  cardRef: RefObject<HTMLDivElement | null>;
+  // cardRef: RefObject<HTMLDivElement | null>;
   qrData: string;
 }
 
-const AlumniCard = ({ user, cardRef, qrData }: ReunionUSer) => {
+const AlumniCard = forwardRef<HTMLDivElement, ReunionUSer>(({ user, qrData }, ref) => {
+  if (!user) return null;
   return (
     <>
       <div
-        ref={cardRef}
+        ref={ref}
         className="relative w-full max-w-[420px] bg-[#FFFDF5] rounded-md overflow-hidden  shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] isolate"
       >
         {/* Background Blobs/Gradients */}
@@ -146,6 +147,6 @@ const AlumniCard = ({ user, cardRef, qrData }: ReunionUSer) => {
       </div>
     </>
   );
-};
-
+});
+AlumniCard.displayName = "AlumniCard";
 export default AlumniCard;

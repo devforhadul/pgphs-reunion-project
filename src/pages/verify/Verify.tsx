@@ -7,7 +7,6 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 
 
 
-
 type StatusType = "idle" | "loading" | "success" | "error";
 
 export default function Verify() {
